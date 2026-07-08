@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepVerify</title>
+<style>
+:root {
+  --bg:#0a0a0a;--s0:#111;--s1:#181818;--s2:#202020;--s3:#2a2a2a;--s4:#333;
+  --bd:rgba(255,255,255,.06);--bdm:rgba(255,255,255,.11);
+  --acc:#E24B4A;--acc-dim:#8B1F1E;--acc-bg:rgba(226,75,74,.09);--acc-bg2:rgba(226,75,74,.16);
+  --grn:#3d9e6a;--grn-bg:rgba(61,158,106,.1);
+  --amb:#c87e20;--amb-bg:rgba(200,126,32,.1);
+  --blu:#3a7fc1;--blu-bg:rgba(58,127,193,.1);
+  --t0:#e8e8e8;--t1:#999;--t2:#555;
+  --r:8px;--rl:12px;--tr:.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t0);font-size:14px;line-height:1.5;height:100vh;overflow:hidden}
+.shell{display:grid;grid-template-columns:58px 1fr;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{background:var(--s0);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;overflow:hidden}
+.logo-icon{width:34px;height:34px;border-radius:9px;background:var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(226,75,74,.35);margin:13px 0 10px;flex-shrink:0}
+.nav-sep{width:24px;height:1px;background:var(--bd);margin:6px 0 4px}
+.ni{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:2px 0;position:relative;transition:background var(--tr),color var(--tr);color:var(--t2)}
+.ni:hover{background:var(--s2);color:var(--t1)}
+.ni.active{background:var(--acc-bg2);color:var(--acc)}
+.ni .nb{position:absolute;top:5px;right:5px;width:13px;height:13px;border-radius:50%;background:var(--acc);font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+.ni .nw{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--t2);opacity:.35}
+.sidebar-user{margin-top:auto;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;border-top:1px solid var(--bd);width:100%}
+.uav{width:30px;height:30px;border-radius:50%;background:var(--acc-dim);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(255,255,255,.8)}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;border-bottom:1px solid var(--bd);background:var(--s0);padding:0 1rem;flex-shrink:0}
+.ttab{padding:10px 11px;font-size:12px;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color var(--tr),border-color var(--tr);display:flex;align-items:center;gap:4px}
+.ttab:hover{color:var(--t1)}
+.ttab.active{color:var(--acc);border-bottom-color:var(--acc);font-weight:500}
+.tbadge{font-size:9px;background:var(--acc-bg2);color:var(--acc);padding:1px 5px;border-radius:10px;font-weight:700}
+.pages{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--s3) transparent}
+.page{display:none;padding:1.25rem;animation:fs .18s ease}
+.page.visible{display:block}
+@keyframes fs{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* SHARED */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.st{font-size:14px;font-weight:600;color:var(--t0)}
+.ss{font-size:12px;color:var(--t2)}
+.sl{font-size:12px;color:var(--t1);cursor:pointer;opacity:.7}
+.sl:hover{opacity:1}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem}
+.ct{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.8rem;display:flex;align-items:center;gap:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:opacity var(--tr),transform var(--tr),background var(--tr);font-family:inherit;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--acc);color:#fff;box-shadow:0 2px 10px rgba(226,75,74,.3)}
+.bp:hover{opacity:.85}
+.bg{background:transparent;color:var(--t1);border:1px solid var(--bdm)}
+.bg:hover{background:var(--s2);color:var(--t0)}
+.bf{width:100%}
+.pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px}
+.pg{background:var(--grn-bg);color:var(--grn)}
+.pa{background:var(--amb-bg);color:var(--amb)}
+.pr{background:var(--acc-bg2);color:var(--acc)}
+.ph{background:var(--s2);color:var(--t2);border:1px solid var(--bd)}
+.pb{background:var(--blu-bg);color:var(--blu)}
+.pbar{height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
+.pf{height:100%;border-radius:2px;transition:width .4s ease}
+.fr{background:var(--acc)}.fg{background:var(--grn)}.fa{background:var(--amb)}
+.div{height:1px;background:var(--bd);margin:.9rem 0}
+.ib{background:var(--s2);border-radius:var(--r);padding:9px 11px;font-size:11px;color:var(--t2);display:flex;align-items:flex-start;gap:6px}
+.blurred{filter:blur(4px);user-select:none}
+
+/* DASHBOARD */
+.hero{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;margin-bottom:1.1rem;display:flex;align-items:center;gap:1.1rem}
+.h-amt{font-size:26px;font-weight:700;color:var(--t0);letter-spacing:-.02em;line-height:1}
+.h-lbl{font-size:10px;color:var(--t2);margin-top:3px}
+.hsep{width:1px;background:var(--bd);align-self:stretch;flex-shrink:0}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.1rem}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:.9rem}
+.sv{font-size:20px;font-weight:700;color:var(--t0);letter-spacing:-.02em;margin-bottom:1px}
+.sl2{font-size:10px;color:var(--t2);margin-bottom:4px}
+.ss2{font-size:10px;color:var(--t2)}
+.sga{color:var(--grn)}.sac{color:var(--acc)}
+.su{font-size:13px;font-weight:400;color:var(--t2)}
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.today-done{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.4rem 1rem;gap:.55rem;text-align:center}
+.done-ring{width:54px;height:54px;border-radius:50%;background:var(--grn-bg);border:2px solid var(--grn);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(61,158,106,.2)}
+.done-label{font-size:13px;font-weight:600;color:var(--t0)}
+.done-sub{font-size:11px;color:var(--t2)}
+.exi{width:30px;height:30px;border-radius:7px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.exia{background:var(--acc-bg2)}
+.exn{font-size:12px;font-weight:500;color:var(--t0)}
+.exm{font-size:10px;color:var(--t2);margin-top:1px}
+
+/* PROGRAM */
+.lv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.lv-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:.9rem;cursor:pointer;transition:border-color .2s,background .2s,transform .15s,opacity .2s;min-height:90px;display:flex;flex-direction:column}
+.lv-card:hover{border-color:var(--bdm);transform:translateY(-1px)}
+.lv-card.lv-open{border-color:rgba(226,75,74,.4)!important;background:rgba(226,75,74,.03);cursor:default;transform:none!important}
+.lv-card.lv-dimmed{opacity:.3;pointer-events:none}
+.lv-lbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px}
+.lv-name{font-size:13px;font-weight:600;color:var(--t0);margin-bottom:2px}
+.lv-meta{font-size:10px;color:var(--t2);margin-bottom:8px;flex:1}
+.lv-panel{display:none;background:var(--s1);border:1px solid rgba(226,75,74,.22);border-radius:var(--rl);padding:1rem;margin-bottom:1rem;animation:fs .22s ease}
+.lv-panel.open{display:block}
+.pts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.pts-label{font-size:11px;color:var(--t2)}
+.pts-value{font-size:13px;font-weight:700;color:var(--t0)}
+.pts-track{height:8px;background:var(--s3);border-radius:4px;overflow:hidden;position:relative}
+.pts-fill{height:100%;border-radius:4px;background:var(--acc);transition:width .35s ease}
+.pts-goal-mark{position:absolute;top:-1px;bottom:-1px;width:2px;background:rgba(61,158,106,.8);border-radius:1px}
+.pts-full-badge{display:none;font-size:10px;font-weight:600;color:var(--grn);background:var(--grn-bg);border-radius:4px;padding:2px 8px;margin-left:8px}
+.pts-full-badge.show{display:inline-flex;align-items:center;gap:3px}
+.ex-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:.8rem}
+.ex-chip{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:8px 10px 7px;font-size:11px;color:var(--t1);cursor:pointer;transition:background .13s,border-color .13s,color .13s;user-select:none}
+.ex-chip:hover{background:var(--s3);color:var(--t0)}
+.ex-chip.has-pts{border-color:rgba(226,75,74,.3);color:var(--t0)}
+.ex-chip.maxed{border-color:rgba(226,75,74,.5);background:rgba(226,75,74,.06)}
+.ex-chip-top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.ex-chip-name{flex:1;line-height:1.3}
+.ex-chip-cnt{font-size:10px;font-weight:700;color:var(--acc);flex-shrink:0}
+.ex-lvl-tag{font-size:8px;font-weight:700;color:var(--t2);background:var(--s3);border-radius:3px;padding:1px 4px;flex-shrink:0}
+.ex-mini-bar{height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.ex-mini-fill{height:100%;background:var(--acc);border-radius:2px;transition:width .3s ease}
+.panel-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--bd);gap:10px;flex-wrap:wrap}
+.sel-count{font-size:11px;color:var(--t2)}
+.sel-count b{color:var(--t0)}
+
+/* VERIFY */
+.vc{background:var(--s1);border:1px solid rgba(226,75,74,.25);border-radius:var(--rl);padding:1rem;margin-bottom:1rem}
+.vh{display:flex;align-items:center;gap:7px;margin-bottom:1rem}
+.ld2{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 7px var(--acc);animation:pulse 1.4s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.vt{font-size:13px;font-weight:600;color:var(--t0)}
+.vtm{margin-left:auto;font-size:10px;color:var(--t2)}
+.dvd-wrap{border-radius:8px;margin-bottom:1rem;position:relative;overflow:hidden;border:1px solid var(--bd);background:#050505}
+#dvd-canvas{display:block;width:100%;height:140px}
+.rec-badge{position:absolute;top:7px;left:9px;display:flex;align-items:center;gap:4px;background:rgba(226,75,74,.88);border-radius:4px;padding:2px 7px}
+.rec-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:pulse 1s infinite}
+.rec-txt{font-size:9px;font-weight:700;color:#fff;letter-spacing:.09em}
+.ts-badge{position:absolute;top:7px;right:9px;background:rgba(0,0,0,.7);color:var(--t1);font-size:10px;padding:2px 6px;border-radius:4px}
+.vrr{display:flex;gap:8px;margin-bottom:1rem}
+.vrf{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.vav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.vnm{font-size:10px;color:var(--t2)}
+.vac{display:flex;gap:7px}
+.trgd{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:.9rem}
+
+/* RANKING */
+.pb2{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:.9rem 1rem;margin-bottom:.9rem;display:flex;align-items:center;gap:1rem}
+.pa2{font-size:26px;font-weight:700;color:var(--amb);letter-spacing:-.02em}
+.rr{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.rr:last-child{border-bottom:none}
+.rry{background:var(--s2);border-radius:7px;padding:8px 7px;margin:3px -7px;border-bottom:none!important}
+.rp{width:22px;font-size:12px;font-weight:700;color:var(--t2);text-align:center;flex-shrink:0}
+.rpt{color:var(--acc)}
+.rav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.rn{font-size:12px;font-weight:500;color:var(--t0);display:flex;align-items:center;gap:5px}
+.ru{font-size:10px;color:var(--t2)}
+.rw{margin-left:auto;font-size:12px;font-weight:600;color:var(--grn);white-space:nowrap}
+
+/* REWARDS */
+.rwg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.1rem}
+.rwc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem}
+.rwi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:.7rem}
+.rwa{font-size:22px;font-weight:700;color:var(--t0);letter-spacing:-.02em;line-height:1.1;margin-bottom:2px}
+.rwl{font-size:10px;color:var(--t2)}
+.hg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hi{background:var(--s2);border-radius:var(--r);padding:9px 11px}
+.htl{font-size:11px;font-weight:600;color:var(--t0);margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.hb{font-size:10px;color:var(--t2);line-height:1.5}
+
+/* TX */
+.bh{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t1);font-size:13px;font-weight:500;margin-bottom:1rem;transition:color var(--tr)}
+.bh:hover{color:var(--t0)}
+.fbar{display:flex;gap:6px;margin-bottom:.9rem}
+.fc{font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid var(--bdm);background:transparent;color:var(--t2);cursor:pointer;transition:all var(--tr);font-family:inherit}
+.fc.active{background:var(--acc-bg2);color:var(--acc);border-color:rgba(226,75,74,.3)}
+.txr{display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.txr:last-child{border-bottom:none}
+.txd{font-size:10px;color:var(--t2)}
+.txn{font-size:12px;color:var(--t0);font-weight:500}
+.txs{font-size:10px;color:var(--t2);margin-top:1px}
+.txa{font-size:12px;font-weight:600;white-space:nowrap}
+.tin{color:var(--grn)}.tout{color:var(--acc)}
+
+/* SETTINGS */
+.stbar{display:flex;border-bottom:1px solid var(--bd);margin-bottom:1.3rem}
+.stb{font-size:12px;color:var(--t2);padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;transition:color var(--tr),border-color var(--tr)}
+.stb:hover{color:var(--t1)}
+.stb.active{color:var(--acc);border-bottom-color:var(--acc);font-weight:500}
+.stp{display:none}.stp.visible{display:block;animation:fs .15s ease}
+.fb2{margin-bottom:.9rem}
+.fl{font-size:10px;color:var(--t2);margin-bottom:4px;font-weight:500;letter-spacing:.02em}
+.fh{font-size:10px;color:var(--t2);margin-top:3px}
+.fi{width:100%;padding:7px 10px;font-size:12px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t0);font-family:inherit;transition:border-color var(--tr)}
+.fi:focus{outline:none;border-color:var(--acc)}
+.fst{display:flex;align-items:center;padding:7px 10px;border-radius:var(--r);border:1px solid var(--bd);background:var(--s2);font-size:12px;color:var(--t1);gap:7px}
+.sb{margin-bottom:1.3rem}
+.sd{font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.09em;text-transform:uppercase;padding-bottom:.5rem;border-bottom:1px solid var(--bd);margin-bottom:.8rem}
+.tr2{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.tr2:last-child{border-bottom:none}
+.trx{flex:1}
+.trtl{font-size:12px;font-weight:500;color:var(--t0)}
+.trsb{font-size:10px;color:var(--t2);margin-top:2px}
+.tog{position:relative;width:36px;height:20px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tsl{position:absolute;inset:0;border-radius:20px;background:var(--s3);border:1px solid var(--bdm);cursor:pointer;transition:background .2s,border-color .2s}
+.tog input:checked+.tsl{background:var(--acc);border-color:var(--acc)}
+.tsl:before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.tog input:checked+.tsl:before{transform:translateX(16px)}
+.fbb{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:var(--r);border:1px solid var(--bd);background:var(--s1);cursor:pointer;margin-bottom:.6rem;width:100%;transition:border-color var(--tr),background var(--tr);font-family:inherit}
+.fbb:hover{border-color:var(--bdm);background:var(--s2)}
+.fbtl{font-size:12px;font-weight:500;color:var(--t0);text-align:left}
+.fbsb{font-size:10px;color:var(--t2);margin-top:2px;text-align:left}
+.change-pips{display:inline-flex;gap:3px;flex-shrink:0}
+.pip{width:5px;height:5px;border-radius:50%;background:var(--s3);transition:background .2s}
+.pip.used{background:var(--acc)}
+.at-retry-btn{width:26px;height:26px;border-radius:50%;background:var(--s3);border:1px solid var(--bdm);color:var(--t1);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s,transform .1s;flex-shrink:0;font-family:inherit}
+.at-retry-btn:hover{background:var(--acc-bg2);color:var(--acc);border-color:rgba(226,75,74,.3)}
+.at-retry-btn:active{transform:scale(.92)}
+.hold-delete-btn{position:relative;width:100%;height:46px;border-radius:var(--r);border:1.5px solid var(--acc-dim);background:rgba(226,75,74,.05);overflow:hidden;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;touch-action:none;transition:border-color .15s,transform .1s}
+.hold-delete-btn:active{transform:scale(.99)}
+@keyframes holdPulse{0%,100%{box-shadow:0 0 0 3px rgba(226,75,74,.12)}50%{box-shadow:0 0 0 6px rgba(226,75,74,.04)}}
+.hold-delete-btn.holding{border-color:var(--acc);animation:holdPulse 1s ease-in-out infinite}
+.hold-delete-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,var(--acc-dim),var(--acc))}
+.hold-delete-label{position:relative;z-index:1;font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:7px;transition:color .15s;pointer-events:none}
+.hold-delete-btn.holding .hold-delete-label{color:#fff}
+.feedback-textarea{width:100%;min-height:84px;padding:9px 11px;font-size:12px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t0);font-family:inherit;resize:vertical;transition:border-color var(--tr);line-height:1.5}
+.feedback-textarea:focus{outline:none;border-color:var(--acc)}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:200;padding:1.5rem}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--s1);border:1px solid var(--bdm);border-radius:var(--rl);padding:1.3rem;max-width:320px;width:100%;animation:modalIn .18s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.modal-title{font-size:14px;font-weight:700;color:var(--t0);text-align:center;margin-bottom:8px}
+.modal-body{font-size:11.5px;color:var(--t1);text-align:center;line-height:1.6;margin-bottom:1.1rem}
+.modal-actions{display:flex;gap:8px}
+.modal-actions .btn{flex:1;font-size:12px;padding:9px 10px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--bdm);color:var(--t0);font-size:12px;padding:10px 16px;border-radius:var(--r);box-shadow:0 8px 28px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:999;display:flex;align-items:center;gap:8px;max-width:88%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LOGIN OVERLAY */
+.login-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;align-items:center;justify-content:center;padding:1.5rem}
+.login-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);padding:2rem 1.6rem;max-width:340px;width:100%;text-align:center}
+.login-logo{width:52px;height:52px;border-radius:14px;background:var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(226,75,74,.4);margin:0 auto 1rem}
+.login-title{font-size:18px;font-weight:700;color:var(--t0);margin-bottom:4px}
+.login-sub{font-size:11px;color:var(--t2);margin-bottom:1.5rem}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t0);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s}
+.google-btn:hover{background:var(--s3)}
+.login-div{display:flex;align-items:center;gap:10px;margin:1.1rem 0;font-size:10px;color:var(--t2)}
+.login-div::before,.login-div::after{content:'';flex:1;height:1px;background:var(--bd)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sidebar">
+  <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.09 12.5H12L11 22L19.91 11.5H12L13 2z"/></svg></div>
+  <div class="nav-sep"></div>
+  <div class="ni active" id="ni-dashboard" onclick="nav('dashboard')" title="Dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  <div class="ni" id="ni-program" onclick="nav('program')" title="My program"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div>
+  <div class="ni" id="ni-verify" onclick="nav('verify')" title="Verify others"><div class="nb">3</div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+  <div class="nav-sep"></div>
+  <div class="ni" id="ni-ranking" onclick="nav('ranking')" title="Rankings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21V13M12 21V3M16 21V9"/></svg></div>
+  <div class="ni" style="cursor:default;opacity:.35" title="Community — bald"><div class="nw"></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+  <div class="nav-sep"></div>
+  <div class="ni" id="ni-rewards" onclick="nav('rewards')" title="Rewards"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+  <div class="ni" id="ni-settings" onclick="nav('settings')" title="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+  <div class="sidebar-user">
+    <div class="uav" id="side-av">MK</div>
+    <button onclick="signOut()" title="Abmelden" style="background:none;border:none;cursor:pointer;color:var(--t2);margin-top:8px;padding:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="ttab active" id="ttab-dashboard" onclick="nav('dashboard')">Dashboard</div>
+    <div class="ttab" id="ttab-program" onclick="nav('program')">Programm</div>
+    <div class="ttab" id="ttab-verify" onclick="nav('verify')">Verify <span class="tbadge">3</span></div>
+    <div class="ttab" id="ttab-ranking" onclick="nav('ranking')">Rankings</div>
+    <div class="ttab" id="ttab-rewards" onclick="nav('rewards')">Rewards</div>
+    <div class="ttab" id="ttab-settings" onclick="nav('settings')">Settings</div>
+  </div>
+  <div class="pages">
+
+<!-- DASHBOARD -->
+<div class="page visible" id="page-dashboard">
+  <div class="hero">
+    <div><div class="h-amt" id="dash-refund">8,00 €</div><div class="h-lbl">Monats-Erstattung möglich</div></div>
+    <div class="hsep"></div>
+    <div style="flex:1">
+      <div style="font-size:11px;color:var(--t1);margin-bottom:4px">Monatsfortschritt</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t2);margin-bottom:3px"><span>Einheiten</span><span id="dash-units">28 / 30</span></div>
+      <div class="pbar"><div class="pf fg" id="dash-units-bar" style="width:93%"></div></div>
+    </div>
+    <button class="btn bg" onclick="nav('rewards')" style="flex-shrink:0;font-size:11px">Details</button>
+  </div>
+  <div class="sgrid">
+    <div class="sc"><div class="sl2">Abgeschlossen</div><div class="sv" id="stat-units">28 <span class="su">/ 30</span></div><div class="ss2 sga" id="stat-units-sub">noch 2 Einheiten</div></div>
+    <div class="sc"><div class="sl2">Heute</div><div class="sv" id="stat-today">—</div><div class="ss2" id="stat-today-sub">Einheit offen</div></div>
+    <div class="sc"><div class="sl2">Ranking</div><div class="sv sac" id="stat-rank">#15</div><div class="ss2" id="stat-rank-sub">—</div></div>
+    <div class="sc"><div class="sl2">Guthaben</div><div class="sv" id="stat-balance">—</div><div class="ss2">verfügbar</div></div>
+  </div>
+  <div class="tc">
+    <div class="card">
+      <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Heutige Einheit</div>
+      <div id="today-inner"></div>
+    </div>
+    <div class="card">
+      <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Meist genutzte Übungen</div>
+      <div id="month-overview"></div>
+      <div class="div"></div>
+      <div class="ib"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span id="variety-hint">Durchmischen bringt Extra-Ranking-Punkte</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRAM -->
+<div class="page" id="page-program">
+  <div class="sh"><span class="st">Trainingsprogramm</span><span class="sl" onclick="closeLvPanel()">Übersicht</span></div>
+  <div class="lv-grid" id="lv-grid">
+    <div class="lv-card" id="lvc-0" onclick="openLevel(0)">
+      <div class="lv-lbl" style="color:var(--grn)">Anfänger</div><div class="lv-name">Foundation</div>
+      <div class="lv-meta">30 Übungen · max 15 Pkt</div><span class="pill pg">Freigeschaltet</span>
+    </div>
+    <div class="lv-card" id="lvc-1" onclick="openLevel(1)">
+      <div class="lv-lbl" style="color:var(--acc)">Mittelstufe</div><div class="lv-name">Build Strength</div>
+      <div class="lv-meta">30 Übungen · max 17 Pkt</div><span class="pill pr">Aktiv</span>
+    </div>
+    <div class="lv-card" id="lvc-2" onclick="openLevel(2)">
+      <div class="lv-lbl" style="color:var(--t2)">Fortgeschritten</div><div class="lv-name">Peak Performance</div>
+      <div class="lv-meta">30 Übungen · max 19 Pkt</div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
+    </div>
+    <div class="lv-card" id="lvc-3" onclick="openLevel(3)">
+      <div class="lv-lbl" style="color:var(--t2)">Profi</div><div class="lv-name">Elite</div>
+      <div class="lv-meta">Kommt bald</div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
+    </div>
+  </div>
+  <div class="lv-panel" id="lv-panel">
+    <div class="sh" style="margin-bottom:.75rem">
+      <div><div class="st" id="panel-title">Übungen</div><div style="font-size:10px;color:var(--t2);margin-top:2px" id="panel-sub"></div></div>
+      <button class="btn bg" style="font-size:11px" onclick="closeLvPanel()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>Schließen</button>
+    </div>
+    <div class="pts-header">
+      <span class="pts-label">Punkte · Ziel 10 · Max <span id="pts-max-label">17</span></span>
+      <div style="display:flex;align-items:center"><span class="pts-value"><span id="pts-cur">0</span> Pkt</span><span class="pts-full-badge" id="pts-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="pts-badge-txt">Tagesziel erreicht</span></span></div>
+    </div>
+    <div class="pts-track"><div class="pts-fill" id="pts-fill" style="width:0%"></div><div class="pts-goal-mark" id="pts-goal-mark"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:3px"><span style="font-size:9px;color:var(--t2)">0</span><span style="font-size:9px;color:var(--grn)" id="goal-tick">Ziel 10</span><span style="font-size:9px;color:var(--t2)" id="max-tick">17</span></div>
+    <div style="font-size:10px;color:var(--t2);margin:.6rem 0 .2rem" id="panel-hint">Schwerere Übungen geben mehr Punkte · Übungs-Level steigert den Wert langsam · Durchmischen gibt Ranking-Bonus</div>
+    <div class="ex-list" id="ex-list"></div>
+    <div class="panel-footer">
+      <div class="sel-count">Einheit: <b id="pts-total">0</b> Pkt · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
+      <button class="btn bp" id="rec-btn" onclick="commitUnit()" style="font-size:11px;opacity:.4;pointer-events:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Einheit aufnehmen</button>
+    </div>
+  </div>
+</div>
+
+<!-- VERIFY -->
+<div class="page" id="page-verify">
+  <div class="sh"><span class="st">Verify-Warteschlange</span><span class="ss">3 ausstehend</span></div>
+  <div class="vc">
+    <div class="vh"><div class="ld2"></div><div class="vt">Kniebeugen — @julia_fit</div><span class="vtm">4:23 verbleibend</span></div>
+    <div class="dvd-wrap"><canvas id="dvd-canvas"></canvas><div class="rec-badge"><div class="rec-dot"></div><span class="rec-txt">REC</span></div><div class="ts-badge" id="dvd-ts">0:17</div></div>
+    <div class="vrr">
+      <div class="vrf"><div class="vav" style="background:rgba(61,158,106,.12);color:var(--grn)">JF</div><div class="vnm">julia_fit</div><span class="pill ph" style="font-size:9px">Aufnimmt</span></div>
+      <div class="vrf"><div class="vav" style="background:var(--acc-bg2);color:var(--acc)">Du</div><div class="vnm">du</div><span class="pill pa" style="font-size:9px">Ausstehend</span></div>
+      <div class="vrf"><div class="vav" style="background:var(--blu-bg);color:var(--blu)">TP</div><div class="vnm">t.peter</div><span class="pill pg" style="font-size:9px">Bestätigt</span></div>
+    </div>
+    <div class="vac">
+      <button class="btn bg" style="flex:1;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>
+      <button class="btn bp" style="flex:2;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sh" style="margin-bottom:.8rem"><span class="st" style="font-size:13px">Deine Verify-Bilanz</span></div>
+    <div class="trgd">
+      <div class="sc"><div class="sl2">Verifiziert</div><div class="sv sga">142</div><div class="ss2">diesen Monat</div></div>
+      <div class="sc"><div class="sl2">Genauigkeit</div><div class="sv">97%</div><div class="ss2">Community-Rating</div></div>
+      <div class="sc"><div class="sl2">Verlässlichkeit</div><div class="sv sac">4.9</div><div class="ss2">von anderen</div></div>
+    </div>
+    <div class="div"></div>
+    <div class="ib"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>Falsche Bestätigungen führen zu Konto-Einschränkungen.</div>
+  </div>
+</div>
+
+<!-- RANKING -->
+<div class="page" id="page-ranking">
+  <div class="sh"><span class="st">Juni-Rankings</span><span class="ss" id="rank-player-count"></span></div>
+  <div class="pb2">
+    <div><div class="pa2" id="prize-pool">127 €</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Preispool</div></div>
+    <div class="hsep"></div>
+    <div><div style="font-size:12px;color:var(--t0);font-weight:500">Aus nicht abgerufenen Erstattungen</div><div style="font-size:10px;color:var(--t2);margin-top:2px">+0,25 € pro gewonnene Ranking-Position · Auszahlung Monatsende</div></div>
+  </div>
+  <div class="card" id="ranking-list"></div>
+  <div style="font-size:10px;color:var(--t2);text-align:center;padding:9px 0">Ranking basiert auf Einheiten-Punkten + Vielfalts-Bonus</div>
+</div>
+
+<!-- REWARDS -->
+<div class="page" id="page-rewards">
+  <div class="sh"><span class="st">Rewards</span></div>
+  <div class="rwg">
+    <div class="rwc">
+      <div class="rwi" style="background:var(--acc-bg2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+      <div class="rwa" id="rw-balance">—</div><div class="rwl">Verfügbares Guthaben</div>
+      <div style="display:flex;gap:6px;margin-top:.7rem">
+        <button class="btn bg" style="flex:1;font-size:11px;padding:6px 8px" onclick="nav('rewards-detail')">Details</button>
+        <button class="btn bp" style="flex:1;font-size:11px;padding:6px 8px" id="withdraw-btn" onclick="openWithdraw()">Auszahlen</button>
+      </div>
+      <div class="fh" id="withdraw-hint" style="margin-top:5px">Auszahlung ab 8,00 € möglich</div>
+    </div>
+    <div class="rwc">
+      <div class="rwi" style="background:var(--grn-bg)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg></div>
+      <div class="rwa" id="rw-lifetime">—</div><div class="rwl">Lebenszeit gesamt verdient</div>
+    </div>
+    <div class="rwc">
+      <div class="rwl" style="margin-bottom:5px">Monatsfortschritt</div>
+      <div style="font-size:20px;font-weight:700;color:var(--t0);letter-spacing:-.02em;margin-bottom:2px"><span id="rw-units">28</span> <span style="font-size:13px;font-weight:400;color:var(--t2)">/ 30</span></div>
+      <div class="rwl" style="margin-bottom:8px">Einheiten</div>
+      <div class="pbar" style="margin-bottom:5px"><div class="pf fg" id="rw-units-bar" style="width:93%"></div></div>
+      <div style="font-size:10px;color:var(--t2)" id="rw-refund-hint">Noch 2 für 8 € Erstattung</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sh" style="margin-bottom:.8rem"><span class="st" style="font-size:13px">So funktionieren Rewards</span></div>
+    <div class="hg">
+      <div class="hi"><div class="htl"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Monatliche Erstattung</div><div class="hb">Abo kostet 10 €. Monat komplett (30/30) → 8 € zurück.</div></div>
+      <div class="hi"><div class="htl"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21V13M12 21V3M16 21V9"/></svg>Ranking-Bonus</div><div class="hb">Jede gewonnene Ranking-Position bringt +0,25 € Bonus.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- REWARDS DETAIL -->
+<div class="page" id="page-rewards-detail">
+  <div class="bh" onclick="nav('rewards')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Balance-Details<span style="margin-left:auto;font-size:11px;color:var(--t2);font-weight:400" id="tx-balance-label"></span></div>
+  <div class="fbar">
+    <button class="fc active" onclick="filterTx(this,'all')">Alle</button>
+    <button class="fc" onclick="filterTx(this,'in')">Einnahmen</button>
+    <button class="fc" onclick="filterTx(this,'out')">Abzüge</button>
+  </div>
+  <div class="card" id="tx-list"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="sh"><span class="st">Einstellungen</span></div>
+  <div class="stbar">
+    <div class="stb active" id="stb-account" onclick="switchStab(this,'s-account')">Konto</div>
+    <div class="stb" id="stb-notifications" onclick="switchStab(this,'s-notifications')">Benachrichtigungen</div>
+    <div class="stb" id="stb-privacy" onclick="switchStab(this,'s-privacy')">Datenschutz</div>
+    <div class="stb" id="stb-feedback" onclick="switchStab(this,'s-feedback')">Feedback</div>
+  </div>
+
+  <!-- KONTO -->
+  <div class="stp visible" id="s-account">
+    <div class="sb">
+      <div class="sd">Profil</div>
+      <div class="fb2">
+        <div class="fl">Anzeigename</div>
+        <div style="display:flex;gap:6px">
+          <input class="fi" id="display-name-input" type="text" value="Max Kraft" onkeydown="if(event.key==='Enter'){saveDisplayName()}">
+          <button class="btn bg" id="name-save-btn" style="font-size:11px;flex-shrink:0;padding:7px 12px" onclick="saveDisplayName()">Speichern</button>
+        </div>
+        <div class="fh" style="display:flex;align-items:center;gap:6px;margin-top:5px">
+          <span class="change-pips" id="change-pips"><span class="pip"></span><span class="pip"></span><span class="pip"></span></span>
+          <span id="name-changes-text">Wird in Rankings angezeigt</span>
+        </div>
+      </div>
+      <div class="fb2"><div class="fl">E-Mail</div><input class="fi" type="email" value="max.kraft@gmail.com" id="user-email-input"></div>
+      <div class="fb2">
+        <div class="fl">Passwort</div>
+        <div class="fst">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span style="font-size:12px;color:var(--t2)">Zurücksetzen über Gmail</span>
+          <button class="at-retry-btn" onclick="retryPasswordReset()" title="Reset-Mail senden" style="margin-left:auto">@</button>
+        </div>
+      </div>
+      <div class="fb2"><div class="fl">Währung</div><div class="fst"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:12px;color:var(--t0)">€ Euro</span><span style="margin-left:auto;font-size:10px;color:var(--t2)">Automatisch erkannt</span></div></div>
+    </div>
+
+    <div id="delete-zone-simple" style="display:flex;justify-content:flex-start">
+      <button class="btn bg" style="font-size:11px;color:var(--t2)" onclick="armDelete()">Konto löschen</button>
+    </div>
+    <div id="delete-zone-armed" style="display:none">
+      <div class="hold-delete-btn" id="hold-delete-btn">
+        <div class="hold-delete-fill" id="hold-delete-fill"></div>
+        <span class="hold-delete-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg><span class="hold-txt">Halten zum Löschen</span></span>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)">
+      <div style="font-size:10px;color:var(--t2);margin-bottom:6px">Willst du nur pausieren statt löschen?</div>
+      <span style="font-size:12px;color:var(--blu);cursor:pointer" onclick="openModal('delete-app-modal')">Nur App entfernen (Konto bleibt bestehen)</span>
+    </div>
+  </div>
+
+  <!-- BENACHRICHTIGUNGEN -->
+  <div class="stp" id="s-notifications">
+    <div class="sd">Push-Benachrichtigungen</div>
+    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit 3/3 Stimmen hat · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+  </div>
+
+  <!-- DATENSCHUTZ -->
+  <div class="stp" id="s-privacy">
+    <div class="sd">Sichtbarkeit</div>
+    <div class="tr2"><div class="trx"><div class="trtl">Öffentliches Profil</div><div class="trsb">Aus = dein Name wird für andere im Ranking unscharf angezeigt</div></div><label class="tog"><input type="checkbox" checked id="pub-profile-toggle" onchange="setPubProfile(this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Dashboard</div><div class="trsb">Aus = deine Statistiken werden für andere unscharf angezeigt</div></div><label class="tog"><input type="checkbox" id="dashboard-toggle" onchange="setDashboardPublic(this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2">
+      <div class="trx"><div class="trtl">Videos automatisch löschen</div><div class="trsb">Standard: an — Löschung direkt nach Bestätigung <span class="pill pg" style="font-size:9px;padding:1px 5px;margin-left:3px">empfohlen</span></div></div>
+      <label class="tog"><input type="checkbox" checked id="video-del-toggle" onchange="setVideoAutoDel(this.checked)"><span class="tsl"></span></label>
+    </div>
+    <div class="ib" id="video-keep-info" style="display:none;margin-top:.6rem">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span>Du hast <b style="color:var(--t0)">1 Tag</b> Zeit, dein eigenes Video zu behalten. Die Prüfer haben diese Möglichkeit nicht — ihr Zugriff endet mit der Verifizierung.</span>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div class="stp" id="s-feedback">
+    <div class="sd">Hilf uns zu verbessern</div>
+    <button class="fbb" onclick="openModal('store-modal')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <div><div class="fbtl">App bewerten</div><div class="fbsb">Öffnet die Store-Seite</div></div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="fbb" onclick="openModal('bug-modal')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <div><div class="fbtl">Fehler melden</div><div class="fbsb">Problem mit einer Funktion</div></div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="fbb" onclick="openModal('idea-modal')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div><div class="fbtl">Idee einreichen</div><div class="fbsb">Feature-Wunsch oder Verbesserung</div></div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div style="margin-top:1.3rem;font-size:11px;color:var(--t2);text-align:center">RepVerify v2.4.1 · <span style="color:var(--t1);cursor:pointer">Datenschutz</span> · <span style="color:var(--t1);cursor:pointer">Nutzungsbedingungen</span></div>
+  </div>
+</div>
+
+  </div>
+</main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="delete-confirm-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--acc-bg2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+    <div class="modal-title">Bist du sicher?</div>
+    <div class="modal-body">Diese Aktion ist <strong style="color:var(--acc)">endgültig</strong> und kann nicht rückgängig gemacht werden.</div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('delete-confirm-modal')">Nein</button>
+      <button class="btn" style="background:var(--acc);color:#fff" onclick="finalizeDelete()">Ja, löschen</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="delete-app-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--blu-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blu)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+    <div class="modal-title">Nur App entfernen?</div>
+    <div class="modal-body">Dein Konto und alle Daten <strong style="color:var(--t0)">bleiben erhalten</strong>. Du kannst dich jederzeit wieder anmelden.</div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('delete-app-modal')">Abbrechen</button>
+      <button class="btn bp" onclick="confirmAppRemoval()">Abmelden</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="store-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--amb-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amb)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+    <div class="modal-title">Bewerte deine Erfahrung!</div>
+    <div class="modal-body">Wähle deinen Store, um RepVerify zu bewerten.</div>
+    <div class="modal-actions" style="flex-direction:column">
+      <a class="btn bp" href="https://apps.apple.com/app/repverify" target="_blank" rel="noopener" onclick="closeModal('store-modal')">App Store (iOS)</a>
+      <a class="btn bg" href="https://play.google.com/store/apps/details?id=com.repverify.app" target="_blank" rel="noopener" onclick="closeModal('store-modal')">Google Play (Android)</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bug-modal">
+  <div class="modal-box">
+    <div class="modal-title" style="text-align:left">Fehler melden</div>
+    <textarea class="feedback-textarea" id="bug-textarea" maxlength="500" placeholder="Beschreibe das Problem so genau wie möglich…" oninput="updateBugCount()"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:6px 0 1.1rem;gap:10px">
+      <span class="fh" style="margin-top:0">Gib nur Details an, die für das Problem relevant sind.</span>
+      <span style="font-size:10px;color:var(--t2);flex-shrink:0"><span id="bug-char-count">0</span>/500</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('bug-modal')">Abbrechen</button>
+      <button class="btn bp" onclick="submitBug()">Senden</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="idea-modal">
+  <div class="modal-box">
+    <div class="modal-title" style="text-align:left">Idee einreichen</div>
+    <textarea class="feedback-textarea" id="idea-textarea" maxlength="500" placeholder="Deine Idee oder dein Feature-Wunsch…" oninput="updateIdeaCount()"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:6px 0 1.1rem;gap:10px">
+      <span class="fh" style="margin-top:0">Bitte reiche nur relevante und wichtige Informationen ein.</span>
+      <span style="font-size:10px;color:var(--t2);flex-shrink:0"><span id="idea-char-count">0</span>/500</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('idea-modal')">Abbrechen</button>
+      <button class="btn bp" onclick="submitIdea()">Senden</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="withdraw-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--grn-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+    <div class="modal-title">Auszahlung bestätigen</div>
+    <div class="modal-body"><span id="withdraw-amount-text">—</span> werden auf dein Konto (IBAN ****4821) überwiesen.</div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('withdraw-modal')">Abbrechen</button>
+      <button class="btn bp" onclick="confirmWithdraw()">Auszahlen</button>
+    </div>
+  </div>
+</div>
+
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.09 12.5H12L11 22L19.91 11.5H12L13 2z"/></svg></div>
+    <div class="login-title">RepVerify</div>
+    <div class="login-sub">Training. Verifiziert. Belohnt.</div>
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Mit Google anmelden
+    </button>
+    <div class="login-div">oder</div>
+    <input class="fi" id="login-email" type="email" placeholder="deine@email.de" style="margin-bottom:8px" onkeydown="if(event.key==='Enter'){signInEmail()}">
+    <button class="btn bp bf" onclick="signInEmail()" style="font-size:12px">Magic-Link senden</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// ════════════════════════════════════════════════════════════
+//  SUPABASE
+// ════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://pvtedqrliiqltsrlyppf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__gO6E1T1F2ZLezc0o0jS9w_-emGWWw_';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DEV_MAIL = 'oleksandralokhin.work@gmail.com';
+const RANK_BONUS_PER_POS = 0.25;
+const MONTH_REFUND = 8.00;
+const WITHDRAW_MIN = 8.00;
+const GOAL_PTS = 10;
+const BASE_MAX_PTS = 15;
+const MAX_EX_LEVEL = 10;
+const MONTH_TARGET = 30;
+
+const EX_DATA = [
+  { name:'Foundation', label:'Anfänger', locked:false, sub:'Bodyweight · max 15 Punkte',
+    ex:[['Squats',1],['Wall Push-ups',1],['Incline Push-ups',1],['Glute Bridge',1],['Calf Raises',1],
+        ['Dead Bug',1],['Bird Dog',1],['Crunches',1],['Leg Lifts',1],['Jumping Jacks',1],
+        ['Assisted Push-ups',1.5],['Reverse Lunges',1.5],['Walking Lunges',1.5],['Side Lunges',1.5],['Step-ups',1.5],
+        ['Single-Leg Glute Bridge',1.5],['Wall Sit',1.5],['Side Plank',1.5],['Bicycle Crunches',1.5],['Russian Twists',1.5],
+        ['Push-ups',2],['Australian Pull-ups',2],['Inverted Row',2],['Assisted Pull-ups',2],['Assisted Chin-ups',2],
+        ['Plank',2],['Superman Hold',2],['Mountain Climbers',2],['High Knees',2],['Burpees',2.5]] },
+  { name:'Build Strength', label:'Mittelstufe', locked:false, sub:'Compound · max 17 Punkte',
+    ex:[['Hollow Hold',1.5],['Plank to Push-up',1.5],['Bear Crawl',1.5],['Crab Walk',1.5],['Toes-to-Bench',1.5],
+        ['Diamond Push-ups',2],['Pike Push-ups',2],['Decline Push-ups',2],['Bulgarian Split Squats',2],['Cossack Squats',2],
+        ['Hanging Knee Raises',2],['Hollow Rocks',2],['V-Ups',2],['Commando Plank',2],['Box Jumps',2],
+        ['Chin-ups',2.5],['Dips',2.5],['Archer Push-ups',2.5],['Assisted Pistol Squats',2.5],['Shrimp Squats',2.5],
+        ['Single-Leg Romanian Deadlift',2.5],['Broad Jumps',2.5],['Skater Jumps',2.5],['Tuck Jumps',2.5],['Archer Rows',2.5],
+        ['Pull-ups',3],['Pseudo Planche Push-ups',3],['Assisted Nordic Curl',3],['Burpee Pull-ups',3],['Explosive Push-ups',3]] },
+  { name:'Peak Performance', label:'Fortgeschritten', locked:true, sub:'Advanced · max 19 Punkte',
+    ex:[['Hanging Leg Raises',2.5],['L-Sit',2.5],['Planche Lean',2.5],['Wall Handstand Shoulder Taps',2.5],['Front Lever Tuck',2.5],
+        ['Toes-to-Bar',3],['Explosive Pull-ups',3],['V-Sit',3],['Back Lever Tuck',3],['Pistol Squats',3],
+        ['Handstand Push-ups',3.5],['Archer Pull-ups',3.5],['Typewriter Pull-ups',3.5],['Clap Pull-ups',3.5],['Dragon Flag',3.5],
+        ['Tuck Planche',3.5],['Nordic Curl',3.5],['Jumping Pistol Squats',3.5],['Handstand Walk',3.5],['Shrimp Squats (weighted)',3.5],
+        ['Muscle-ups',4],['One-Arm Push-ups',4],['Front Lever',4],['Back Lever',4],['Human Flag Progression',4],
+        ['Human Flag',4],['Advanced Tuck Planche',4],['Planche Push-up Progression',4],['Freestanding Handstand Hold',4],['90° Push-up',4]] },
+  { name:'Elite', label:'Profi', locked:true, sub:'Kommt bald', ex:[] }
+];
+
+// ── App-State (aus Supabase geladen) ─────────────────────────
+const ST = {
+  session:null, profile:null,
+  transactions:[], leaderboard:[], exProgress:{},
+  monthUnits:0, todayUnit:null
+};
+
+// ── Hilfsfunktionen ──────────────────────────────────────────
+const fmtEUR = v => v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+const isoToday = () => new Date().toISOString().slice(0,10);
+const fmtDate = iso => { const [y,m,d]=iso.split('-'); return d+'.'+m+'.'+y; };
+const monthStart = () => { const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); };
+function balance(){ return ST.transactions.filter(t=>!t.external).reduce((s,t)=>s+Number(t.amount),0); }
+function lifetimeEarned(){ return ST.transactions.filter(t=>!t.external&&t.amount>0).reduce((s,t)=>s+Number(t.amount),0); }
+function maxPtsForLevel(lvl){ return BASE_MAX_PTS + (lvl-1)*2; }
+function exProg(name){ if(!ST.exProgress[name]) ST.exProgress[name]={level:1,xp:0,uses:0}; return ST.exProgress[name]; }
+function xpNeeded(lvl){ return 3 + lvl*2; }
+function exMultiplier(lvl){ return 1 + (lvl-1)*0.05; }
+function myRank(){ const i=ST.leaderboard.findIndex(r=>r.user_id===ST.session.user.id); return i<0? ST.leaderboard.length+1 : i+1; }
+function initials(name){ return (name||'??').split(/[\s.]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'??'; }
+
+// ════════════════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════════════════
+async function signInGoogle(){
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider:'google',
+    options:{ redirectTo: window.location.origin + window.location.pathname }
+  });
+  if(error) showToast('Google-Login fehlgeschlagen: '+error.message);
+}
+async function signInEmail(){
+  const email = document.getElementById('login-email').value.trim();
+  if(!email){ showToast('Bitte E-Mail eingeben'); return; }
+  const { error } = await supabase.auth.signInWithOtp({
+    email, options:{ emailRedirectTo: window.location.origin + window.location.pathname }
+  });
+  if(error) showToast('Fehler: '+error.message);
+  else showToast('Magic-Link an '+email+' gesendet — Postfach prüfen');
+}
+async function signOut(){
+  await supabase.auth.signOut();
+  showToast('Abgemeldet');
+}
+
+function showLogin(){ document.getElementById('login-overlay').style.display='flex'; }
+function hideLogin(){ document.getElementById('login-overlay').style.display='none'; }
+
+// ════════════════════════════════════════════════════════════
+//  DATEN LADEN
+// ════════════════════════════════════════════════════════════
+async function loadAll(){
+  const uid = ST.session.user.id;
+
+  const [prof, txs, prog, ranks, units, today] = await Promise.all([
+    supabase.from('users').select('*').eq('id',uid).single(),
+    supabase.from('transactions').select('*').eq('user_id',uid).order('tx_date',{ascending:false}).order('created_at',{ascending:false}),
+    supabase.from('exercise_progress').select('*').eq('user_id',uid),
+    supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false}),
+    supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
+    supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle()
+  ]);
+
+  if(prof.error){ showToast('Profil-Fehler: '+prof.error.message); return; }
+  ST.profile = prof.data;
+  ST.transactions = txs.data||[];
+  ST.exProgress = {};
+  (prog.data||[]).forEach(r=>{ ST.exProgress[r.exercise]={level:r.level,xp:r.xp,uses:r.uses}; });
+  ST.leaderboard = (ranks.data||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
+  ST.monthUnits = units.count||0;
+  ST.todayUnit = today.data||null;
+
+  applyProfileToUI();
+  renderAll();
+}
+
+function applyProfileToUI(){
+  const p=ST.profile, email=ST.session.user.email||'';
+  document.getElementById('side-av').textContent = initials(p.display_name);
+  document.getElementById('display-name-input').value = p.display_name;
+  const em=document.getElementById('user-email-input'); em.value=email; em.readOnly=true; em.style.opacity='.6';
+  document.querySelectorAll('.notif-mail').forEach(el=>el.textContent=email);
+  document.getElementById('pub-profile-toggle').checked = p.pub_profile;
+  document.getElementById('dashboard-toggle').checked = p.dashboard_public;
+  document.getElementById('video-del-toggle').checked = p.video_auto_del;
+  document.getElementById('video-keep-info').style.display = p.video_auto_del?'none':'flex';
+  updateNameChangeUI();
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDERING
+// ════════════════════════════════════════════════════════════
+function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); }
+
+function renderDashboard(){
+  const rank=myRank();
+  document.getElementById('dash-units').textContent = ST.monthUnits+' / '+MONTH_TARGET;
+  document.getElementById('dash-units-bar').style.width = Math.min(100,(ST.monthUnits/MONTH_TARGET)*100)+'%';
+  document.getElementById('dash-refund').textContent = fmtEUR(MONTH_REFUND);
+  document.getElementById('stat-units').innerHTML = ST.monthUnits+' <span class="su">/ '+MONTH_TARGET+'</span>';
+  document.getElementById('stat-units-sub').textContent = ST.monthUnits>=MONTH_TARGET ? 'Monat komplett!' : 'noch '+(MONTH_TARGET-ST.monthUnits)+' Einheiten';
+  document.getElementById('stat-rank').textContent = '#'+rank;
+  document.getElementById('stat-rank-sub').textContent = ST.leaderboard.length+' Teilnehmer';
+  document.getElementById('stat-balance').textContent = fmtEUR(balance());
+  const tu=ST.todayUnit;
+  document.getElementById('stat-today').textContent = tu ? Number(tu.points)+' Pkt' : '—';
+  document.getElementById('stat-today-sub').textContent = tu ? (tu.points>=GOAL_PTS?'Ziel erreicht ✓':'unter Ziel') : 'Einheit offen';
+  renderToday(); renderMonthOverview();
+}
+
+function renderToday(){
+  const el=document.getElementById('today-inner');
+  const lvl=ST.profile.level;
+  if(ST.todayUnit){
+    const t=ST.todayUnit, extra=Number(t.points)-GOAL_PTS;
+    el.innerHTML = '<div class="today-done">'
+      +'<div class="done-ring"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>'
+      +'<div class="done-label">Einheit abgeschlossen — '+Number(t.points)+' Punkte</div>'
+      +'<div class="done-sub">'+(extra>0?'+'+Math.round(extra*10)/10+' Pkt über Ziel · ':'')+t.distinct_count+' Übungen · Ranking-Wert '+t.ranking_points+'</div>'
+      +'</div>';
+  } else {
+    el.innerHTML = '<div style="padding:.4rem 0 .2rem">'
+      +'<div style="font-size:11px;color:var(--t1);margin-bottom:8px">Stelle deine Einheit im Programm zusammen — mindestens <b style="color:var(--t0)">'+GOAL_PTS+' Punkte</b> für einen erfolgreichen Tag.</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'
+      +'<span class="pill ph">Ziel: '+GOAL_PTS+' Pkt</span><span class="pill ph">Max: '+maxPtsForLevel(lvl)+' Pkt</span><span class="pill ph">Extra-Punkte = Ranking-Vorsprung</span></div>'
+      +'<button class="btn bp bf" id="today-cta-btn" style="font-size:11px">'
+      +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'
+      +'Einheit zusammenstellen</button></div>';
+    document.getElementById('today-cta-btn').onclick=()=>{ nav('program'); openLevel(lvl-1); };
+  }
+}
+
+function renderMonthOverview(){
+  const el=document.getElementById('month-overview');
+  const entries=Object.entries(ST.exProgress).sort((a,b)=>b[1].uses-a[1].uses).slice(0,4);
+  if(entries.length===0){ el.innerHTML='<div style="font-size:11px;color:var(--t2)">Noch keine Übungen absolviert — starte deine erste Einheit!</div>'; return; }
+  el.innerHTML = entries.map(([name,p])=>'<div style="margin-bottom:9px">'
+    +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t2);margin-bottom:2px">'
+    +'<span>'+name+' <span class="ex-lvl-tag">Lv '+p.level+'</span></span><span>'+p.uses+'× genutzt</span></div>'
+    +'<div class="pbar"><div class="pf '+(p.level>=5?'fg':'fr')+'" style="width:'+Math.min(100,(p.xp/xpNeeded(p.level))*100)+'%"></div></div></div>').join('');
+}
+
+function renderRanking(){
+  const lb=ST.leaderboard, uid=ST.session.user.id;
+  const uIdx=lb.findIndex(r=>r.user_id===uid);
+  document.getElementById('rank-player-count').textContent = lb.length+' Teilnehmer';
+  if(lb.length===0){ document.getElementById('ranking-list').innerHTML='<div style="font-size:11px;color:var(--t2);text-align:center;padding:1rem">Noch keine Einträge diesen Monat</div>'; return; }
+  const rows=new Set([0,1,2,uIdx-1,uIdx,uIdx+1].filter(i=>i>=0&&i<lb.length));
+  const list=[...rows].sort((a,b)=>a-b);
+  const colors=['var(--amb)','var(--grn)','var(--blu)','var(--acc)','var(--t1)'];
+  const bgs=['var(--amb-bg)','var(--grn-bg)','var(--blu-bg)','var(--acc-bg)','var(--s2)'];
+  let html='',prev=-1;
+  list.forEach(i=>{
+    if(prev>=0&&i-prev>1) html+='<div style="text-align:center;font-size:10px;color:var(--t2);padding:3px 0">···</div>';
+    prev=i;
+    const r=lb[i],pos=i+1,me=r.user_id===uid,ci=i%colors.length;
+    const nameBlur = !r.pub && !me ? ' blurred':'';   // privates Profil → für ANDERE geblurt
+    const statsBlur = !r.dash && !me ? ' blurred':'';
+    html+='<div class="rr '+(me?'rry':'')+'">'
+      +'<span class="rp '+(pos<=3||me?'rpt':'')+'">'+pos+'</span>'
+      +'<div class="rav" style="background:'+(me?'var(--acc-bg2)':bgs[ci])+';color:'+(me?'var(--acc)':colors[ci])+'"><span class="'+nameBlur+'">'+initials(r.name)+'</span></div>'
+      +'<div><div class="rn"><span class="'+nameBlur+'">'+r.name+'</span>'+(me?'<span class="pill pb" style="font-size:9px;padding:1px 5px">du</span>':'')+'</div>'
+      +'<div class="ru"><span class="'+statsBlur+'">'+r.points+' Pkt</span></div></div>'
+      +'<div class="rw">'+(me?'+'+RANK_BONUS_PER_POS.toFixed(2).replace('.',',')+' €/Pos.':'—')+'</div></div>';
+  });
+  document.getElementById('ranking-list').innerHTML=html;
+}
+
+function renderRewards(){
+  const bal=balance();
+  document.getElementById('rw-balance').textContent=fmtEUR(bal);
+  document.getElementById('rw-lifetime').textContent=fmtEUR(lifetimeEarned());
+  document.getElementById('rw-units').textContent=ST.monthUnits;
+  document.getElementById('rw-units-bar').style.width=Math.min(100,(ST.monthUnits/MONTH_TARGET)*100)+'%';
+  const hasRefund=ST.transactions.some(t=>t.title.startsWith('Erstattung')&&t.tx_date>=monthStart());
+  document.getElementById('rw-refund-hint').textContent = ST.monthUnits>=MONTH_TARGET
+    ? (hasRefund?'Erstattung gutgeschrieben ✓':'Monat komplett — Erstattung folgt')
+    : 'Noch '+(MONTH_TARGET-ST.monthUnits)+' für '+fmtEUR(MONTH_REFUND)+' Erstattung';
+  const wBtn=document.getElementById('withdraw-btn'),canW=bal>=WITHDRAW_MIN;
+  wBtn.style.opacity=canW?'1':'.4';wBtn.style.pointerEvents=canW?'all':'none';
+  document.getElementById('withdraw-hint').textContent=canW?'Voller Betrag wird überwiesen':'Auszahlung ab '+fmtEUR(WITHDRAW_MIN)+' möglich';
+}
+
+let txFilter='all';
+function renderTx(){
+  document.getElementById('tx-balance-label').textContent=fmtEUR(balance())+' verfügbar';
+  const rows=ST.transactions.filter(t=>txFilter==='all'||(txFilter==='in'?t.amount>0:t.amount<0));
+  document.getElementById('tx-list').innerHTML=rows.length===0
+    ?'<div style="font-size:11px;color:var(--t2);text-align:center;padding:1rem">Keine Einträge</div>'
+    :rows.map(t=>'<div class="txr" style="'+(t.external?'opacity:.45':'')+'">'
+      +'<div><div class="txd">'+fmtDate(t.tx_date)+'</div></div>'
+      +'<div><div class="txn">'+t.title+'</div><div class="txs">'+(t.subtitle||'')+'</div></div>'
+      +'<div class="txa '+(t.external?'':(t.amount>0?'tin':'tout'))+'" style="'+(t.external?'color:var(--t2)':'')+'">'+(t.amount>0?'+':'−')+fmtEUR(Math.abs(t.amount))+'</div></div>').join('');
+}
+function filterTx(btn,type){
+  txFilter=type;
+  document.querySelectorAll('.fc').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderTx();
+}
+
+// ════════════════════════════════════════════════════════════
+//  PROGRAMM-ENGINE
+// ════════════════════════════════════════════════════════════
+let openLevelIdx=-1, unitSel={};
+function unitPts(){let s=0;for(const [n,o] of Object.entries(unitSel))s+=o.clicks*o.base*exMultiplier(exProg(n).level);return Math.round(s*10)/10;}
+function unitDistinct(){return Object.keys(unitSel).filter(n=>unitSel[n].clicks>0).length;}
+function varietyBonus(){const d=unitDistinct();let b=d>=5?(d-4)*2:0;const heavy=Object.values(unitSel).some(o=>o.clicks>=3);if(!heavy&&d>0)b+=2;return b;}
+function rankingValue(){return Math.round(unitPts()*2+varietyBonus());}
+
+function updatePtsUI(){
+  const pts=unitPts(),maxP=maxPtsForLevel(ST.profile.level);
+  document.getElementById('pts-cur').textContent=pts;
+  document.getElementById('pts-total').textContent=pts;
+  document.getElementById('variety-count').textContent=unitDistinct();
+  document.getElementById('ranking-pts').textContent=rankingValue();
+  document.getElementById('pts-fill').style.width=Math.min(100,(pts/maxP)*100)+'%';
+  document.getElementById('pts-goal-mark').style.left=((GOAL_PTS/maxP)*100)+'%';
+  document.getElementById('pts-max-label').textContent=maxP;
+  document.getElementById('max-tick').textContent=maxP;
+  const badge=document.getElementById('pts-badge');
+  if(pts>=GOAL_PTS){badge.classList.add('show');document.getElementById('pts-badge-txt').textContent=pts>GOAL_PTS?'+'+Math.round((pts-GOAL_PTS)*10)/10+' Vorsprung':'Tagesziel erreicht';}
+  else badge.classList.remove('show');
+  const btn=document.getElementById('rec-btn'),ready=pts>=GOAL_PTS&&!ST.todayUnit;
+  btn.style.opacity=ready?'1':'.4';btn.style.pointerEvents=ready?'all':'none';
+}
+
+function clickEx(name,base,idx){
+  if(ST.todayUnit){showToast('Heutige Einheit ist bereits aufgenommen');return;}
+  const cur=unitSel[name]?.clicks||0,maxP=maxPtsForLevel(ST.profile.level);
+  if(cur>=3){unitSel[name].clicks=0;}
+  else{
+    const addVal=base*exMultiplier(exProg(name).level);
+    if(unitPts()+addVal>maxP+0.001){showToast('Punktedeckel erreicht ('+maxP+')');return;}
+    unitSel[name]={clicks:cur+1,base};
+  }
+  renderChip(name,base,idx);updatePtsUI();
+}
+
+function renderChip(name,base,idx){
+  const chip=document.getElementById('exc-'+idx);if(!chip)return;
+  const clicks=unitSel[name]?.clicks||0,p=exProg(name);
+  const val=Math.round(base*exMultiplier(p.level)*10)/10;
+  chip.className='ex-chip'+(clicks>0?' has-pts':'')+(clicks>=3?' maxed':'');
+  chip.innerHTML='<div class="ex-chip-top"><span class="ex-lvl-tag">Lv '+p.level+'</span>'
+    +'<span class="ex-chip-name">'+name+'</span>'
+    +'<span class="ex-chip-cnt">'+(clicks>0?'+'+(Math.round(clicks*val*10)/10):'')+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span>'+val+' Pkt/Set</span><span>'+clicks+'/3</span></div>'
+    +'<div class="ex-mini-bar"><div class="ex-mini-fill" style="width:'+(clicks/3)*100+'%"></div></div>';
+}
+
+function openLevel(idx){
+  if(openLevelIdx===idx){closeLvPanel();return;}
+  const lv=EX_DATA[idx];openLevelIdx=idx;
+  document.querySelectorAll('.lv-card').forEach((c,i)=>{c.classList.remove('lv-open','lv-dimmed');c.classList.add(i===idx?'lv-open':'lv-dimmed');});
+  document.getElementById('panel-title').textContent=lv.name;
+  document.getElementById('panel-sub').textContent=lv.sub;
+  unitSel={};
+  const list=document.getElementById('ex-list');
+  const isUsable=!lv.locked&&(idx+1)<=ST.profile.level;
+  if(lv.ex.length===0){
+    list.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--t2)"><div style="font-size:12px">Kommt bald.</div></div>';
+  } else if(!isUsable){
+    list.innerHTML=lv.ex.map(([n,b])=>'<div class="ex-chip" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+b+' P</span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
+  } else {
+    list.innerHTML=lv.ex.map(([n,b],i)=>'<div class="ex-chip" id="exc-'+i+'"></div>').join('');
+    lv.ex.forEach(([n,b],i)=>{
+      const chip=document.getElementById('exc-'+i);
+      chip.onclick=()=>clickEx(n,b,i);
+      renderChip(n,b,i);
+    });
+  }
+  updatePtsUI();
+  document.getElementById('lv-panel').classList.add('open');
+  document.getElementById('lv-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeLvPanel(){
+  openLevelIdx=-1;
+  document.querySelectorAll('.lv-card').forEach(c=>c.classList.remove('lv-open','lv-dimmed'));
+  document.getElementById('lv-panel').classList.remove('open');
+}
+
+// ── Einheit einreichen: schreibt Units, XP, Ranking, Guthaben in Supabase ──
+async function commitUnit(){
+  if(ST.todayUnit)return;
+  const pts=unitPts();if(pts<GOAL_PTS)return;
+  const rp=rankingValue(),uid=ST.session.user.id,oldRank=myRank();
+  const btn=document.getElementById('rec-btn');btn.style.opacity='.4';btn.style.pointerEvents='none';
+
+  // 1) Einheit speichern (Unique pro Tag)
+  const {data:unit,error:uErr}=await supabase.from('units').insert({
+    user_id:uid,unit_date:isoToday(),points:pts,ranking_points:rp,
+    distinct_count:unitDistinct(),selection:unitSel
+  }).select().single();
+  if(uErr){showToast(uErr.code==='23505'?'Heute bereits eine Einheit aufgenommen':'Fehler: '+uErr.message);updatePtsUI();return;}
+
+  // 2) Übungs-XP upserten
+  const upserts=[];
+  for(const [name,o] of Object.entries(unitSel)){
+    if(o.clicks<=0)continue;
+    const p=exProg(name);
+    p.uses+=o.clicks;p.xp+=o.clicks;
+    while(p.level<MAX_EX_LEVEL&&p.xp>=xpNeeded(p.level)){p.xp-=xpNeeded(p.level);p.level++;}
+    upserts.push({user_id:uid,exercise:name,level:p.level,xp:p.xp,uses:p.uses});
+  }
+  if(upserts.length)await supabase.from('exercise_progress').upsert(upserts,{onConflict:'user_id,exercise'});
+
+  // 3) Ranking-Punkte gutschreiben
+  const meRow=ST.leaderboard.find(r=>r.user_id===uid);
+  const newPts=(meRow?meRow.points:0)+rp;
+  await supabase.from('rankings').upsert({user_id:uid,month:monthStart(),points:newPts},{onConflict:'user_id,month'});
+
+  // 4) Leaderboard neu laden, Bewegung berechnen
+  const {data:ranks}=await supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false});
+  ST.leaderboard=(ranks||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
+  const newRank=myRank(),gained=oldRank-newRank;
+  if(gained>0){
+    const bonus={user_id:uid,tx_date:isoToday(),title:'Ranking-Bonus',subtitle:'+'+gained+' Position'+(gained>1?'en':'')+' · 0,25 €/Pos.',amount:gained*RANK_BONUS_PER_POS};
+    const {data:btx}=await supabase.from('transactions').insert(bonus).select().single();
+    if(btx)ST.transactions.unshift(btx);
+  }
+
+  // 5) Monatszähler + Erstattung
+  ST.monthUnits++;
+  const hasRefund=ST.transactions.some(t=>t.title.startsWith('Erstattung')&&t.tx_date>=monthStart());
+  if(ST.monthUnits>=MONTH_TARGET&&!hasRefund){
+    const ref={user_id:uid,tx_date:isoToday(),title:'Erstattung — Monat komplett',subtitle:MONTH_TARGET+'/'+MONTH_TARGET+' Einheiten · voll',amount:MONTH_REFUND};
+    const {data:rtx}=await supabase.from('transactions').insert(ref).select().single();
+    if(rtx)ST.transactions.unshift(rtx);
+  }
+
+  ST.todayUnit=unit;
+  closeLvPanel();renderAll();nav('dashboard');
+  let msg='Einheit aufgenommen — '+pts+' Punkte';
+  if(gained>0)msg+=' · +'+gained+' Rang'+(gained>1?'e':'')+' (+'+fmtEUR(gained*RANK_BONUS_PER_POS)+')';
+  showToast(msg);
+}
+
+// ── Auszahlung ───────────────────────────────────────────────
+function openWithdraw(){
+  document.getElementById('withdraw-amount-text').textContent=fmtEUR(balance());
+  openModal('withdraw-modal');
+}
+async function confirmWithdraw(){
+  const bal=balance();if(bal<WITHDRAW_MIN)return;
+  const {data,error}=await supabase.from('transactions').insert({
+    user_id:ST.session.user.id,tx_date:isoToday(),title:'Auszahlung',subtitle:'Wird auf dein Konto überwiesen',amount:-bal
+  }).select().single();
+  closeModal('withdraw-modal');
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.transactions.unshift(data);
+  showToast(fmtEUR(bal)+' Auszahlung veranlasst');
+  renderAll();
+}
+
+// ════════════════════════════════════════════════════════════
+//  NAVIGATION & SETTINGS
+// ════════════════════════════════════════════════════════════
+const PAGES=['dashboard','program','verify','ranking','rewards','rewards-detail','settings'];
+const TAB_MAP={'rewards-detail':'rewards'};
+function nav(name){
+  PAGES.forEach(p=>{const el=document.getElementById('page-'+p);if(el)el.classList.toggle('visible',p===name);});
+  document.querySelectorAll('.ni[id^="ni-"]').forEach(el=>el.classList.remove('active'));
+  const t=TAB_MAP[name]||name;
+  const ni=document.getElementById('ni-'+t);if(ni)ni.classList.add('active');
+  document.querySelectorAll('.ttab[id^="ttab-"]').forEach(el=>el.classList.remove('active'));
+  const tt=document.getElementById('ttab-'+t);if(tt)tt.classList.add('active');
+  if(name==='verify')startDVD();
+}
+function switchStab(el,id){
+  document.querySelectorAll('.stb').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.stp').forEach(s=>s.classList.remove('visible'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('visible');
+}
+
+// ── Datenschutz → Supabase ───────────────────────────────────
+async function setPubProfile(on){
+  ST.profile.pub_profile=on;
+  await supabase.from('users').update({pub_profile:on}).eq('id',ST.session.user.id);
+  renderRanking();
+  showToast(on?'Profil öffentlich — Name sichtbar':'Profil privat — Name wird für andere geblurt');
+}
+async function setDashboardPublic(on){
+  ST.profile.dashboard_public=on;
+  await supabase.from('users').update({dashboard_public:on}).eq('id',ST.session.user.id);
+  renderRanking();
+  showToast(on?'Dashboard für andere sichtbar':'Dashboard wird für andere geblurt');
+}
+async function setVideoAutoDel(on){
+  ST.profile.video_auto_del=on;
+  await supabase.from('users').update({video_auto_del:on}).eq('id',ST.session.user.id);
+  document.getElementById('video-keep-info').style.display=on?'none':'flex';
+  showToast(on?'Videos werden sofort nach Bestätigung gelöscht':'Auto-Löschung pausiert — 1 Tag zum Behalten');
+}
+
+// ── Konto ────────────────────────────────────────────────────
+const NAME_CHANGE_LIMIT=3;
+function updateNameChangeUI(){
+  const used=ST.profile?.name_changes_used||0,left=NAME_CHANGE_LIMIT-used;
+  document.querySelectorAll('#change-pips .pip').forEach((p,i)=>p.classList.toggle('used',i<used));
+  const textEl=document.getElementById('name-changes-text');
+  const input=document.getElementById('display-name-input');
+  const btn=document.getElementById('name-save-btn');
+  if(left<=0){
+    input.disabled=true;input.style.opacity='.5';input.style.cursor='not-allowed';
+    btn.disabled=true;btn.style.opacity='.35';btn.style.pointerEvents='none';
+    textEl.textContent='Limit erreicht';
+  } else textEl.textContent='Wird in Rankings angezeigt';
+}
+async function saveDisplayName(){
+  const used=ST.profile.name_changes_used;
+  if(used>=NAME_CHANGE_LIMIT)return;
+  const input=document.getElementById('display-name-input');
+  const val=input.value.trim();
+  if(val===''||val===ST.profile.display_name)return;
+  const {error}=await supabase.from('users').update({display_name:val,name_changes_used:used+1}).eq('id',ST.session.user.id);
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.profile.display_name=val;ST.profile.name_changes_used=used+1;
+  document.getElementById('side-av').textContent=initials(val);
+  const me=ST.leaderboard.find(r=>r.user_id===ST.session.user.id);if(me)me.name=val;
+  updateNameChangeUI();renderRanking();
+  showToast('Anzeigename aktualisiert');
+}
+async function retryPasswordReset(){
+  const email=ST.session.user.email;
+  const {error}=await supabase.auth.resetPasswordForEmail(email);
+  showToast(error?'Fehler: '+error.message:'Reset-Link an '+email+' gesendet');
+}
+
+// Zweistufiger Lösch-Button
+function armDelete(){
+  document.getElementById('delete-zone-simple').style.display='none';
+  document.getElementById('delete-zone-armed').style.display='block';
+  initHoldDelete();
+}
+let holdInit=false;
+function initHoldDelete(){
+  if(holdInit)return;holdInit=true;
+  const btn=document.getElementById('hold-delete-btn');
+  const fill=document.getElementById('hold-delete-fill');
+  const holdTxt=btn.querySelector('.hold-txt');
+  const HOLD_MS=5000;let raf=null,startT=null;
+  function frame(now){
+    const el=now-startT,pct=Math.min(100,(el/HOLD_MS)*100);
+    fill.style.width=pct+'%';
+    holdTxt.textContent='Weiter halten… '+Math.max(0,Math.ceil((HOLD_MS-el)/1000))+'s';
+    if(pct>=100){stop(false);openModal('delete-confirm-modal');return;}
+    raf=requestAnimationFrame(frame);
+  }
+  function start(e){e.preventDefault();btn.classList.add('holding');startT=performance.now();raf=requestAnimationFrame(frame);}
+  function stop(reset){if(raf)cancelAnimationFrame(raf);raf=null;btn.classList.remove('holding');holdTxt.textContent='Halten zum Löschen';if(reset)fill.style.width='0%';}
+  btn.addEventListener('pointerdown',start);
+  btn.addEventListener('pointerup',()=>stop(true));
+  btn.addEventListener('pointerleave',()=>stop(true));
+  btn.addEventListener('pointercancel',()=>stop(true));
+}
+async function finalizeDelete(){
+  closeModal('delete-confirm-modal');
+  showToast('Löschantrag vermerkt — du wirst abgemeldet');
+  setTimeout(signOut,1200);
+}
+async function confirmAppRemoval(){
+  closeModal('delete-app-modal');
+  await signOut();
+}
+
+// ── Feedback → Dev-Mail ──────────────────────────────────────
+function updateBugCount(){document.getElementById('bug-char-count').textContent=document.getElementById('bug-textarea').value.length;}
+function submitBug(){
+  const ta=document.getElementById('bug-textarea');const txt=ta.value.trim();if(!txt)return;
+  window.location.href='mailto:'+DEV_MAIL+'?subject='+encodeURIComponent('RepVerify Fehlerbericht')+'&body='+encodeURIComponent(txt+'\n\n— gesendet von '+(ST.session?.user?.email||'unbekannt'));
+  closeModal('bug-modal');showToast('E-Mail-Entwurf an Entwickler geöffnet');
+  ta.value='';updateBugCount();
+}
+function updateIdeaCount(){document.getElementById('idea-char-count').textContent=document.getElementById('idea-textarea').value.length;}
+function submitIdea(){
+  const ta=document.getElementById('idea-textarea');const txt=ta.value.trim();if(!txt)return;
+  window.location.href='mailto:'+DEV_MAIL+'?subject='+encodeURIComponent('RepVerify Idee')+'&body='+encodeURIComponent(txt+'\n\n— gesendet von '+(ST.session?.user?.email||'unbekannt'));
+  closeModal('idea-modal');showToast('E-Mail-Entwurf an Entwickler geöffnet');
+  ta.value='';updateIdeaCount();
+}
+
+// ── Modals & Toast ───────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+  if(id==='delete-confirm-modal'){const f=document.getElementById('hold-delete-fill');if(f)f.style.width='0%';}
+}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(m=>closeModal(m.id));});
+let toastTimeout;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M20 6L9 17l-5-5"/></svg><span>'+msg+'</span>';
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── DVD ──────────────────────────────────────────────────────
+let dvdAnim=null;
+function startDVD(){
+  const canvas=document.getElementById('dvd-canvas');
+  if(!canvas||dvdAnim)return;
+  canvas.width=canvas.offsetWidth*devicePixelRatio;
+  canvas.height=canvas.offsetHeight*devicePixelRatio;
+  const ctx=canvas.getContext('2d'),dpr=devicePixelRatio;
+  const W=110,H=42;let x=30,y=15,vx=1.6,vy=1.0,hitFlash=0;
+  function draw(cx,cy){
+    const cw=canvas.width/dpr,ch=canvas.height/dpr;
+    ctx.save();ctx.scale(dpr,dpr);ctx.clearRect(0,0,cw,ch);
+    if(hitFlash>0){ctx.fillStyle='rgba(226,75,74,'+((hitFlash/12)*0.12)+')';ctx.fillRect(0,0,cw,ch);}
+    ctx.translate(cx,cy);
+    const r=7;
+    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(W-r,0);ctx.quadraticCurveTo(W,0,W,r);ctx.lineTo(W,H-r);ctx.quadraticCurveTo(W,H,W-r,H);ctx.lineTo(r,H);ctx.quadraticCurveTo(0,H,0,H-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
+    ctx.fillStyle='#E24B4A';ctx.shadowBlur=hitFlash>0?26:12;ctx.shadowColor='rgba(226,75,74,0.65)';ctx.fill();ctx.shadowBlur=0;
+    ctx.font='bold '+Math.round(H*0.52)+'px -apple-system,sans-serif';ctx.fillStyle='rgba(0,0,0,0.75)';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('DVD',W/2,H*0.37);
+    ctx.beginPath();ctx.ellipse(W/2,H*0.74,W*0.33,H*0.13,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fill();
+    ctx.beginPath();ctx.ellipse(W/2,H*0.74,W*0.09,H*0.055,0,0,Math.PI*2);ctx.fillStyle='#E24B4A';ctx.fill();
+    ctx.restore();
+  }
+  let seconds=17,lastSec=0;
+  function loop(now){
+    const cw=canvas.width/dpr,ch=canvas.height/dpr;
+    x+=vx;y+=vy;let hit=false;
+    if(x<=0){x=0;vx=Math.abs(vx);hit=true;}
+    if(x>=cw-W){x=cw-W;vx=-Math.abs(vx);hit=true;}
+    if(y<=0){y=0;vy=Math.abs(vy);hit=true;}
+    if(y>=ch-H){y=ch-H;vy=-Math.abs(vy);hit=true;}
+    if(hit)hitFlash=14;if(hitFlash>0)hitFlash--;
+    draw(x,y);
+    if(now-lastSec>1000){lastSec=now;seconds++;const el=document.getElementById('dvd-ts');if(el)el.textContent=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
+    dvdAnim=requestAnimationFrame(loop);
+  }
+  dvdAnim=requestAnimationFrame(loop);
+}
+
+// ════════════════════════════════════════════════════════════
+//  INIT + globale Handler (für onclick-Attribute)
+// ════════════════════════════════════════════════════════════
+Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
+  openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
+  armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
+  updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
+
+supabase.auth.onAuthStateChange((_event,session)=>{
+  ST.session=session;
+  if(session){hideLogin();loadAll();}
+  else showLogin();
+});
+const {data:{session}}=await supabase.auth.getSession();
+ST.session=session;
+if(session){hideLogin();await loadAll();}
+else showLogin();
+
+</script>
+</body>
+</html>
