@@ -280,6 +280,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-confirm{font-size:13px;padding:11px 22px;flex:0 1 260px}
 /* Platzhalter unten rechts im Video: später 3D-Männchen-Animation der Übung */
 .cam-anim-slot{position:absolute;right:12px;bottom:120px;width:0;height:0}
+
+/* VERIFY-PLAYER */
+.vp-wrap{position:relative;background:#000;border-radius:var(--r);overflow:hidden;margin:10px 0}
+.vp-wrap video{display:block;width:100%;max-height:380px;object-fit:contain;background:#000}
+.vp-wm{position:absolute;inset:0;pointer-events:none;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;overflow:hidden;z-index:2}
+.vp-wm span{font-size:11px;color:rgba(255,255,255,.16);transform:rotate(-24deg);white-space:nowrap;padding:18px 26px;user-select:none}
+.vp-ctrl{display:flex;align-items:center;gap:6px;padding:8px 2px 2px}
+.vp-play{width:34px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--r);color:var(--t0);cursor:pointer}
+.spd{font-size:10px;padding:5px 9px;border-radius:999px;border:1px solid var(--bdm);background:transparent;color:var(--t1);cursor:pointer;font-family:inherit}
+.spd.active{background:var(--acc-bg2);border-color:var(--acc);color:var(--acc);font-weight:600}
+.vp-load{width:100%;padding:22px 0;background:var(--s2);border:1px dashed var(--bdm);border-radius:var(--r);color:var(--t1);font-size:11px;cursor:pointer;font-family:inherit;margin:10px 0}
+.vq-ex{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px}
+.vq-ex span{font-size:9px;background:var(--s2);border:1px solid var(--bdm);border-radius:999px;padding:3px 8px;color:var(--t1)}
+.stars{display:flex;gap:4px}
+.stars button{background:none;border:none;cursor:pointer;font-size:19px;color:var(--t2);padding:2px;font-family:inherit;transition:color .12s,transform .12s}
+.stars button.lit{color:#e8b93d}
+.stars button:hover{transform:scale(1.15)}
 </style>
 </head>
 <body>
@@ -389,29 +406,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 <!-- VERIFY -->
 <div class="page" id="page-verify">
-  <div class="sh"><span class="st">Verify-Warteschlange</span><span class="ss">3 ausstehend</span></div>
-  <div class="vc">
-    <div class="vh"><div class="ld2"></div><div class="vt">Kniebeugen — @julia_fit</div><span class="vtm">4:23 verbleibend</span></div>
-    <div class="dvd-wrap"><canvas id="dvd-canvas"></canvas><div class="rec-badge"><div class="rec-dot"></div><span class="rec-txt">REC</span></div><div class="ts-badge" id="dvd-ts">0:17</div></div>
-    <div class="vrr">
-      <div class="vrf"><div class="vav" style="background:rgba(61,158,106,.12);color:var(--grn)">JF</div><div class="vnm">julia_fit</div><span class="pill ph" style="font-size:9px">Aufnimmt</span></div>
-      <div class="vrf"><div class="vav" style="background:var(--acc-bg2);color:var(--acc)">Du</div><div class="vnm">du</div><span class="pill pa" style="font-size:9px">Ausstehend</span></div>
-      <div class="vrf"><div class="vav" style="background:var(--blu-bg);color:var(--blu)">TP</div><div class="vnm">t.peter</div><span class="pill pg" style="font-size:9px">Bestätigt</span></div>
-    </div>
-    <div class="vac">
-      <button class="btn bg" style="flex:1;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>
-      <button class="btn bp" style="flex:2;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>
-    </div>
-  </div>
+  <div class="sh"><span class="st">Verify-Warteschlange</span><span class="ss" id="verify-count"></span></div>
+  <div id="verify-queue"></div>
+  <div id="verify-ratings"></div>
   <div class="card">
     <div class="sh" style="margin-bottom:.8rem"><span class="st" style="font-size:13px">Deine Verify-Bilanz</span></div>
     <div class="trgd">
-      <div class="sc"><div class="sl2">Verifiziert</div><div class="sv sga">142</div><div class="ss2">diesen Monat</div></div>
-      <div class="sc"><div class="sl2">Genauigkeit</div><div class="sv">97%</div><div class="ss2">Community-Rating</div></div>
-      <div class="sc"><div class="sl2">Verlässlichkeit</div><div class="sv sac">4.9</div><div class="ss2">von anderen</div></div>
+      <div class="sc"><div class="sl2">Verifiziert</div><div class="sv sga" id="vstat-done">0</div><div class="ss2">diesen Monat</div></div>
+      <div class="sc"><div class="sl2">Offen</div><div class="sv" id="vstat-open">0</div><div class="ss2">Anfragen</div></div>
+      <div class="sc"><div class="sl2">Verlässlichkeit</div><div class="sv sac" id="vstat-rating">—</div><div class="ss2" id="vstat-rating-sub">noch keine Bewertung</div></div>
     </div>
     <div class="div"></div>
-    <div class="ib"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>Falsche Bestätigungen führen zu Konto-Einschränkungen.</div>
+    <div class="ib"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>Falsche Bestätigungen führen zu Konto-Einschränkungen. Dein Videozugriff endet mit deiner Entscheidung.</div>
   </div>
 </div>
 
@@ -747,7 +753,8 @@ const EX_DATA = [
 const ST = {
   session:null, profile:null,
   transactions:[], leaderboard:[], exProgress:{},
-  monthUnits:0, todayUnit:null
+  monthUnits:0, todayUnit:null,
+  verifications:[], coReviewers:[], ratingsGiven:[], ratingsReceived:[]
 };
 
 // ── Hilfsfunktionen ──────────────────────────────────────────
@@ -797,13 +804,17 @@ function hideLogin(){ document.getElementById('login-overlay').style.display='no
 async function loadAll(){
   const uid = ST.session.user.id;
 
-  const [prof, txs, prog, ranks, units, today] = await Promise.all([
+  const [prof, txs, prog, ranks, units, today, vfs, coRev, rGiven, rRecv] = await Promise.all([
     supabase.from('users').select('*').eq('id',uid).single(),
     supabase.from('transactions').select('*').eq('user_id',uid).order('tx_date',{ascending:false}).order('created_at',{ascending:false}),
     supabase.from('exercise_progress').select('*').eq('user_id',uid),
     supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false}),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
-    supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle()
+    supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle(),
+    supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,video_path,user_id,users(display_name))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
+    supabase.rpc('get_co_reviewers'),
+    supabase.from('reviewer_ratings').select('unit_id,rated_id,stars').eq('rater_id',uid),
+    supabase.from('reviewer_ratings').select('stars').eq('rated_id',uid)
   ]);
 
   if(prof.error){ showToast('Profil-Fehler: '+prof.error.message); return; }
@@ -814,9 +825,28 @@ async function loadAll(){
   ST.leaderboard = (ranks.data||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
   ST.monthUnits = units.count||0;
   ST.todayUnit = today.data||null;
+  ST.verifications = vfs.data||[];
+  ST.coReviewers = coRev.data||[];
+  ST.ratingsGiven = rGiven.data||[];
+  ST.ratingsReceived = rRecv.data||[];
 
   applyProfileToUI();
   renderAll();
+  autoDeleteVideos();
+}
+
+// Besitzer-seitig: fertig geprüfte Videos löschen, wenn Auto-Löschen aktiv ist
+async function autoDeleteVideos(){
+  if(!ST.profile.video_auto_del)return;
+  const {data}=await supabase.from('units')
+    .select('id,video_path,verifications(verdict)')
+    .eq('user_id',ST.session.user.id).not('video_path','is',null);
+  for(const u of (data||[])){
+    if(u.verifications.length>0&&u.verifications.every(v=>v.verdict)){
+      await supabase.storage.from('unit-videos').remove([u.video_path]);
+      await supabase.from('units').update({video_path:null}).eq('id',u.id);
+    }
+  }
 }
 
 function applyProfileToUI(){
@@ -835,7 +865,7 @@ function applyProfileToUI(){
 // ════════════════════════════════════════════════════════════
 //  RENDERING
 // ════════════════════════════════════════════════════════════
-function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); }
+function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); }
 
 function renderDashboard(){
   const rank=myRank();
@@ -1184,6 +1214,119 @@ async function commitUnit(videoPath){
   showToast(msg);
 }
 
+// ════════════════════════════════════════════════════════════
+//  VERIFY: Videos prüfen + Prüfer bewerten
+// ════════════════════════════════════════════════════════════
+const vidBlobUrls={}; // verification.id -> Objekt-URL (nur im Speicher, nicht teilbar)
+
+function renderVerify(){
+  const pending=ST.verifications.filter(v=>!v.verdict&&v.units&&v.units.video_path);
+  const doneMonth=ST.verifications.filter(v=>v.verdict&&v.decided_at&&v.decided_at.slice(0,10)>=monthStart()).length;
+  document.getElementById('verify-count').textContent=pending.length+' ausstehend';
+  document.getElementById('vstat-done').textContent=doneMonth;
+  document.getElementById('vstat-open').textContent=pending.length;
+  const recv=ST.ratingsReceived;
+  if(recv.length){
+    const avg=recv.reduce((s,r)=>s+r.stars,0)/recv.length;
+    document.getElementById('vstat-rating').textContent=(Math.round(avg*10)/10).toLocaleString('de-DE');
+    document.getElementById('vstat-rating-sub').textContent='aus '+recv.length+' Bewertung'+(recv.length>1?'en':'');
+  }
+
+  // Warteschlange
+  const q=document.getElementById('verify-queue');
+  if(!pending.length){
+    q.innerHTML='<div class="card" style="text-align:center;color:var(--t2);font-size:11px;padding:1.4rem">Keine offenen Prüfanfragen — stark! 💪</div>';
+  } else {
+    q.innerHTML=pending.map(v=>{
+      const u=v.units, owner=u.users?.display_name||'Athlet';
+      const ex=Object.entries(u.selection||{}).filter(([,o])=>o.clicks>0).map(([n,o])=>'<span>'+n+' ×'+o.clicks+'</span>').join('');
+      return '<div class="vc" id="vq-'+v.id+'">'
+        +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
+        +'<div class="vq-ex">'+ex+'</div>'
+        +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
+        +'<div class="vac">'
+        +'<button class="btn bg" style="flex:1;font-size:11px" onclick="decideVerification('+v.id+',\'rejected\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>'
+        +'<button class="btn bp" style="flex:2;font-size:11px" onclick="decideVerification('+v.id+',\'approved\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>'
+        +'</div></div>';
+    }).join('');
+  }
+
+  // Prüfer-Bewertung: wenn ich und der Co-Prüfer fertig sind und ich noch nicht bewertet habe
+  const ratable=[];
+  for(const v of ST.verifications.filter(v=>v.verdict)){
+    const co=ST.coReviewers.find(c=>c.unit_id===v.unit_id);
+    if(!co||!co.decided)continue;
+    if(ST.ratingsGiven.some(r=>r.unit_id===v.unit_id&&r.rated_id===co.reviewer_id))continue;
+    ratable.push({unit_id:v.unit_id,co});
+  }
+  document.getElementById('verify-ratings').innerHTML=ratable.map(r=>
+    '<div class="card" style="margin-bottom:12px">'
+    +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px">Wie verlässlich war Prüfer '+r.co.display_name+'?</div>'
+    +'<div style="font-size:10px;color:var(--t2);margin-bottom:8px">Ihr habt dieselbe Einheit geprüft — bewerte seine Verlässlichkeit (1–5)</div>'
+    +'<div class="stars" data-unit="'+r.unit_id+'" data-rated="'+r.co.reviewer_id+'">'
+    +[1,2,3,4,5].map(s=>'<button onmouseover="hoverStars(this,'+s+')" onmouseout="hoverStars(this,0)" onclick="rateReviewer('+r.unit_id+',\''+r.co.reviewer_id+'\','+s+')">★</button>').join('')
+    +'</div></div>').join('');
+}
+
+function hoverStars(btn,n){
+  [...btn.parentElement.children].forEach((b,i)=>b.classList.toggle('lit',i<n));
+}
+async function rateReviewer(unitId,ratedId,stars){
+  const {error}=await supabase.from('reviewer_ratings').insert({
+    unit_id:unitId,rater_id:ST.session.user.id,rated_id:ratedId,stars
+  });
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.ratingsGiven.push({unit_id:unitId,rated_id:ratedId,stars});
+  renderVerify();
+  showToast('Bewertung gespeichert — '+stars+' ★');
+}
+
+// Video als Blob laden (respektiert RLS; keine teilbare URL, kein Download-Endpunkt)
+async function loadVerifyVideo(vid){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v)return;
+  const slot=document.getElementById('vp-'+vid);
+  slot.innerHTML='<div class="vp-load" style="cursor:default">Video wird geladen…</div>';
+  const {data,error}=await supabase.storage.from('unit-videos').download(v.units.video_path);
+  if(error){slot.innerHTML='<div class="vp-load" style="cursor:default;color:var(--acc)">Video nicht verfügbar: '+error.message+'</div>';return;}
+  if(vidBlobUrls[vid])URL.revokeObjectURL(vidBlobUrls[vid]);
+  const url=URL.createObjectURL(data);vidBlobUrls[vid]=url;
+  const wm=('&nbsp;'+(ST.profile.display_name||'Prüfer')+' · RepVerify&nbsp;');
+  slot.innerHTML='<div class="vp-wrap" oncontextmenu="return false">'
+    +'<video id="vv-'+vid+'" playsinline disablepictureinpicture controlslist="nodownload noremoteplayback" onclick="togglePlay('+vid+')"></video>'
+    +'<div class="vp-wm">'+Array(9).fill('<span>'+wm+'</span>').join('')+'</div>'
+    +'</div>'
+    +'<div class="vp-ctrl">'
+    +'<button class="vp-play" onclick="togglePlay('+vid+')" id="vpb-'+vid+'">▶</button>'
+    +[0.5,1,2].map(s=>'<button class="spd'+(s===1?' active':'')+'" onclick="setSpeed('+vid+','+s+',this)">'+s.toLocaleString('de-DE')+'×</button>').join('')
+    +'</div>';
+  const vd=document.getElementById('vv-'+vid);
+  vd.src=url;
+  vd.addEventListener('play',()=>{document.getElementById('vpb-'+vid).textContent='⏸';});
+  vd.addEventListener('pause',()=>{document.getElementById('vpb-'+vid).textContent='▶';});
+}
+function togglePlay(vid){
+  const vd=document.getElementById('vv-'+vid);if(!vd)return;
+  vd.paused?vd.play():vd.pause();
+}
+function setSpeed(vid,rate,btn){
+  const vd=document.getElementById('vv-'+vid);if(!vd)return;
+  vd.playbackRate=rate;
+  [...btn.parentElement.querySelectorAll('.spd')].forEach(b=>b.classList.toggle('active',b===btn));
+}
+async function decideVerification(vid,verdict){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v||v.verdict)return;
+  const {error}=await supabase.from('verifications')
+    .update({verdict,decided_at:new Date().toISOString()}).eq('id',vid);
+  if(error){showToast('Fehler: '+error.message);return;}
+  v.verdict=verdict;v.decided_at=new Date().toISOString();
+  if(vidBlobUrls[vid]){URL.revokeObjectURL(vidBlobUrls[vid]);delete vidBlobUrls[vid];}
+  // Co-Prüfer-Status aktualisieren (für die Bewertungs-Karte)
+  const {data:coRev}=await supabase.rpc('get_co_reviewers');
+  ST.coReviewers=coRev||[];
+  renderVerify();
+  showToast(verdict==='approved'?'Einheit bestätigt ✓':'Einheit abgelehnt');
+}
+
 // ── Auszahlung ───────────────────────────────────────────────
 function openWithdraw(){
   document.getElementById('withdraw-amount-text').textContent=fmtEUR(balance());
@@ -1213,7 +1356,6 @@ function nav(name){
   const ni=document.getElementById('ni-'+t);if(ni)ni.classList.add('active');
   document.querySelectorAll('.ttab[id^="ttab-"]').forEach(el=>el.classList.remove('active'));
   const tt=document.getElementById('ttab-'+t);if(tt)tt.classList.add('active');
-  if(name==='verify')startDVD();
 }
 function switchStab(el,id){
   document.querySelectorAll('.stb').forEach(s=>s.classList.remove('active'));
@@ -1346,49 +1488,12 @@ function showToast(msg){
   toastTimeout=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-// ── DVD ──────────────────────────────────────────────────────
-let dvdAnim=null;
-function startDVD(){
-  const canvas=document.getElementById('dvd-canvas');
-  if(!canvas||dvdAnim)return;
-  canvas.width=canvas.offsetWidth*devicePixelRatio;
-  canvas.height=canvas.offsetHeight*devicePixelRatio;
-  const ctx=canvas.getContext('2d'),dpr=devicePixelRatio;
-  const W=110,H=42;let x=30,y=15,vx=1.6,vy=1.0,hitFlash=0;
-  function draw(cx,cy){
-    const cw=canvas.width/dpr,ch=canvas.height/dpr;
-    ctx.save();ctx.scale(dpr,dpr);ctx.clearRect(0,0,cw,ch);
-    if(hitFlash>0){ctx.fillStyle='rgba(226,75,74,'+((hitFlash/12)*0.12)+')';ctx.fillRect(0,0,cw,ch);}
-    ctx.translate(cx,cy);
-    const r=7;
-    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(W-r,0);ctx.quadraticCurveTo(W,0,W,r);ctx.lineTo(W,H-r);ctx.quadraticCurveTo(W,H,W-r,H);ctx.lineTo(r,H);ctx.quadraticCurveTo(0,H,0,H-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
-    ctx.fillStyle='#E24B4A';ctx.shadowBlur=hitFlash>0?26:12;ctx.shadowColor='rgba(226,75,74,0.65)';ctx.fill();ctx.shadowBlur=0;
-    ctx.font='bold '+Math.round(H*0.52)+'px -apple-system,sans-serif';ctx.fillStyle='rgba(0,0,0,0.75)';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('DVD',W/2,H*0.37);
-    ctx.beginPath();ctx.ellipse(W/2,H*0.74,W*0.33,H*0.13,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fill();
-    ctx.beginPath();ctx.ellipse(W/2,H*0.74,W*0.09,H*0.055,0,0,Math.PI*2);ctx.fillStyle='#E24B4A';ctx.fill();
-    ctx.restore();
-  }
-  let seconds=17,lastSec=0;
-  function loop(now){
-    const cw=canvas.width/dpr,ch=canvas.height/dpr;
-    x+=vx;y+=vy;let hit=false;
-    if(x<=0){x=0;vx=Math.abs(vx);hit=true;}
-    if(x>=cw-W){x=cw-W;vx=-Math.abs(vx);hit=true;}
-    if(y<=0){y=0;vy=Math.abs(vy);hit=true;}
-    if(y>=ch-H){y=ch-H;vy=-Math.abs(vy);hit=true;}
-    if(hit)hitFlash=14;if(hitFlash>0)hitFlash--;
-    draw(x,y);
-    if(now-lastSec>1000){lastSec=now;seconds++;const el=document.getElementById('dvd-ts');if(el)el.textContent=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
-    dvdAnim=requestAnimationFrame(loop);
-  }
-  dvdAnim=requestAnimationFrame(loop);
-}
-
 // ════════════════════════════════════════════════════════════
 //  INIT + globale Handler (für onclick-Attribute)
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,rateReviewer,hoverStars,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
