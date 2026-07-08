@@ -255,6 +255,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .google-btn:hover{background:var(--s3)}
 .login-div{display:flex;align-items:center;gap:10px;margin:1.1rem 0;font-size:10px;color:var(--t2)}
 .login-div::before,.login-div::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* KAMERA-AUFNAHME */
+.cam-overlay{display:none;position:fixed;inset:0;background:#000;z-index:150}
+.cam-overlay.show{display:block}
+.cam-overlay video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam-top{position:absolute;top:0;left:0;right:0;padding:calc(14px + env(safe-area-inset-top)) 116px 30px 16px;text-align:center;background:linear-gradient(rgba(0,0,0,.55),transparent);pointer-events:none}
+.cam-ex-name{font-size:17px;font-weight:700;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.cam-ex-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.cam-rec{position:absolute;top:calc(14px + env(safe-area-inset-top));left:16px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.45);border-radius:999px;padding:4px 10px;font-size:11px;color:#fff;font-variant-numeric:tabular-nums}
+.cam-rec-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);animation:camblink 1.1s infinite}
+@keyframes camblink{0%,100%{opacity:1}50%{opacity:.25}}
+/* Rechte Leiste: schmal, Bläschen zentriert, aktuelle leuchtet, erledigte scrollen nach oben raus */
+.cam-rail-wrap{position:absolute;top:0;right:10px;bottom:110px;width:96px;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(transparent,#000 4%,#000 92%,transparent);mask-image:linear-gradient(transparent,#000 4%,#000 92%,transparent)}
+.cam-rail{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:calc(54px + env(safe-area-inset-top));transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.cam-bubble{pointer-events:auto;width:88px;text-align:center;background:rgba(20,20,20,.55);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:7px 8px;cursor:pointer;transition:opacity .3s,box-shadow .3s,border-color .3s;backdrop-filter:blur(4px)}
+.cam-bubble .cb-name{font-size:9px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cam-bubble .cb-sets{font-size:8px;color:rgba(255,255,255,.6);margin-top:1px;font-variant-numeric:tabular-nums}
+.cam-bubble{opacity:.38}
+.cam-bubble.current{opacity:1;border-color:rgba(226,75,74,.8);box-shadow:0 0 14px rgba(226,75,74,.45),0 0 4px rgba(255,255,255,.15) inset}
+.cam-bubble.done{opacity:.15}
+.cam-controls{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 16px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.65))}
+.cam-cancel{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);font-size:11px;padding:8px 14px}
+.cam-confirm{font-size:13px;padding:11px 22px;flex:0 1 260px}
+/* Platzhalter unten rechts im Video: später 3D-Männchen-Animation der Übung */
+.cam-anim-slot{position:absolute;right:12px;bottom:120px;width:0;height:0}
 </style>
 </head>
 <body>
@@ -357,7 +382,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="ex-list" id="ex-list"></div>
     <div class="panel-footer">
       <div class="sel-count">Einheit: <b id="pts-total">0</b> Pkt · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
-      <button class="btn bp" id="rec-btn" onclick="commitUnit()" style="font-size:11px;opacity:.4;pointer-events:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Einheit aufnehmen</button>
+      <button class="btn bp" id="rec-btn" onclick="startRecording()" style="font-size:11px;opacity:.4;pointer-events:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Einheit aufnehmen</button>
     </div>
   </div>
 </div>
@@ -472,7 +497,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
           <span id="name-changes-text">Wird in Rankings angezeigt</span>
         </div>
       </div>
-      <div class="fb2"><div class="fl">E-Mail</div><input class="fi" type="email" value="max.kraft@gmail.com" id="user-email-input"></div>
+      <div class="fb2"><div class="fl">E-Mail</div><input class="fi" type="email" value="" id="user-email-input"></div>
       <div class="fb2">
         <div class="fl">Passwort</div>
         <div class="fst">
@@ -503,10 +528,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <!-- BENACHRICHTIGUNGEN -->
   <div class="stp" id="s-notifications">
     <div class="sd">Push-Benachrichtigungen</div>
-    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit 3/3 Stimmen hat · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox"><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende · <span class="notif-mail">max.kraft@gmail.com</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit 3/3 Stimmen hat · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
   </div>
 
   <!-- DATENSCHUTZ -->
@@ -579,10 +604,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="modal-box">
     <div class="modal-icon" style="background:var(--amb-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amb)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
     <div class="modal-title">Bewerte deine Erfahrung!</div>
-    <div class="modal-body">Wähle deinen Store, um RepVerify zu bewerten.</div>
+    <div class="modal-body">Die Mobile-App ist noch nicht in den Stores verfügbar. Sobald sie veröffentlicht ist, kannst du RepVerify hier bewerten.</div>
     <div class="modal-actions" style="flex-direction:column">
-      <a class="btn bp" href="https://apps.apple.com/app/repverify" target="_blank" rel="noopener" onclick="closeModal('store-modal')">App Store (iOS)</a>
-      <a class="btn bg" href="https://play.google.com/store/apps/details?id=com.repverify.app" target="_blank" rel="noopener" onclick="closeModal('store-modal')">Google Play (Android)</a>
+      <button class="btn bp" onclick="closeModal('store-modal')">Alles klar</button>
     </div>
   </div>
 </div>
@@ -641,6 +665,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="login-div">oder</div>
     <input class="fi" id="login-email" type="email" placeholder="deine@email.de" style="margin-bottom:8px" onkeydown="if(event.key==='Enter'){signInEmail()}">
     <button class="btn bp bf" onclick="signInEmail()" style="font-size:12px">Magic-Link senden</button>
+  </div>
+</div>
+
+<!-- KAMERA-AUFNAHME -->
+<div class="cam-overlay" id="cam-overlay">
+  <video id="cam-video" autoplay playsinline muted></video>
+  <div class="cam-top">
+    <div class="cam-ex-name" id="cam-ex-name">—</div>
+    <div class="cam-ex-sub" id="cam-ex-sub"></div>
+  </div>
+  <div class="cam-rec"><span class="cam-rec-dot"></span><span id="cam-timer">0:00</span></div>
+  <div class="cam-rail-wrap"><div class="cam-rail" id="cam-rail"></div></div>
+  <!-- TODO: hier später 3D-Männchen-Animation der aktuellen Übung einblenden -->
+  <div class="cam-anim-slot" id="cam-anim-slot"></div>
+  <div class="cam-controls">
+    <button class="btn cam-cancel" onclick="askCancelRecording()">Abbruch</button>
+    <button class="btn bp cam-confirm" id="cam-confirm-btn" onclick="confirmRecording()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Einheit bestätigen</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cam-cancel-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--acc-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+    <div class="modal-title">Aufnahme abbrechen?</div>
+    <div class="modal-body">Dein Video wird verworfen und die Einheit <strong style="color:var(--t0)">nicht gewertet</strong>. Bist du sicher?</div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('cam-cancel-modal')">Weiter aufnehmen</button>
+      <button class="btn" style="background:var(--acc);color:#fff" onclick="confirmCancelRecording()">Ja, abbrechen</button>
+    </div>
   </div>
 </div>
 
@@ -972,8 +1025,111 @@ function closeLvPanel(){
   document.getElementById('lv-panel').classList.remove('open');
 }
 
+// ════════════════════════════════════════════════════════════
+//  KAMERA-AUFNAHME
+//  (später: 3D-Männchen-Animation der Übung im #cam-anim-slot)
+// ════════════════════════════════════════════════════════════
+let camStream=null,camRecorder=null,camChunks=[],camMime='',camTimerInt=null,camSecs=0;
+let camQueue=[],camIdx=0,camBusy=false;
+
+function camPickMime(){
+  const c=['video/mp4','video/webm;codecs=vp9','video/webm'];
+  return c.find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';
+}
+function buildCamQueue(){
+  camQueue=Object.entries(unitSel).filter(([,o])=>o.clicks>0).map(([name,o])=>({name,sets:o.clicks,done:0}));
+  camIdx=0;
+}
+function renderCamRail(){
+  const rail=document.getElementById('cam-rail');
+  rail.innerHTML=camQueue.map((q,i)=>{
+    const cls=i<camIdx?'done':(i===camIdx?'current':'');
+    return '<div class="cam-bubble '+cls+'" onclick="camAdvance('+i+')">'
+      +'<div class="cb-name">'+q.name+'</div>'
+      +'<div class="cb-sets">'+(i<camIdx?'✓':q.done+' / '+q.sets+' Sets')+'</div></div>';
+  }).join('');
+  // Erledigte Bläschen nach oben aus dem Bild schieben
+  const first=rail.firstElementChild;
+  const step=first?first.offsetHeight+14:50;
+  rail.style.transform='translateY(-'+(camIdx*step)+'px)';
+  const cur=camQueue[camIdx];
+  document.getElementById('cam-ex-name').textContent=cur?cur.name:'Fertig!';
+  document.getElementById('cam-ex-sub').textContent=cur?('Set '+Math.min(cur.done+1,cur.sets)+' von '+cur.sets+' · Bläschen antippen wenn geschafft'):'Einheit bestätigen, um abzuschließen';
+}
+function camAdvance(i){
+  if(i!==camIdx)return; // nur die aktuelle (leuchtende) Übung ist antippbar
+  const cur=camQueue[camIdx];
+  cur.done++;
+  if(cur.done>=cur.sets)camIdx++;
+  renderCamRail();
+}
+function camTimerTick(){
+  camSecs++;
+  document.getElementById('cam-timer').textContent=Math.floor(camSecs/60)+':'+String(camSecs%60).padStart(2,'0');
+}
+async function startRecording(){
+  if(ST.todayUnit)return;
+  if(unitPts()<GOAL_PTS)return;
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},audio:false});
+  }catch(e){showToast('Kamera-Zugriff nicht möglich: '+e.message);return;}
+  camMime=camPickMime();
+  if(!camMime){camStream.getTracks().forEach(t=>t.stop());camStream=null;showToast('Dein Browser unterstützt keine Videoaufnahme');return;}
+  buildCamQueue();
+  document.getElementById('cam-video').srcObject=camStream;
+  renderCamRail();
+  camChunks=[];camSecs=0;
+  document.getElementById('cam-timer').textContent='0:00';
+  camRecorder=new MediaRecorder(camStream,{mimeType:camMime});
+  camRecorder.ondataavailable=e=>{if(e.data&&e.data.size)camChunks.push(e.data);};
+  camRecorder.start(1000);
+  camTimerInt=setInterval(camTimerTick,1000);
+  document.getElementById('cam-overlay').classList.add('show');
+}
+function camTeardown(){
+  clearInterval(camTimerInt);camTimerInt=null;
+  if(camRecorder&&camRecorder.state!=='inactive')camRecorder.stop();
+  camRecorder=null;
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  document.getElementById('cam-video').srcObject=null;
+  document.getElementById('cam-overlay').classList.remove('show');
+}
+function askCancelRecording(){openModal('cam-cancel-modal');}
+function confirmCancelRecording(){
+  closeModal('cam-cancel-modal');
+  camTeardown();camChunks=[];
+  showToast('Aufnahme verworfen');
+  updatePtsUI();
+}
+async function confirmRecording(){
+  if(camBusy)return;camBusy=true;
+  const btn=document.getElementById('cam-confirm-btn');
+  btn.style.opacity='.5';btn.style.pointerEvents='none';
+  try{
+    // Aufnahme sauber beenden und letzte Datenpakete abwarten
+    if(camRecorder&&camRecorder.state!=='inactive'){
+      await new Promise(res=>{camRecorder.onstop=res;camRecorder.stop();});
+    }
+    clearInterval(camTimerInt);camTimerInt=null;
+    const blob=new Blob(camChunks,{type:camMime.split(';')[0]});
+    const ext=camMime.startsWith('video/mp4')?'mp4':'webm';
+    const path=ST.session.user.id+'/'+isoToday()+'-'+Date.now()+'.'+ext;
+    const {error:upErr}=await supabase.storage.from('unit-videos').upload(path,blob,{contentType:camMime.split(';')[0]});
+    if(upErr){
+      showToast('Video-Upload fehlgeschlagen: '+upErr.message);
+      btn.style.opacity='1';btn.style.pointerEvents='all';camBusy=false;
+      return; // Overlay bleibt offen — erneut versuchen oder abbrechen
+    }
+    camTeardown();camChunks=[];
+    await commitUnit(path);
+  } finally {
+    camBusy=false;
+    btn.style.opacity='1';btn.style.pointerEvents='all';
+  }
+}
+
 // ── Einheit einreichen: schreibt Units, XP, Ranking, Guthaben in Supabase ──
-async function commitUnit(){
+async function commitUnit(videoPath){
   if(ST.todayUnit)return;
   const pts=unitPts();if(pts<GOAL_PTS)return;
   const rp=rankingValue(),uid=ST.session.user.id,oldRank=myRank();
@@ -982,7 +1138,7 @@ async function commitUnit(){
   // 1) Einheit speichern (Unique pro Tag)
   const {data:unit,error:uErr}=await supabase.from('units').insert({
     user_id:uid,unit_date:isoToday(),points:pts,ranking_points:rp,
-    distinct_count:unitDistinct(),selection:unitSel
+    distinct_count:unitDistinct(),selection:unitSel,video_path:videoPath||null
   }).select().single();
   if(uErr){showToast(uErr.code==='23505'?'Heute bereits eine Einheit aufgenommen':'Fehler: '+uErr.message);updatePtsUI();return;}
 
@@ -1232,6 +1388,7 @@ function startDVD(){
 //  INIT + globale Handler (für onclick-Attribute)
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
+  startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
