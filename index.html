@@ -280,6 +280,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-confirm{font-size:13px;padding:11px 22px;flex:0 1 260px}
 /* Platzhalter unten rechts im Video: später 3D-Männchen-Animation der Übung */
 .cam-anim-slot{position:absolute;right:12px;bottom:120px;width:0;height:0}
+/* Satzpause: Aufnahme angehalten */
+.cam-rest{display:none;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.cam-rest.show{display:flex}
+.cam-rest-time{font-size:52px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(226,75,74,.55)}
+.cam-rest-sub{font-size:11px;color:rgba(255,255,255,.65)}
+.cam-rest-skip{margin-top:14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22);font-size:12px;padding:9px 20px}
+/* Satzpausen-Slider (Einstellungen) */
+.rest-slider-wrap{padding:2px 2px 0}
+.rest-slider-wrap input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:4px;border-radius:999px;background:var(--s3);outline:none;cursor:pointer}
+.rest-slider-wrap input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px rgba(226,75,74,.5);cursor:grab}
+.rest-slider-wrap input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:var(--acc);cursor:grab}
+.rest-ticks{display:flex;justify-content:space-between;font-size:9px;color:var(--t2);margin-top:5px;padding:0 1px}
 
 /* KATEGORIEN (grün/gelb/rot) */
 .cat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle}
@@ -588,6 +600,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="trx"><div class="trtl">Videos automatisch löschen</div><div class="trsb">Standard: an — Löschung direkt nach Bestätigung <span class="pill pg" style="font-size:9px;padding:1px 5px;margin-left:3px">empfohlen</span></div></div>
       <label class="tog"><input type="checkbox" checked id="video-del-toggle" onchange="setVideoAutoDel(this.checked)"><span class="tsl"></span></label>
     </div>
+    <div class="tr2" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div class="trx"><div class="trtl">Satzpause beim Aufnehmen</div><div class="trsb">Nach jedem bestätigten Set pausiert die Aufnahme für <b style="color:var(--t0)" id="rest-label">1 Min</b></div></div>
+      <div class="rest-slider-wrap">
+        <input type="range" id="rest-slider" min="0" max="3" step="1" value="2" oninput="restSliderInput(this.value)" onchange="saveRestSecs(this.value)">
+        <div class="rest-ticks"><span>30 Sek</span><span>45 Sek</span><span>1 Min</span><span>1:30 Min</span></div>
+      </div>
+    </div>
     <div class="ib" id="video-keep-info" style="display:none;margin-top:.6rem">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
       <span>Du hast <b style="color:var(--t0)">1 Tag</b> Zeit, dein eigenes Video zu behalten. Die Prüfer haben diese Möglichkeit nicht — ihr Zugriff endet mit der Verifizierung.</span>
@@ -724,6 +743,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="cam-rail-wrap"><div class="cam-rail" id="cam-rail"></div></div>
   <!-- TODO: hier später 3D-Männchen-Animation der aktuellen Übung einblenden -->
   <div class="cam-anim-slot" id="cam-anim-slot"></div>
+  <div class="cam-rest" id="cam-rest">
+    <div class="cam-rest-time" id="cam-rest-time">0:60</div>
+    <div class="cam-rest-sub">Satzpause — Aufnahme angehalten</div>
+    <button class="btn cam-rest-skip" onclick="endRest()">Weiter ▶</button>
+  </div>
   <div class="cam-controls">
     <button class="btn cam-cancel" onclick="askCancelRecording()">Abbruch</button>
     <button class="btn bp cam-confirm" id="cam-confirm-btn" onclick="confirmRecording()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Einheit bestätigen</button>
@@ -932,6 +956,9 @@ function applyProfileToUI(){
   document.getElementById('dashboard-toggle').checked = p.dashboard_public;
   document.getElementById('video-del-toggle').checked = p.video_auto_del;
   document.getElementById('video-keep-info').style.display = p.video_auto_del?'none':'flex';
+  const ri=Math.max(0,REST_OPTS.indexOf(p.rest_secs||60));
+  document.getElementById('rest-slider').value = ri;
+  document.getElementById('rest-label').textContent = restLabel(REST_OPTS[ri]);
   updateNameChangeUI();
 }
 
@@ -1176,7 +1203,9 @@ function closeLvPanel(){
 //  (später: 3D-Männchen-Animation der Übung im #cam-anim-slot)
 // ════════════════════════════════════════════════════════════
 let camStream=null,camRecorder=null,camChunks=[],camMime='',camTimerInt=null,camSecs=0;
-let camQueue=[],camIdx=0,camBusy=false,camMarks=[];
+let camQueue=[],camIdx=0,camBusy=false,camMarks=[],camRest=0,camRestInt=null;
+const REST_OPTS=[30,45,60,90];
+const restLabel=s=>s<60?s+' Sek':(s===60?'1 Min':'1:30 Min');
 
 function camPickMime(){
   const c=['video/mp4','video/webm;codecs=vp9','video/webm'];
@@ -1203,14 +1232,34 @@ function renderCamRail(){
   document.getElementById('cam-ex-sub').textContent=cur?('Set '+Math.min(cur.done+1,cur.sets)+' von '+cur.sets+' · Bläschen antippen wenn geschafft'):'Einheit bestätigen, um abzuschließen';
 }
 function camAdvance(i){
-  if(i!==camIdx)return; // nur die aktuelle (leuchtende) Übung ist antippbar
+  if(i!==camIdx||camRest>0)return; // nur die aktuelle Übung, und nur einmal — nicht während der Pause
   const cur=camQueue[camIdx];
   cur.done++;
   camMarks.push({ex:cur.name,set:cur.done,t:camSecs}); // Zeitmarke: Set fertig bei Sekunde t
   if(cur.done>=cur.sets)camIdx++;
   renderCamRail();
+  if(!camAllDone())startRest(); // nach jedem bestätigten Set: Satzpause, Aufnahme angehalten
 }
 function camAllDone(){return camIdx>=camQueue.length;}
+
+// ── Satzpause: Aufnahme pausiert, Pause landet nicht im Video ──
+function startRest(){
+  camRest=ST.profile.rest_secs||60;
+  if(camRecorder&&camRecorder.state==='recording')camRecorder.pause();
+  clearInterval(camTimerInt);camTimerInt=null; // Video-Zeit friert mit ein
+  updateRestUI();
+  document.getElementById('cam-rest').classList.add('show');
+  camRestInt=setInterval(()=>{camRest--;updateRestUI();if(camRest<=0)endRest();},1000);
+}
+function updateRestUI(){
+  document.getElementById('cam-rest-time').textContent=Math.floor(camRest/60)+':'+String(Math.max(0,camRest%60)).padStart(2,'0');
+}
+function endRest(){
+  clearInterval(camRestInt);camRestInt=null;camRest=0;
+  document.getElementById('cam-rest').classList.remove('show');
+  if(camRecorder&&camRecorder.state==='paused')camRecorder.resume();
+  if(camRecorder&&!camTimerInt)camTimerInt=setInterval(camTimerTick,1000);
+}
 function camTimerTick(){
   camSecs++;
   document.getElementById('cam-timer').textContent=Math.floor(camSecs/60)+':'+String(camSecs%60).padStart(2,'0');
@@ -1236,6 +1285,8 @@ async function startRecording(){
 }
 function camTeardown(){
   clearInterval(camTimerInt);camTimerInt=null;
+  clearInterval(camRestInt);camRestInt=null;camRest=0;
+  document.getElementById('cam-rest').classList.remove('show');
   if(camRecorder&&camRecorder.state!=='inactive')camRecorder.stop();
   camRecorder=null;
   if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
@@ -1576,6 +1627,15 @@ async function setDashboardPublic(on){
   renderRanking();
   showToast(on?'Dashboard für andere sichtbar':'Dashboard wird für andere geblurt');
 }
+function restSliderInput(v){
+  document.getElementById('rest-label').textContent=restLabel(REST_OPTS[+v]);
+}
+async function saveRestSecs(v){
+  const secs=REST_OPTS[+v];
+  ST.profile.rest_secs=secs;
+  const {error}=await supabase.from('users').update({rest_secs:secs}).eq('id',ST.session.user.id);
+  showToast(error?'Fehler: '+error.message:'Satzpause: '+restLabel(secs));
+}
 async function setVideoAutoDel(on){
   ST.profile.video_auto_del=on;
   await supabase.from('users').update({video_auto_del:on}).eq('id',ST.session.user.id);
@@ -1693,6 +1753,7 @@ function showToast(msg){
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,rateFairness,levelUp,selectVerify,
+  endRest,restSliderInput,saveRestSecs,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
