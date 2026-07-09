@@ -288,12 +288,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .ex-chip.cy{border-left:2px solid rgba(232,185,61,.55)}
 .ex-chip.cr{border-left:2px solid rgba(226,75,74,.55)}
 
-/* VERIFY: Teilset-Leiste, Zählen, Fairness */
-.vq-seq{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px}
-.vq-seq .sq{font-size:9px;background:var(--s2);border:1px solid var(--bdm);border-radius:999px;padding:3px 8px;color:var(--t1);transition:box-shadow .25s,border-color .25s,color .25s;opacity:.75}
-.vq-seq .sq.live{opacity:1;color:var(--t0);border-color:rgba(226,75,74,.8);box-shadow:0 0 10px rgba(226,75,74,.4)}
+/* VERIFY: Einblendung der laufenden Übung im Video */
+.vp-now{display:none;position:absolute;top:10px;left:10px;z-index:3;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);border-radius:999px;padding:4px 11px;font-size:10px;color:rgba(255,255,255,.8)}
+.vp-now b{color:#fff;font-weight:600}
 /* Fokussierter Set-Zähler: eine Übung, leuchtend, mit − / + */
-.vfocus{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--r);padding:10px 8px;margin:10px 0 4px}
+.vfocus{display:flex;align-items:center;gap:6px;padding:12px 0 6px}
 .vf-nav{width:28px;height:44px;border:none;background:transparent;color:var(--t2);font-size:19px;cursor:pointer;font-family:inherit;border-radius:var(--r)}
 .vf-nav:hover:not(:disabled){color:var(--t0)}
 .vf-nav:disabled{opacity:.25;cursor:default}
@@ -1369,16 +1368,11 @@ function renderVerify(){
     q.innerHTML='<div class="card" style="text-align:center;color:var(--t2);font-size:11px;padding:1.4rem">Keine offenen Prüfanfragen — stark! 💪</div>';
   } else {
     q.innerHTML=pending.map(v=>{
-      const u=v.units, owner=u.users?.display_name||'Athlet', marks=u.set_marks||[];
+      const u=v.units, owner=u.users?.display_name||'Athlet';
       if(!vcCounts[v.id])vcCounts[v.id]={};
-      // Teilset-Leiste: ein Bläschen pro abgehaktem Set, in Video-Reihenfolge — leuchtet beim Abspielen mit
-      const seq=marks.length
-        ? marks.map((m,i)=>'<span class="sq" id="sq-'+v.id+'-'+i+'">'+m.ex+' · S'+m.set+'</span>').join('')
-        : Object.entries(u.selection||{}).filter(([,o])=>o.clicks>0).map(([n,o])=>'<span class="sq">'+n+' ×'+o.clicks+'</span>').join('');
       if(vcFocus[v.id]===undefined)vcFocus[v.id]=0;
       return '<div class="vc" id="vq-'+v.id+'">'
         +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
-        +'<div class="vq-seq">'+seq+'</div>'
         +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
         +'<div class="vfocus" id="vfocus-'+v.id+'">'+vcFocusHtml(v.id)+'</div>'
         +'<div class="vac">'
@@ -1469,6 +1463,7 @@ async function loadVerifyVideo(vid){
   slot.innerHTML='<div class="vp-wrap" oncontextmenu="return false">'
     +'<video id="vv-'+vid+'" playsinline disablepictureinpicture controlslist="nodownload noremoteplayback" onclick="togglePlay('+vid+')"></video>'
     +'<div class="vp-wm">'+Array(9).fill('<span>'+wm+'</span>').join('')+'</div>'
+    +'<div class="vp-now" id="vpnow-'+vid+'"></div>'
     +'</div>'
     +'<div class="vp-ctrl">'
     +'<button class="vp-play" onclick="togglePlay('+vid+')" id="vpb-'+vid+'">▶</button>'
@@ -1482,14 +1477,13 @@ async function loadVerifyVideo(vid){
   const marks=v.units.set_marks||[];
   if(marks.length){
     const order=unitExOrder(v.units);
+    const now=document.getElementById('vpnow-'+vid);
     vd.addEventListener('timeupdate',()=>{
       const t=vd.currentTime;
       let cur=marks.findIndex(m=>t<=m.t);
       if(cur<0)cur=marks.length-1;
-      marks.forEach((m,i)=>{
-        const el=document.getElementById('sq-'+vid+'-'+i);
-        if(el)el.classList.toggle('live',i===cur);
-      });
+      // Dezente Einblendung im Video: aktuelle Übung + Set
+      if(now){now.innerHTML='<b>'+marks[cur].ex+'</b> · Set '+marks[cur].set;now.style.display='block';}
       // Zähler folgt automatisch der Übung, die im Video gerade läuft
       const idx=order.indexOf(marks[cur].ex);
       if(idx>=0&&vcFocus[vid]!==idx){vcFocus[vid]=idx;vcRerenderFocus(vid);}
