@@ -292,15 +292,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .vq-seq{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px}
 .vq-seq .sq{font-size:9px;background:var(--s2);border:1px solid var(--bdm);border-radius:999px;padding:3px 8px;color:var(--t1);transition:box-shadow .25s,border-color .25s,color .25s;opacity:.75}
 .vq-seq .sq.live{opacity:1;color:var(--t0);border-color:rgba(226,75,74,.8);box-shadow:0 0 10px rgba(226,75,74,.4)}
-.vcount{display:flex;flex-direction:column;gap:5px;margin-bottom:4px}
-.vcount-row{display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--r);padding:5px 9px}
-.vcount-name{font-size:10px;color:var(--t0)}
-.vcount-ctl{display:flex;align-items:center;gap:9px}
-.vcount-ctl button{width:22px;height:22px;border-radius:50%;border:1px solid var(--bdm);background:var(--s3);color:var(--t0);font-size:13px;cursor:pointer;line-height:1;font-family:inherit}
-.vcount-ctl b{font-size:12px;color:var(--t0);min-width:14px;text-align:center;font-variant-numeric:tabular-nums}
-.vcmp{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-.vcmp-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;font-size:10px;color:var(--t1);background:var(--s2);border-radius:var(--r);padding:5px 9px}
-.vcmp-row b{color:var(--t0)}
+/* Fokussierter Set-Zähler: eine Übung, leuchtend, mit − / + */
+.vfocus{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--r);padding:10px 8px;margin:10px 0 4px}
+.vf-nav{width:28px;height:44px;border:none;background:transparent;color:var(--t2);font-size:19px;cursor:pointer;font-family:inherit;border-radius:var(--r)}
+.vf-nav:hover:not(:disabled){color:var(--t0)}
+.vf-nav:disabled{opacity:.25;cursor:default}
+.vf-mid{flex:1;text-align:center}
+.vf-ex{font-size:13px;font-weight:700;color:var(--acc);text-shadow:0 0 12px rgba(226,75,74,.5)}
+.vf-sub{font-size:9px;color:var(--t2);margin:2px 0 7px}
+.vf-ctl{display:flex;align-items:center;justify-content:center;gap:16px}
+.vf-ctl button{width:30px;height:30px;border-radius:50%;border:1px solid var(--bdm);background:var(--s3);color:var(--t0);font-size:15px;cursor:pointer;line-height:1;font-family:inherit;transition:border-color .15s}
+.vf-ctl button:hover{border-color:var(--acc)}
+.vf-ctl b{font-size:19px;color:var(--t0);min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+/* Ergebnis-Vergleich: eine Zahl pro Person */
+.vcmp2{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:12px}
+.vcmp2>div{text-align:center}
+.vcmp2-n{font-size:26px;font-weight:700;color:var(--t0);font-variant-numeric:tabular-nums}
+.vcmp2-l{font-size:9px;color:var(--t2);margin-top:1px}
+.vcmp2-vs{font-size:9px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase}
 .fair-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .fair-btn{font-size:10px;padding:7px 4px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
 .fair-btn.f-sehr_fair:hover{border-color:var(--grn);color:var(--grn)}
@@ -1330,6 +1339,7 @@ async function commitUnit(videoPath){
 // ════════════════════════════════════════════════════════════
 const vidBlobUrls={}; // verification.id -> Objekt-URL (nur im Speicher, nicht teilbar)
 const vcCounts={};    // verification.id -> {übung: gezählte Sets}
+const vcFocus={};     // verification.id -> Index der gerade fokussierten Übung
 const FAIR_OPTS=[['sehr_fair','Sehr fair',5],['fair','Fair',4],['teils_unfair','Teils unfair',2],['unfair','Unfair',1]];
 
 // Übungs-Reihenfolge einer Einheit: aus den Zeitmarken, sonst aus der Auswahl
@@ -1365,20 +1375,12 @@ function renderVerify(){
       const seq=marks.length
         ? marks.map((m,i)=>'<span class="sq" id="sq-'+v.id+'-'+i+'">'+m.ex+' · S'+m.set+'</span>').join('')
         : Object.entries(u.selection||{}).filter(([,o])=>o.clicks>0).map(([n,o])=>'<span class="sq">'+n+' ×'+o.clicks+'</span>').join('');
-      // Zähl-Zeilen: pro Übung in Reihenfolge eintragen, wie viele Sets du gesehen hast
-      const counters=unitExOrder(u).map(ex=>{
-        const cnt=vcCounts[v.id][ex]||0;
-        return '<div class="vcount-row"><span class="vcount-name">'+ex+'</span>'
-          +'<div class="vcount-ctl"><button onclick="vcAdjust('+v.id+',\''+ex.replace(/'/g,"\\'")+'\',-1)">−</button>'
-          +'<b id="vcnt-'+v.id+'-'+btoa(ex).replace(/[^a-zA-Z0-9]/g,'')+'">'+cnt+'</b>'
-          +'<button onclick="vcAdjust('+v.id+',\''+ex.replace(/'/g,"\\'")+'\',1)">+</button></div></div>';
-      }).join('');
+      if(vcFocus[v.id]===undefined)vcFocus[v.id]=0;
       return '<div class="vc" id="vq-'+v.id+'">'
         +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
         +'<div class="vq-seq">'+seq+'</div>'
         +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
-        +'<div style="font-size:10px;color:var(--t2);margin:8px 0 4px">Wie viele saubere Sets hast du gezählt?</div>'
-        +'<div class="vcount">'+counters+'</div>'
+        +'<div class="vfocus" id="vfocus-'+v.id+'">'+vcFocusHtml(v.id)+'</div>'
         +'<div class="vac">'
         +'<button class="btn bg" style="flex:1;font-size:11px" onclick="decideVerification('+v.id+',\'rejected\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>'
         +'<button class="btn bp" style="flex:2;font-size:11px" onclick="decideVerification('+v.id+',\'approved\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>'
@@ -1396,27 +1398,52 @@ function renderVerify(){
   }
   document.getElementById('verify-ratings').innerHTML=ratable.map(({v,co})=>{
     const mine=v.set_counts||[], theirs=co.set_counts||[];
-    let rows=v.units?unitExOrder(v.units):[];
-    if(!rows.length)rows=[...new Set([...mine,...theirs].map(c=>c.ex))];
-    const cmp=rows.map(ex=>{
-      const m=mine.find(c=>c.ex===ex), t=theirs.find(c=>c.ex===ex);
-      return '<div class="vcmp-row"><span>'+ex+'</span><span>du: <b>'+(m?m.sets:'—')+'</b></span><span>'+co.display_name+': <b>'+(t?t.sets:'—')+'</b></span></div>';
-    }).join('');
+    const myTotal=mine.reduce((s,c)=>s+c.sets,0), theirTotal=theirs.reduce((s,c)=>s+c.sets,0);
     return '<div class="card" style="margin-bottom:12px">'
-      +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px">Vergleich mit Prüfer '+co.display_name+'</div>'
-      +'<div style="font-size:10px;color:var(--t2);margin-bottom:8px">Ihr habt dieselbe Einheit geprüft — so hat er gezählt. Wie fair hat er bewertet?</div>'
-      +'<div class="vcmp">'+cmp+'</div>'
+      +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px;text-align:center">Euer Zähl-Ergebnis</div>'
+      +'<div style="font-size:10px;color:var(--t2);margin-bottom:10px;text-align:center">Ihr habt dieselbe Einheit geprüft — wie fair hat '+co.display_name+' bewertet?</div>'
+      +'<div class="vcmp2">'
+      +'<div><div class="vcmp2-n">'+myTotal+'</div><div class="vcmp2-l">du</div></div>'
+      +'<div class="vcmp2-vs">Sets</div>'
+      +'<div><div class="vcmp2-n">'+theirTotal+'</div><div class="vcmp2-l">'+co.display_name+'</div></div>'
+      +'</div>'
       +'<div class="fair-btns">'+FAIR_OPTS.map(([key,label])=>
         '<button class="fair-btn f-'+key+'" onclick="rateFairness('+v.unit_id+',\''+co.reviewer_id+'\',\''+key+'\')">'+label+'</button>').join('')
       +'</div></div>';
   }).join('');
 }
 
-function vcAdjust(vid,ex,d){
+// Fokussiertes Zählen: immer genau eine Übung — die gerade laufende leuchtet
+function vcFocusHtml(vid){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v||!v.units)return '';
+  const order=unitExOrder(v.units);if(!order.length)return '';
+  const i=Math.min(vcFocus[vid]||0,order.length-1);
+  const ex=order[i], cnt=(vcCounts[vid]&&vcCounts[vid][ex])||0;
+  return '<button class="vf-nav" onclick="vcNav('+vid+',-1)"'+(i===0?' disabled':'')+'>‹</button>'
+    +'<div class="vf-mid">'
+    +'<div class="vf-ex">'+ex+'</div>'
+    +'<div class="vf-sub">Übung '+(i+1)+' von '+order.length+' · gezählte Sets</div>'
+    +'<div class="vf-ctl"><button onclick="vcAdjust('+vid+',-1)">−</button><b>'+cnt+'</b><button onclick="vcAdjust('+vid+',1)">+</button></div>'
+    +'</div>'
+    +'<button class="vf-nav" onclick="vcNav('+vid+',1)"'+(i===order.length-1?' disabled':'')+'>›</button>';
+}
+function vcRerenderFocus(vid){
+  const el=document.getElementById('vfocus-'+vid);
+  if(el)el.innerHTML=vcFocusHtml(vid);
+}
+function vcNav(vid,d){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v||!v.units)return;
+  const max=unitExOrder(v.units).length-1;
+  vcFocus[vid]=Math.max(0,Math.min(max,(vcFocus[vid]||0)+d));
+  vcRerenderFocus(vid);
+}
+function vcAdjust(vid,d){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v||!v.units)return;
+  const order=unitExOrder(v.units);
+  const ex=order[Math.min(vcFocus[vid]||0,order.length-1)];if(!ex)return;
   const c=vcCounts[vid]||(vcCounts[vid]={});
   c[ex]=Math.max(0,Math.min(9,(c[ex]||0)+d));
-  const el=document.getElementById('vcnt-'+vid+'-'+btoa(ex).replace(/[^a-zA-Z0-9]/g,''));
-  if(el)el.textContent=c[ex];
+  vcRerenderFocus(vid);
 }
 async function rateFairness(unitId,ratedId,fairness){
   const opt=FAIR_OPTS.find(o=>o[0]===fairness);
@@ -1454,6 +1481,7 @@ async function loadVerifyVideo(vid){
   // Mitlaufende Anzeige: das Teilset, in dem sich die Person gerade befindet, leuchtet
   const marks=v.units.set_marks||[];
   if(marks.length){
+    const order=unitExOrder(v.units);
     vd.addEventListener('timeupdate',()=>{
       const t=vd.currentTime;
       let cur=marks.findIndex(m=>t<=m.t);
@@ -1462,6 +1490,9 @@ async function loadVerifyVideo(vid){
         const el=document.getElementById('sq-'+vid+'-'+i);
         if(el)el.classList.toggle('live',i===cur);
       });
+      // Zähler folgt automatisch der Übung, die im Video gerade läuft
+      const idx=order.indexOf(marks[cur].ex);
+      if(idx>=0&&vcFocus[vid]!==idx){vcFocus[vid]=idx;vcRerenderFocus(vid);}
     });
   }
 }
@@ -1657,7 +1688,7 @@ function showToast(msg){
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,rateFairness,levelUp,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,rateFairness,levelUp,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
