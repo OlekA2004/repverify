@@ -281,6 +281,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 /* Platzhalter unten rechts im Video: später 3D-Männchen-Animation der Übung */
 .cam-anim-slot{position:absolute;right:12px;bottom:120px;width:0;height:0}
 
+/* KATEGORIEN (grün/gelb/rot) */
+.cat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle}
+.cd-g{background:var(--grn)}.cd-y{background:#e8b93d}.cd-r{background:var(--acc)}
+.ex-chip.cg{border-left:2px solid rgba(61,158,106,.55)}
+.ex-chip.cy{border-left:2px solid rgba(232,185,61,.55)}
+.ex-chip.cr{border-left:2px solid rgba(226,75,74,.55)}
+
+/* VERIFY: Teilset-Leiste, Zählen, Fairness */
+.vq-seq{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px}
+.vq-seq .sq{font-size:9px;background:var(--s2);border:1px solid var(--bdm);border-radius:999px;padding:3px 8px;color:var(--t1);transition:box-shadow .25s,border-color .25s,color .25s;opacity:.75}
+.vq-seq .sq.live{opacity:1;color:var(--t0);border-color:rgba(226,75,74,.8);box-shadow:0 0 10px rgba(226,75,74,.4)}
+.vcount{display:flex;flex-direction:column;gap:5px;margin-bottom:4px}
+.vcount-row{display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--r);padding:5px 9px}
+.vcount-name{font-size:10px;color:var(--t0)}
+.vcount-ctl{display:flex;align-items:center;gap:9px}
+.vcount-ctl button{width:22px;height:22px;border-radius:50%;border:1px solid var(--bdm);background:var(--s3);color:var(--t0);font-size:13px;cursor:pointer;line-height:1;font-family:inherit}
+.vcount-ctl b{font-size:12px;color:var(--t0);min-width:14px;text-align:center;font-variant-numeric:tabular-nums}
+.vcmp{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.vcmp-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;font-size:10px;color:var(--t1);background:var(--s2);border-radius:var(--r);padding:5px 9px}
+.vcmp-row b{color:var(--t0)}
+.fair-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.fair-btn{font-size:10px;padding:7px 4px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.fair-btn.f-sehr_fair:hover{border-color:var(--grn);color:var(--grn)}
+.fair-btn.f-fair:hover{border-color:#9dc76a;color:#9dc76a}
+.fair-btn.f-teils_unfair:hover{border-color:#e8b93d;color:#e8b93d}
+.fair-btn.f-unfair:hover{border-color:var(--acc);color:var(--acc)}
+
 /* VERIFY-PLAYER */
 .vp-wrap{position:relative;background:#000;border-radius:var(--r);overflow:hidden;margin:10px 0}
 .vp-wrap video{display:block;width:100%;max-height:380px;object-fit:contain;background:#000}
@@ -395,13 +422,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
     <div class="pts-track"><div class="pts-fill" id="pts-fill" style="width:0%"></div><div class="pts-goal-mark" id="pts-goal-mark"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:3px"><span style="font-size:9px;color:var(--t2)">0</span><span style="font-size:9px;color:var(--grn)" id="goal-tick">Ziel 10</span><span style="font-size:9px;color:var(--t2)" id="max-tick">17</span></div>
-    <div style="font-size:10px;color:var(--t2);margin:.6rem 0 .2rem" id="panel-hint">Schwerere Übungen geben mehr Punkte · Übungs-Level steigert den Wert langsam · Durchmischen gibt Ranking-Bonus</div>
+    <div style="font-size:10px;color:var(--t2);margin:.6rem 0 .2rem" id="panel-hint"><span class="cat-dot cd-g"></span>leicht · <span class="cat-dot cd-y"></span>mittel · <span class="cat-dot cd-r"></span>schwer — schwerere Übungen geben mehr Punkte · Übungs-Level steigert den Wert langsam · Durchmischen gibt Ranking-Bonus</div>
     <div class="ex-list" id="ex-list"></div>
     <div class="panel-footer">
       <div class="sel-count">Einheit: <b id="pts-total">0</b> Pkt · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
       <button class="btn bp" id="rec-btn" onclick="startRecording()" style="font-size:11px;opacity:.4;pointer-events:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Einheit aufnehmen</button>
     </div>
   </div>
+  <div id="level-progress"></div>
 </div>
 
 <!-- VERIFY -->
@@ -691,6 +719,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   </div>
 </div>
 
+<div class="modal-overlay" id="cam-unfinished-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--amb-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amb)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+    <div class="modal-title">Bist du wirklich sicher?</div>
+    <div class="modal-body">Du hast noch <strong style="color:var(--t0)">nicht alle Sets abgehakt</strong>. Wenn du so einreichst, wird deine Einheit von den Prüfern <strong style="color:var(--acc)">höchstwahrscheinlich nicht bestätigt</strong>.</div>
+    <div class="modal-actions">
+      <button class="btn bp" onclick="closeModal('cam-unfinished-modal')">Weiter trainieren</button>
+      <button class="btn bg" onclick="closeModal('cam-unfinished-modal');confirmRecording(true)">Trotzdem einreichen</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="cam-cancel-modal">
   <div class="modal-box">
     <div class="modal-icon" style="background:var(--acc-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
@@ -724,30 +764,50 @@ const BASE_MAX_PTS = 15;
 const MAX_EX_LEVEL = 10;
 const MONTH_TARGET = 30;
 
+// Kategorien: g = grün (leicht), y = gelb (mittel), r = rot (schwer)
+// Punkte pro Set steigen zwischen den Stufen bewusst sanft (+0.5 je Stufe), damit das Ranking fair bleibt
+const CAT_PTS = { 0:{g:1, y:1.5, r:2}, 1:{g:1.5, y:2, r:2.5}, 2:{g:2, y:2.5, r:3}, 3:{g:2.5, y:3, r:3.5} };
+const CAT_LABEL = { g:'leicht', y:'mittel', r:'schwer' };
 const EX_DATA = [
-  { name:'Foundation', label:'Anfänger', locked:false, sub:'Bodyweight · max 15 Punkte',
-    ex:[['Squats',1],['Wall Push-ups',1],['Incline Push-ups',1],['Glute Bridge',1],['Calf Raises',1],
-        ['Dead Bug',1],['Bird Dog',1],['Crunches',1],['Leg Lifts',1],['Jumping Jacks',1],
-        ['Assisted Push-ups',1.5],['Reverse Lunges',1.5],['Walking Lunges',1.5],['Side Lunges',1.5],['Step-ups',1.5],
-        ['Single-Leg Glute Bridge',1.5],['Wall Sit',1.5],['Side Plank',1.5],['Bicycle Crunches',1.5],['Russian Twists',1.5],
-        ['Push-ups',2],['Australian Pull-ups',2],['Inverted Row',2],['Assisted Pull-ups',2],['Assisted Chin-ups',2],
-        ['Plank',2],['Superman Hold',2],['Mountain Climbers',2],['High Knees',2],['Burpees',2.5]] },
-  { name:'Build Strength', label:'Mittelstufe', locked:false, sub:'Compound · max 17 Punkte',
-    ex:[['Hollow Hold',1.5],['Plank to Push-up',1.5],['Bear Crawl',1.5],['Crab Walk',1.5],['Toes-to-Bench',1.5],
-        ['Diamond Push-ups',2],['Pike Push-ups',2],['Decline Push-ups',2],['Bulgarian Split Squats',2],['Cossack Squats',2],
-        ['Hanging Knee Raises',2],['Hollow Rocks',2],['V-Ups',2],['Commando Plank',2],['Box Jumps',2],
-        ['Chin-ups',2.5],['Dips',2.5],['Archer Push-ups',2.5],['Assisted Pistol Squats',2.5],['Shrimp Squats',2.5],
-        ['Single-Leg Romanian Deadlift',2.5],['Broad Jumps',2.5],['Skater Jumps',2.5],['Tuck Jumps',2.5],['Archer Rows',2.5],
-        ['Pull-ups',3],['Pseudo Planche Push-ups',3],['Assisted Nordic Curl',3],['Burpee Pull-ups',3],['Explosive Push-ups',3]] },
-  { name:'Peak Performance', label:'Fortgeschritten', locked:true, sub:'Advanced · max 19 Punkte',
-    ex:[['Hanging Leg Raises',2.5],['L-Sit',2.5],['Planche Lean',2.5],['Wall Handstand Shoulder Taps',2.5],['Front Lever Tuck',2.5],
-        ['Toes-to-Bar',3],['Explosive Pull-ups',3],['V-Sit',3],['Back Lever Tuck',3],['Pistol Squats',3],
-        ['Handstand Push-ups',3.5],['Archer Pull-ups',3.5],['Typewriter Pull-ups',3.5],['Clap Pull-ups',3.5],['Dragon Flag',3.5],
-        ['Tuck Planche',3.5],['Nordic Curl',3.5],['Jumping Pistol Squats',3.5],['Handstand Walk',3.5],['Shrimp Squats (weighted)',3.5],
-        ['Muscle-ups',4],['One-Arm Push-ups',4],['Front Lever',4],['Back Lever',4],['Human Flag Progression',4],
-        ['Human Flag',4],['Advanced Tuck Planche',4],['Planche Push-up Progression',4],['Freestanding Handstand Hold',4],['90° Push-up',4]] },
+  { name:'Foundation', label:'Anfänger', locked:false, sub:'Bodyweight · 🟢 1 · 🟡 1,5 · 🔴 2 Pkt/Set',
+    ex:[['Squats','g'],['Wall Push-ups','g'],['Incline Push-ups','g'],['Glute Bridge','g'],['Calf Raises','g'],
+        ['Dead Bug','g'],['Bird Dog','g'],['Crunches','g'],['Leg Lifts','g'],['Jumping Jacks','g'],
+        ['Assisted Push-ups','y'],['Reverse Lunges','y'],['Walking Lunges','y'],['Side Lunges','y'],['Step-ups','y'],
+        ['Single-Leg Glute Bridge','y'],['Wall Sit','y'],['Side Plank','y'],['Bicycle Crunches','y'],['Russian Twists','y'],
+        ['Push-ups','r'],['Australian Pull-ups','r'],['Inverted Row','r'],['Assisted Pull-ups','r'],['Assisted Chin-ups','r'],
+        ['Plank','r'],['Superman Hold','r'],['Mountain Climbers','r'],['High Knees','r'],['Burpees','r']] },
+  { name:'Build Strength', label:'Mittelstufe', locked:false, sub:'Compound · 🟢 1,5 · 🟡 2 · 🔴 2,5 Pkt/Set',
+    ex:[['Hollow Hold','g'],['Plank to Push-up','g'],['Bear Crawl','g'],['Crab Walk','g'],['Toes-to-Bench','g'],
+        ['Diamond Push-ups','g'],['Pike Push-ups','g'],['Decline Push-ups','g'],['Bulgarian Split Squats','g'],['Cossack Squats','g'],
+        ['Hanging Knee Raises','y'],['Hollow Rocks','y'],['V-Ups','y'],['Commando Plank','y'],['Box Jumps','y'],
+        ['Chin-ups','y'],['Dips','y'],['Archer Push-ups','y'],['Assisted Pistol Squats','y'],['Shrimp Squats','y'],
+        ['Single-Leg Romanian Deadlift','r'],['Broad Jumps','r'],['Skater Jumps','r'],['Tuck Jumps','r'],['Archer Rows','r'],
+        ['Pull-ups','r'],['Pseudo Planche Push-ups','r'],['Assisted Nordic Curl','r'],['Burpee Pull-ups','r'],['Explosive Push-ups','r']] },
+  { name:'Peak Performance', label:'Fortgeschritten', locked:false, sub:'Advanced · 🟢 2 · 🟡 2,5 · 🔴 3 Pkt/Set',
+    ex:[['Hanging Leg Raises','g'],['L-Sit','g'],['Planche Lean','g'],['Wall Handstand Shoulder Taps','g'],['Front Lever Tuck','g'],
+        ['Toes-to-Bar','g'],['Explosive Pull-ups','g'],['V-Sit','g'],['Back Lever Tuck','g'],['Pistol Squats','g'],
+        ['Handstand Push-ups','y'],['Archer Pull-ups','y'],['Typewriter Pull-ups','y'],['Clap Pull-ups','y'],['Dragon Flag','y'],
+        ['Tuck Planche','y'],['Nordic Curl','y'],['Jumping Pistol Squats','y'],['Handstand Walk','y'],['Shrimp Squats (weighted)','y'],
+        ['Muscle-ups','r'],['One-Arm Push-ups','r'],['Front Lever','r'],['Back Lever','r'],['Human Flag Progression','r'],
+        ['Human Flag','r'],['Advanced Tuck Planche','r'],['Planche Push-up Progression','r'],['Freestanding Handstand Hold','r'],['90° Push-up','r']] },
   { name:'Elite', label:'Profi', locked:true, sub:'Kommt bald', ex:[] }
 ];
+// Punktwert einer Übung in ihrer Stufe
+function exBasePts(lvIdx,cat){ return CAT_PTS[lvIdx][cat]; }
+
+// ── Stufen-Aufstieg ──────────────────────────────────────────
+// Kriterien pro Aufstieg: Vielfalt (15 Übungen der Stufe auf Übungs-Level ≥ 2),
+// Härte (davon 3 rote) und Konstanz (10 Einheiten insgesamt)
+const ADV_NEED = { variety:15, red:3, units:10 };
+function advanceProgress(){
+  const L=ST.profile.level;
+  if(L>=3) return {next:null};
+  const tier=EX_DATA[L-1].ex;
+  const lv2=tier.filter(([n])=>ST.exProgress[n]&&ST.exProgress[n].level>=2);
+  const red=lv2.filter(([n,c])=>c==='r');
+  return {next:L+1, variety:lv2.length, red:red.length, units:ST.totalUnits,
+    ok:lv2.length>=ADV_NEED.variety&&red.length>=ADV_NEED.red&&ST.totalUnits>=ADV_NEED.units};
+}
 
 // ── App-State (aus Supabase geladen) ─────────────────────────
 const ST = {
@@ -804,17 +864,18 @@ function hideLogin(){ document.getElementById('login-overlay').style.display='no
 async function loadAll(){
   const uid = ST.session.user.id;
 
-  const [prof, txs, prog, ranks, units, today, vfs, coRev, rGiven, rRecv] = await Promise.all([
+  const [prof, txs, prog, ranks, units, today, vfs, coRev, rGiven, rRecv, total] = await Promise.all([
     supabase.from('users').select('*').eq('id',uid).single(),
     supabase.from('transactions').select('*').eq('user_id',uid).order('tx_date',{ascending:false}).order('created_at',{ascending:false}),
     supabase.from('exercise_progress').select('*').eq('user_id',uid),
     supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false}),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
     supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle(),
-    supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,video_path,user_id,users(display_name))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
+    supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
     supabase.rpc('get_co_reviewers'),
     supabase.from('reviewer_ratings').select('unit_id,rated_id,stars').eq('rater_id',uid),
-    supabase.from('reviewer_ratings').select('stars').eq('rated_id',uid)
+    supabase.from('reviewer_ratings').select('stars').eq('rated_id',uid),
+    supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid)
   ]);
 
   if(prof.error){ showToast('Profil-Fehler: '+prof.error.message); return; }
@@ -829,6 +890,7 @@ async function loadAll(){
   ST.coReviewers = coRev.data||[];
   ST.ratingsGiven = rGiven.data||[];
   ST.ratingsReceived = rRecv.data||[];
+  ST.totalUnits = total.count||0;
 
   applyProfileToUI();
   renderAll();
@@ -865,7 +927,49 @@ function applyProfileToUI(){
 // ════════════════════════════════════════════════════════════
 //  RENDERING
 // ════════════════════════════════════════════════════════════
-function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); }
+function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderLevelProgress(); }
+
+// ── Stufen-Aufstieg (Programm-Seite) ─────────────────────────
+function renderLevelProgress(){
+  const L=ST.profile.level;
+  // Stufen-Karten an echtes Level anpassen
+  EX_DATA.forEach((lv,i)=>{
+    const card=document.getElementById('lvc-'+i);if(!card)return;
+    const pill=card.querySelector('.pill'), lbl=card.querySelector('.lv-lbl');
+    if(lv.locked){pill.className='pill ph';pill.textContent='Gesperrt';lbl.style.color='var(--t2)';}
+    else if(i+1===L){pill.className='pill pr';pill.textContent='Aktiv';lbl.style.color='var(--acc)';}
+    else if(i+1<L){pill.className='pill pg';pill.textContent='Gemeistert';lbl.style.color='var(--grn)';}
+    else{pill.className='pill ph';pill.textContent='Noch gesperrt';lbl.style.color='var(--t2)';}
+  });
+  const el=document.getElementById('level-progress');
+  const p=advanceProgress();
+  if(!p.next){
+    el.innerHTML='<div class="card" style="margin-top:14px;text-align:center;font-size:11px;color:var(--t2)">Du bist auf der höchsten freigeschalteten Stufe — Elite kommt bald.</div>';
+    return;
+  }
+  const row=(label,val,need)=>{
+    const pct=Math.min(100,(val/need)*100), done=val>=need;
+    return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">'
+      +'<span style="color:var(--t1)">'+label+'</span><span style="color:'+(done?'var(--grn)':'var(--t2)')+'">'+Math.min(val,need)+' / '+need+(done?' ✓':'')+'</span></div>'
+      +'<div class="pts-track" style="height:4px"><div class="pts-fill" style="width:'+pct+'%;'+(done?'background:var(--grn)':'')+'"></div></div></div>';
+  };
+  el.innerHTML='<div class="card" style="margin-top:14px">'
+    +'<div class="sh" style="margin-bottom:.7rem"><span class="st" style="font-size:13px">Aufstieg zu „'+EX_DATA[p.next-1].name+'"</span>'
+    +(p.ok?'<button class="btn bp" style="font-size:11px" onclick="levelUp()">Jetzt aufsteigen ↑</button>':'')+'</div>'
+    +row('Vielfalt — Übungen deiner Stufe auf Level 2+',p.variety,ADV_NEED.variety)
+    +row('Härte — davon rote (schwere) Übungen',p.red,ADV_NEED.red)
+    +row('Konstanz — abgeschlossene Einheiten gesamt',p.units,ADV_NEED.units)
+    +'<div style="font-size:10px;color:var(--t2);margin-top:4px">Trainiere breit, nimm regelmäßig rote Übungen mit und bleib dran — dann schaltet sich die nächste Stufe frei.</div></div>';
+}
+async function levelUp(){
+  const p=advanceProgress();
+  if(!p.ok||!p.next)return;
+  const {error}=await supabase.from('users').update({level:p.next}).eq('id',ST.session.user.id);
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.profile.level=p.next;
+  closeLvPanel();renderAll();updatePtsUI&&updatePtsUI();
+  showToast('Aufgestiegen! Stufe '+p.next+' — „'+EX_DATA[p.next-1].name+'" ist jetzt aktiv 🎉');
+}
 
 function renderDashboard(){
   const rank=myRank();
@@ -1000,27 +1104,27 @@ function updatePtsUI(){
   btn.style.opacity=ready?'1':'.4';btn.style.pointerEvents=ready?'all':'none';
 }
 
-function clickEx(name,base,idx){
+function clickEx(name,base,idx,cat){
   if(ST.todayUnit){showToast('Heutige Einheit ist bereits aufgenommen');return;}
   const cur=unitSel[name]?.clicks||0,maxP=maxPtsForLevel(ST.profile.level);
   if(cur>=3){unitSel[name].clicks=0;}
   else{
     const addVal=base*exMultiplier(exProg(name).level);
     if(unitPts()+addVal>maxP+0.001){showToast('Punktedeckel erreicht ('+maxP+')');return;}
-    unitSel[name]={clicks:cur+1,base};
+    unitSel[name]={clicks:cur+1,base,cat};
   }
-  renderChip(name,base,idx);updatePtsUI();
+  renderChip(name,base,idx,cat);updatePtsUI();
 }
 
-function renderChip(name,base,idx){
+function renderChip(name,base,idx,cat){
   const chip=document.getElementById('exc-'+idx);if(!chip)return;
   const clicks=unitSel[name]?.clicks||0,p=exProg(name);
   const val=Math.round(base*exMultiplier(p.level)*10)/10;
-  chip.className='ex-chip'+(clicks>0?' has-pts':'')+(clicks>=3?' maxed':'');
+  chip.className='ex-chip c'+cat+(clicks>0?' has-pts':'')+(clicks>=3?' maxed':'');
   chip.innerHTML='<div class="ex-chip-top"><span class="ex-lvl-tag">Lv '+p.level+'</span>'
     +'<span class="ex-chip-name">'+name+'</span>'
     +'<span class="ex-chip-cnt">'+(clicks>0?'+'+(Math.round(clicks*val*10)/10):'')+'</span></div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span>'+val+' Pkt/Set</span><span>'+clicks+'/3</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span><span class="cat-dot cd-'+cat+'"></span>'+CAT_LABEL[cat]+' · '+val+' Pkt/Set</span><span>'+clicks+'/3</span></div>'
     +'<div class="ex-mini-bar"><div class="ex-mini-fill" style="width:'+(clicks/3)*100+'%"></div></div>';
 }
 
@@ -1036,13 +1140,14 @@ function openLevel(idx){
   if(lv.ex.length===0){
     list.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--t2)"><div style="font-size:12px">Kommt bald.</div></div>';
   } else if(!isUsable){
-    list.innerHTML=lv.ex.map(([n,b])=>'<div class="ex-chip" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+b+' P</span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
+    list.innerHTML=lv.ex.map(([n,c])=>'<div class="ex-chip c'+c+'" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+exBasePts(idx,c)+' P</span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
   } else {
-    list.innerHTML=lv.ex.map(([n,b],i)=>'<div class="ex-chip" id="exc-'+i+'"></div>').join('');
-    lv.ex.forEach(([n,b],i)=>{
+    list.innerHTML=lv.ex.map(([n,c],i)=>'<div class="ex-chip c'+c+'" id="exc-'+i+'"></div>').join('');
+    lv.ex.forEach(([n,c],i)=>{
       const chip=document.getElementById('exc-'+i);
-      chip.onclick=()=>clickEx(n,b,i);
-      renderChip(n,b,i);
+      const b=exBasePts(idx,c);
+      chip.onclick=()=>clickEx(n,b,i,c);
+      renderChip(n,b,i,c);
     });
   }
   updatePtsUI();
@@ -1060,7 +1165,7 @@ function closeLvPanel(){
 //  (später: 3D-Männchen-Animation der Übung im #cam-anim-slot)
 // ════════════════════════════════════════════════════════════
 let camStream=null,camRecorder=null,camChunks=[],camMime='',camTimerInt=null,camSecs=0;
-let camQueue=[],camIdx=0,camBusy=false;
+let camQueue=[],camIdx=0,camBusy=false,camMarks=[];
 
 function camPickMime(){
   const c=['video/mp4','video/webm;codecs=vp9','video/webm'];
@@ -1090,9 +1195,11 @@ function camAdvance(i){
   if(i!==camIdx)return; // nur die aktuelle (leuchtende) Übung ist antippbar
   const cur=camQueue[camIdx];
   cur.done++;
+  camMarks.push({ex:cur.name,set:cur.done,t:camSecs}); // Zeitmarke: Set fertig bei Sekunde t
   if(cur.done>=cur.sets)camIdx++;
   renderCamRail();
 }
+function camAllDone(){return camIdx>=camQueue.length;}
 function camTimerTick(){
   camSecs++;
   document.getElementById('cam-timer').textContent=Math.floor(camSecs/60)+':'+String(camSecs%60).padStart(2,'0');
@@ -1108,7 +1215,7 @@ async function startRecording(){
   buildCamQueue();
   document.getElementById('cam-video').srcObject=camStream;
   renderCamRail();
-  camChunks=[];camSecs=0;
+  camChunks=[];camSecs=0;camMarks=[];
   document.getElementById('cam-timer').textContent='0:00';
   camRecorder=new MediaRecorder(camStream,{mimeType:camMime});
   camRecorder.ondataavailable=e=>{if(e.data&&e.data.size)camChunks.push(e.data);};
@@ -1131,8 +1238,11 @@ function confirmCancelRecording(){
   showToast('Aufnahme verworfen');
   updatePtsUI();
 }
-async function confirmRecording(){
-  if(camBusy)return;camBusy=true;
+async function confirmRecording(force){
+  if(camBusy)return;
+  // Erst bestätigen, wenn alle Sets abgehakt sind — sonst deutliche Warnung
+  if(!camAllDone()&&force!==true){openModal('cam-unfinished-modal');return;}
+  camBusy=true;
   const btn=document.getElementById('cam-confirm-btn');
   btn.style.opacity='.5';btn.style.pointerEvents='none';
   try{
@@ -1168,7 +1278,8 @@ async function commitUnit(videoPath){
   // 1) Einheit speichern (Unique pro Tag)
   const {data:unit,error:uErr}=await supabase.from('units').insert({
     user_id:uid,unit_date:isoToday(),points:pts,ranking_points:rp,
-    distinct_count:unitDistinct(),selection:unitSel,video_path:videoPath||null
+    distinct_count:unitDistinct(),selection:unitSel,video_path:videoPath||null,
+    set_marks:camMarks
   }).select().single();
   if(uErr){showToast(uErr.code==='23505'?'Heute bereits eine Einheit aufgenommen':'Fehler: '+uErr.message);updatePtsUI();return;}
 
@@ -1218,6 +1329,16 @@ async function commitUnit(videoPath){
 //  VERIFY: Videos prüfen + Prüfer bewerten
 // ════════════════════════════════════════════════════════════
 const vidBlobUrls={}; // verification.id -> Objekt-URL (nur im Speicher, nicht teilbar)
+const vcCounts={};    // verification.id -> {übung: gezählte Sets}
+const FAIR_OPTS=[['sehr_fair','Sehr fair',5],['fair','Fair',4],['teils_unfair','Teils unfair',2],['unfair','Unfair',1]];
+
+// Übungs-Reihenfolge einer Einheit: aus den Zeitmarken, sonst aus der Auswahl
+function unitExOrder(u){
+  const order=[];
+  for(const m of (u.set_marks||[]))if(!order.includes(m.ex))order.push(m.ex);
+  for(const [n,o] of Object.entries(u.selection||{}))if(o.clicks>0&&!order.includes(n))order.push(n);
+  return order;
+}
 
 function renderVerify(){
   const pending=ST.verifications.filter(v=>!v.verdict&&v.units&&v.units.video_path);
@@ -1238,12 +1359,26 @@ function renderVerify(){
     q.innerHTML='<div class="card" style="text-align:center;color:var(--t2);font-size:11px;padding:1.4rem">Keine offenen Prüfanfragen — stark! 💪</div>';
   } else {
     q.innerHTML=pending.map(v=>{
-      const u=v.units, owner=u.users?.display_name||'Athlet';
-      const ex=Object.entries(u.selection||{}).filter(([,o])=>o.clicks>0).map(([n,o])=>'<span>'+n+' ×'+o.clicks+'</span>').join('');
+      const u=v.units, owner=u.users?.display_name||'Athlet', marks=u.set_marks||[];
+      if(!vcCounts[v.id])vcCounts[v.id]={};
+      // Teilset-Leiste: ein Bläschen pro abgehaktem Set, in Video-Reihenfolge — leuchtet beim Abspielen mit
+      const seq=marks.length
+        ? marks.map((m,i)=>'<span class="sq" id="sq-'+v.id+'-'+i+'">'+m.ex+' · S'+m.set+'</span>').join('')
+        : Object.entries(u.selection||{}).filter(([,o])=>o.clicks>0).map(([n,o])=>'<span class="sq">'+n+' ×'+o.clicks+'</span>').join('');
+      // Zähl-Zeilen: pro Übung in Reihenfolge eintragen, wie viele Sets du gesehen hast
+      const counters=unitExOrder(u).map(ex=>{
+        const cnt=vcCounts[v.id][ex]||0;
+        return '<div class="vcount-row"><span class="vcount-name">'+ex+'</span>'
+          +'<div class="vcount-ctl"><button onclick="vcAdjust('+v.id+',\''+ex.replace(/'/g,"\\'")+'\',-1)">−</button>'
+          +'<b id="vcnt-'+v.id+'-'+btoa(ex).replace(/[^a-zA-Z0-9]/g,'')+'">'+cnt+'</b>'
+          +'<button onclick="vcAdjust('+v.id+',\''+ex.replace(/'/g,"\\'")+'\',1)">+</button></div></div>';
+      }).join('');
       return '<div class="vc" id="vq-'+v.id+'">'
         +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
-        +'<div class="vq-ex">'+ex+'</div>'
+        +'<div class="vq-seq">'+seq+'</div>'
         +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
+        +'<div style="font-size:10px;color:var(--t2);margin:8px 0 4px">Wie viele saubere Sets hast du gezählt?</div>'
+        +'<div class="vcount">'+counters+'</div>'
         +'<div class="vac">'
         +'<button class="btn bg" style="flex:1;font-size:11px" onclick="decideVerification('+v.id+',\'rejected\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>'
         +'<button class="btn bp" style="flex:2;font-size:11px" onclick="decideVerification('+v.id+',\'approved\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>'
@@ -1251,34 +1386,47 @@ function renderVerify(){
     }).join('');
   }
 
-  // Prüfer-Bewertung: wenn ich und der Co-Prüfer fertig sind und ich noch nicht bewertet habe
+  // Fairness-Bewertung: wenn beide Prüfer fertig sind, siehst du seine Zählung und bewertest sie
   const ratable=[];
   for(const v of ST.verifications.filter(v=>v.verdict)){
     const co=ST.coReviewers.find(c=>c.unit_id===v.unit_id);
     if(!co||!co.decided)continue;
     if(ST.ratingsGiven.some(r=>r.unit_id===v.unit_id&&r.rated_id===co.reviewer_id))continue;
-    ratable.push({unit_id:v.unit_id,co});
+    ratable.push({v,co});
   }
-  document.getElementById('verify-ratings').innerHTML=ratable.map(r=>
-    '<div class="card" style="margin-bottom:12px">'
-    +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px">Wie verlässlich war Prüfer '+r.co.display_name+'?</div>'
-    +'<div style="font-size:10px;color:var(--t2);margin-bottom:8px">Ihr habt dieselbe Einheit geprüft — bewerte seine Verlässlichkeit (1–5)</div>'
-    +'<div class="stars" data-unit="'+r.unit_id+'" data-rated="'+r.co.reviewer_id+'">'
-    +[1,2,3,4,5].map(s=>'<button onmouseover="hoverStars(this,'+s+')" onmouseout="hoverStars(this,0)" onclick="rateReviewer('+r.unit_id+',\''+r.co.reviewer_id+'\','+s+')">★</button>').join('')
-    +'</div></div>').join('');
+  document.getElementById('verify-ratings').innerHTML=ratable.map(({v,co})=>{
+    const mine=v.set_counts||[], theirs=co.set_counts||[];
+    let rows=v.units?unitExOrder(v.units):[];
+    if(!rows.length)rows=[...new Set([...mine,...theirs].map(c=>c.ex))];
+    const cmp=rows.map(ex=>{
+      const m=mine.find(c=>c.ex===ex), t=theirs.find(c=>c.ex===ex);
+      return '<div class="vcmp-row"><span>'+ex+'</span><span>du: <b>'+(m?m.sets:'—')+'</b></span><span>'+co.display_name+': <b>'+(t?t.sets:'—')+'</b></span></div>';
+    }).join('');
+    return '<div class="card" style="margin-bottom:12px">'
+      +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px">Vergleich mit Prüfer '+co.display_name+'</div>'
+      +'<div style="font-size:10px;color:var(--t2);margin-bottom:8px">Ihr habt dieselbe Einheit geprüft — so hat er gezählt. Wie fair hat er bewertet?</div>'
+      +'<div class="vcmp">'+cmp+'</div>'
+      +'<div class="fair-btns">'+FAIR_OPTS.map(([key,label])=>
+        '<button class="fair-btn f-'+key+'" onclick="rateFairness('+v.unit_id+',\''+co.reviewer_id+'\',\''+key+'\')">'+label+'</button>').join('')
+      +'</div></div>';
+  }).join('');
 }
 
-function hoverStars(btn,n){
-  [...btn.parentElement.children].forEach((b,i)=>b.classList.toggle('lit',i<n));
+function vcAdjust(vid,ex,d){
+  const c=vcCounts[vid]||(vcCounts[vid]={});
+  c[ex]=Math.max(0,Math.min(9,(c[ex]||0)+d));
+  const el=document.getElementById('vcnt-'+vid+'-'+btoa(ex).replace(/[^a-zA-Z0-9]/g,''));
+  if(el)el.textContent=c[ex];
 }
-async function rateReviewer(unitId,ratedId,stars){
+async function rateFairness(unitId,ratedId,fairness){
+  const opt=FAIR_OPTS.find(o=>o[0]===fairness);
   const {error}=await supabase.from('reviewer_ratings').insert({
-    unit_id:unitId,rater_id:ST.session.user.id,rated_id:ratedId,stars
+    unit_id:unitId,rater_id:ST.session.user.id,rated_id:ratedId,fairness,stars:opt[2]
   });
   if(error){showToast('Fehler: '+error.message);return;}
-  ST.ratingsGiven.push({unit_id:unitId,rated_id:ratedId,stars});
+  ST.ratingsGiven.push({unit_id:unitId,rated_id:ratedId,stars:opt[2]});
   renderVerify();
-  showToast('Bewertung gespeichert — '+stars+' ★');
+  showToast('Danke — als „'+opt[1]+'" bewertet');
 }
 
 // Video als Blob laden (respektiert RLS; keine teilbare URL, kein Download-Endpunkt)
@@ -1303,6 +1451,19 @@ async function loadVerifyVideo(vid){
   vd.src=url;
   vd.addEventListener('play',()=>{document.getElementById('vpb-'+vid).textContent='⏸';});
   vd.addEventListener('pause',()=>{document.getElementById('vpb-'+vid).textContent='▶';});
+  // Mitlaufende Anzeige: das Teilset, in dem sich die Person gerade befindet, leuchtet
+  const marks=v.units.set_marks||[];
+  if(marks.length){
+    vd.addEventListener('timeupdate',()=>{
+      const t=vd.currentTime;
+      let cur=marks.findIndex(m=>t<=m.t);
+      if(cur<0)cur=marks.length-1;
+      marks.forEach((m,i)=>{
+        const el=document.getElementById('sq-'+vid+'-'+i);
+        if(el)el.classList.toggle('live',i===cur);
+      });
+    });
+  }
 }
 function togglePlay(vid){
   const vd=document.getElementById('vv-'+vid);if(!vd)return;
@@ -1315,10 +1476,13 @@ function setSpeed(vid,rate,btn){
 }
 async function decideVerification(vid,verdict){
   const v=ST.verifications.find(x=>x.id===vid);if(!v||v.verdict)return;
+  // Gezählte Sets in Übungs-Reihenfolge mitschicken
+  const counts=unitExOrder(v.units).map(ex=>({ex,sets:(vcCounts[vid]&&vcCounts[vid][ex])||0}));
+  if(counts.every(c=>c.sets===0)&&!confirm('Du hast keine Sets gezählt — trotzdem abschicken?'))return;
   const {error}=await supabase.from('verifications')
-    .update({verdict,decided_at:new Date().toISOString()}).eq('id',vid);
+    .update({verdict,decided_at:new Date().toISOString(),set_counts:counts}).eq('id',vid);
   if(error){showToast('Fehler: '+error.message);return;}
-  v.verdict=verdict;v.decided_at=new Date().toISOString();
+  v.verdict=verdict;v.decided_at=new Date().toISOString();v.set_counts=counts;
   if(vidBlobUrls[vid]){URL.revokeObjectURL(vidBlobUrls[vid]);delete vidBlobUrls[vid];}
   // Co-Prüfer-Status aktualisieren (für die Bewertungs-Karte)
   const {data:coRev}=await supabase.rpc('get_co_reviewers');
@@ -1493,7 +1657,7 @@ function showToast(msg){
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,rateReviewer,hoverStars,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,rateFairness,levelUp,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
