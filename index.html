@@ -288,27 +288,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .ex-chip.cy{border-left:2px solid rgba(232,185,61,.55)}
 .ex-chip.cr{border-left:2px solid rgba(226,75,74,.55)}
 
-/* VERIFY: Einblendung der laufenden Übung im Video */
-.vp-now{display:none;position:absolute;top:10px;left:10px;z-index:3;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);border-radius:999px;padding:4px 11px;font-size:10px;color:rgba(255,255,255,.8)}
-.vp-now b{color:#fff;font-weight:600}
-/* Fokussierter Set-Zähler: eine Übung, leuchtend, mit − / + */
-.vfocus{display:flex;align-items:center;gap:6px;padding:12px 0 6px}
-.vf-nav{width:28px;height:44px;border:none;background:transparent;color:var(--t2);font-size:19px;cursor:pointer;font-family:inherit;border-radius:var(--r)}
+/* VERIFY: Warteschlangen-Auswahl */
+.vq-picker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.vq-picker:empty{display:none}
+.vqp{font-size:10px;padding:6px 11px;border-radius:999px;border:1px solid var(--bdm);background:var(--s1);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.vqp.active{border-color:var(--acc);color:var(--t0);background:var(--acc-bg)}
+/* Kompakte Zähler-Zeile: laufende Übung direkt am Zähler */
+.vfocus{display:flex;align-items:center;gap:8px;padding:10px 0 4px}
+.vf-nav{width:26px;height:34px;border:none;background:transparent;color:var(--t2);font-size:17px;cursor:pointer;font-family:inherit;border-radius:var(--r);flex-shrink:0}
 .vf-nav:hover:not(:disabled){color:var(--t0)}
 .vf-nav:disabled{opacity:.25;cursor:default}
-.vf-mid{flex:1;text-align:center}
-.vf-ex{font-size:13px;font-weight:700;color:var(--acc);text-shadow:0 0 12px rgba(226,75,74,.5)}
-.vf-sub{font-size:9px;color:var(--t2);margin:2px 0 7px}
-.vf-ctl{display:flex;align-items:center;justify-content:center;gap:16px}
-.vf-ctl button{width:30px;height:30px;border-radius:50%;border:1px solid var(--bdm);background:var(--s3);color:var(--t0);font-size:15px;cursor:pointer;line-height:1;font-family:inherit;transition:border-color .15s}
+.vf-name{flex:1;min-width:0}
+.vf-ex{font-size:12px;font-weight:700;color:var(--acc);text-shadow:0 0 10px rgba(226,75,74,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vf-sub{font-size:9px;color:var(--t2);margin-top:1px}
+.vf-ctl{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.vf-ctl button{width:28px;height:28px;border-radius:50%;border:1px solid var(--bdm);background:var(--s3);color:var(--t0);font-size:14px;cursor:pointer;line-height:1;font-family:inherit;transition:border-color .15s}
 .vf-ctl button:hover{border-color:var(--acc)}
-.vf-ctl b{font-size:19px;color:var(--t0);min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
-/* Ergebnis-Vergleich: eine Zahl pro Person */
-.vcmp2{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:12px}
-.vcmp2>div{text-align:center}
-.vcmp2-n{font-size:26px;font-weight:700;color:var(--t0);font-variant-numeric:tabular-nums}
-.vcmp2-l{font-size:9px;color:var(--t2);margin-top:1px}
-.vcmp2-vs{font-size:9px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase}
+.vf-ctl b{font-size:16px;color:var(--t0);min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+/* Zähl-Vergleich: Set für Set */
+.vcmp-row{display:grid;grid-template-columns:1fr 44px 64px;gap:8px;align-items:center;font-size:10px;padding:5px 9px;border-radius:var(--r)}
+.vcmp-row:nth-child(even){background:var(--s2)}
+.vcmp-head{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px}
+.vcmp-ex{color:var(--t0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vcmp-n{text-align:center;font-weight:600;color:var(--t0);font-variant-numeric:tabular-nums}
 .fair-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .fair-btn{font-size:10px;padding:7px 4px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
 .fair-btn.f-sehr_fair:hover{border-color:var(--grn);color:var(--grn)}
@@ -443,6 +445,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <!-- VERIFY -->
 <div class="page" id="page-verify">
   <div class="sh"><span class="st">Verify-Warteschlange</span><span class="ss" id="verify-count"></span></div>
+  <div class="vq-picker" id="verify-picker"></div>
   <div id="verify-queue"></div>
   <div id="verify-ratings"></div>
   <div class="card">
@@ -1339,6 +1342,7 @@ async function commitUnit(videoPath){
 const vidBlobUrls={}; // verification.id -> Objekt-URL (nur im Speicher, nicht teilbar)
 const vcCounts={};    // verification.id -> {übung: gezählte Sets}
 const vcFocus={};     // verification.id -> Index der gerade fokussierten Übung
+let vqSel=null;       // aktuell ausgewähltes Review in der Warteschlange
 const FAIR_OPTS=[['sehr_fair','Sehr fair',5],['fair','Fair',4],['teils_unfair','Teils unfair',2],['unfair','Unfair',1]];
 
 // Übungs-Reihenfolge einer Einheit: aus den Zeitmarken, sonst aus der Auswahl
@@ -1362,24 +1366,29 @@ function renderVerify(){
     document.getElementById('vstat-rating-sub').textContent='aus '+recv.length+' Bewertung'+(recv.length>1?'en':'');
   }
 
-  // Warteschlange
+  // Warteschlange: oben simple Auswahl, darunter genau eine Review-Karte
+  const picker=document.getElementById('verify-picker');
   const q=document.getElementById('verify-queue');
+  if(!pending.some(p=>p.id===vqSel))vqSel=pending.length?pending[0].id:null;
+  picker.innerHTML=pending.length<2?'':pending.map(v=>{
+    const owner=v.units.users?.display_name||'Athlet';
+    return '<button class="vqp'+(v.id===vqSel?' active':'')+'" onclick="selectVerify('+v.id+')">'+owner+' · '+Number(v.units.points)+' Pkt</button>';
+  }).join('');
   if(!pending.length){
     q.innerHTML='<div class="card" style="text-align:center;color:var(--t2);font-size:11px;padding:1.4rem">Keine offenen Prüfanfragen — stark! 💪</div>';
   } else {
-    q.innerHTML=pending.map(v=>{
-      const u=v.units, owner=u.users?.display_name||'Athlet';
-      if(!vcCounts[v.id])vcCounts[v.id]={};
-      if(vcFocus[v.id]===undefined)vcFocus[v.id]=0;
-      return '<div class="vc" id="vq-'+v.id+'">'
-        +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
-        +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
-        +'<div class="vfocus" id="vfocus-'+v.id+'">'+vcFocusHtml(v.id)+'</div>'
-        +'<div class="vac">'
-        +'<button class="btn bg" style="flex:1;font-size:11px" onclick="decideVerification('+v.id+',\'rejected\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>'
-        +'<button class="btn bp" style="flex:2;font-size:11px" onclick="decideVerification('+v.id+',\'approved\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>'
-        +'</div></div>';
-    }).join('');
+    const v=pending.find(p=>p.id===vqSel);
+    const u=v.units, owner=u.users?.display_name||'Athlet';
+    if(!vcCounts[v.id])vcCounts[v.id]={};
+    if(vcFocus[v.id]===undefined)vcFocus[v.id]=0;
+    q.innerHTML='<div class="vc" id="vq-'+v.id+'">'
+      +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
+      +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
+      +'<div class="vfocus" id="vfocus-'+v.id+'">'+vcFocusHtml(v.id)+'</div>'
+      +'<div class="vac">'
+      +'<button class="btn bg" style="flex:1;font-size:11px" onclick="decideVerification('+v.id+',\'rejected\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Ablehnen</button>'
+      +'<button class="btn bp" style="flex:2;font-size:11px" onclick="decideVerification('+v.id+',\'approved\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bestätigen</button>'
+      +'</div></div>';
   }
 
   // Fairness-Bewertung: wenn beide Prüfer fertig sind, siehst du seine Zählung und bewertest sie
@@ -1392,33 +1401,38 @@ function renderVerify(){
   }
   document.getElementById('verify-ratings').innerHTML=ratable.map(({v,co})=>{
     const mine=v.set_counts||[], theirs=co.set_counts||[];
-    const myTotal=mine.reduce((s,c)=>s+c.sets,0), theirTotal=theirs.reduce((s,c)=>s+c.sets,0);
+    let rows=v.units?unitExOrder(v.units):[];
+    if(!rows.length)rows=[...new Set([...mine,...theirs].map(c=>c.ex))];
+    // Set für Set: jede Übung im direkten Vergleich
+    const cmp=rows.map(ex=>{
+      const m=mine.find(c=>c.ex===ex), t=theirs.find(c=>c.ex===ex);
+      const same=m&&t&&m.sets===t.sets;
+      return '<div class="vcmp-row"><span class="vcmp-ex">'+ex+'</span>'
+        +'<span class="vcmp-n">'+(m?m.sets:'—')+'</span>'
+        +'<span class="vcmp-n" style="color:'+(same?'var(--grn)':'var(--amb)')+'">'+(t?t.sets:'—')+'</span></div>';
+    }).join('');
     return '<div class="card" style="margin-bottom:12px">'
-      +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px;text-align:center">Euer Zähl-Ergebnis</div>'
-      +'<div style="font-size:10px;color:var(--t2);margin-bottom:10px;text-align:center">Ihr habt dieselbe Einheit geprüft — wie fair hat '+co.display_name+' bewertet?</div>'
-      +'<div class="vcmp2">'
-      +'<div><div class="vcmp2-n">'+myTotal+'</div><div class="vcmp2-l">du</div></div>'
-      +'<div class="vcmp2-vs">Sets</div>'
-      +'<div><div class="vcmp2-n">'+theirTotal+'</div><div class="vcmp2-l">'+co.display_name+'</div></div>'
-      +'</div>'
-      +'<div class="fair-btns">'+FAIR_OPTS.map(([key,label])=>
+      +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px">Euer Zähl-Vergleich</div>'
+      +'<div style="font-size:10px;color:var(--t2);margin-bottom:8px">Set für Set — wie fair hat '+co.display_name+' bewertet?</div>'
+      +'<div class="vcmp-row vcmp-head"><span class="vcmp-ex"></span><span class="vcmp-n">du</span><span class="vcmp-n">'+co.display_name+'</span></div>'
+      +cmp
+      +'<div class="fair-btns" style="margin-top:10px">'+FAIR_OPTS.map(([key,label])=>
         '<button class="fair-btn f-'+key+'" onclick="rateFairness('+v.unit_id+',\''+co.reviewer_id+'\',\''+key+'\')">'+label+'</button>').join('')
       +'</div></div>';
   }).join('');
 }
 
-// Fokussiertes Zählen: immer genau eine Übung — die gerade laufende leuchtet
+function selectVerify(id){vqSel=id;renderVerify();}
+
+// Fokussiertes Zählen: eine kompakte Zeile — laufende Übung leuchtet direkt neben dem Zähler
 function vcFocusHtml(vid){
   const v=ST.verifications.find(x=>x.id===vid);if(!v||!v.units)return '';
   const order=unitExOrder(v.units);if(!order.length)return '';
   const i=Math.min(vcFocus[vid]||0,order.length-1);
   const ex=order[i], cnt=(vcCounts[vid]&&vcCounts[vid][ex])||0;
   return '<button class="vf-nav" onclick="vcNav('+vid+',-1)"'+(i===0?' disabled':'')+'>‹</button>'
-    +'<div class="vf-mid">'
-    +'<div class="vf-ex">'+ex+'</div>'
-    +'<div class="vf-sub">Übung '+(i+1)+' von '+order.length+' · gezählte Sets</div>'
+    +'<div class="vf-name"><div class="vf-ex">'+ex+'</div><div class="vf-sub">Übung '+(i+1)+'/'+order.length+' · Sets zählen</div></div>'
     +'<div class="vf-ctl"><button onclick="vcAdjust('+vid+',-1)">−</button><b>'+cnt+'</b><button onclick="vcAdjust('+vid+',1)">+</button></div>'
-    +'</div>'
     +'<button class="vf-nav" onclick="vcNav('+vid+',1)"'+(i===order.length-1?' disabled':'')+'>›</button>';
 }
 function vcRerenderFocus(vid){
@@ -1463,7 +1477,6 @@ async function loadVerifyVideo(vid){
   slot.innerHTML='<div class="vp-wrap" oncontextmenu="return false">'
     +'<video id="vv-'+vid+'" playsinline disablepictureinpicture controlslist="nodownload noremoteplayback" onclick="togglePlay('+vid+')"></video>'
     +'<div class="vp-wm">'+Array(9).fill('<span>'+wm+'</span>').join('')+'</div>'
-    +'<div class="vp-now" id="vpnow-'+vid+'"></div>'
     +'</div>'
     +'<div class="vp-ctrl">'
     +'<button class="vp-play" onclick="togglePlay('+vid+')" id="vpb-'+vid+'">▶</button>'
@@ -1477,14 +1490,11 @@ async function loadVerifyVideo(vid){
   const marks=v.units.set_marks||[];
   if(marks.length){
     const order=unitExOrder(v.units);
-    const now=document.getElementById('vpnow-'+vid);
     vd.addEventListener('timeupdate',()=>{
       const t=vd.currentTime;
       let cur=marks.findIndex(m=>t<=m.t);
       if(cur<0)cur=marks.length-1;
-      // Dezente Einblendung im Video: aktuelle Übung + Set
-      if(now){now.innerHTML='<b>'+marks[cur].ex+'</b> · Set '+marks[cur].set;now.style.display='block';}
-      // Zähler folgt automatisch der Übung, die im Video gerade läuft
+      // Zähler direkt unterm Video folgt automatisch der Übung, die gerade läuft
       const idx=order.indexOf(marks[cur].ex);
       if(idx>=0&&vcFocus[vid]!==idx){vcFocus[vid]=idx;vcRerenderFocus(vid);}
     });
@@ -1682,7 +1692,7 @@ function showToast(msg){
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,rateFairness,levelUp,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,rateFairness,levelUp,selectVerify,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
