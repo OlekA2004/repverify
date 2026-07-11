@@ -327,12 +327,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .vcmp-head{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px}
 .vcmp-ex{color:var(--t0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vcmp-n{text-align:center;font-weight:600;color:var(--t0);font-variant-numeric:tabular-nums}
-.fair-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.fair-btn{font-size:10px;padding:7px 4px;border-radius:var(--r);border:1px solid var(--bdm);background:var(--s2);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
-.fair-btn.f-sehr_fair:hover{border-color:var(--grn);color:var(--grn)}
-.fair-btn.f-fair:hover{border-color:#9dc76a;color:#9dc76a}
-.fair-btn.f-teils_unfair:hover{border-color:#e8b93d;color:#e8b93d}
-.fair-btn.f-unfair:hover{border-color:var(--acc);color:var(--acc)}
 
 /* VERIFY-PLAYER */
 .vp-wrap{position:relative;background:#000;border-radius:var(--r);overflow:hidden;margin:10px 0}
@@ -407,6 +401,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Heutige Einheit</div>
       <div id="today-inner"></div>
     </div>
+    <div id="review-overview"></div>
     <div class="card">
       <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Meist genutzte Übungen</div>
       <div id="month-overview"></div>
@@ -463,13 +458,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="sh"><span class="st">Verify-Warteschlange</span><span class="ss" id="verify-count"></span></div>
   <div class="vq-picker" id="verify-picker"></div>
   <div id="verify-queue"></div>
-  <div id="verify-ratings"></div>
   <div class="card">
     <div class="sh" style="margin-bottom:.8rem"><span class="st" style="font-size:13px">Deine Verify-Bilanz</span></div>
     <div class="trgd">
       <div class="sc"><div class="sl2">Verifiziert</div><div class="sv sga" id="vstat-done">0</div><div class="ss2">diesen Monat</div></div>
       <div class="sc"><div class="sl2">Offen</div><div class="sv" id="vstat-open">0</div><div class="ss2">Anfragen</div></div>
-      <div class="sc"><div class="sl2">Verlässlichkeit</div><div class="sv sac" id="vstat-rating">—</div><div class="ss2" id="vstat-rating-sub">noch keine Bewertung</div></div>
+      <div class="sc"><div class="sl2">Penaltys</div><div class="sv" id="vstat-pen">0 / 3</div><div class="ss2" id="vstat-pen-sub">alles sauber</div></div>
     </div>
     <div class="div"></div>
     <div class="ib"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>Falsche Bestätigungen führen zu Konto-Einschränkungen. Dein Videozugriff endet mit deiner Entscheidung.</div>
@@ -601,16 +595,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="tr2"><div class="trx"><div class="trtl">Öffentliches Profil</div><div class="trsb">Aus = dein Name wird für andere im Ranking unscharf angezeigt</div></div><label class="tog"><input type="checkbox" checked id="pub-profile-toggle" onchange="setPubProfile(this.checked)"><span class="tsl"></span></label></div>
     <div class="tr2"><div class="trx"><div class="trtl">Dashboard</div><div class="trsb">Aus = deine Statistiken werden für andere unscharf angezeigt</div></div><label class="tog"><input type="checkbox" id="dashboard-toggle" onchange="setDashboardPublic(this.checked)"><span class="tsl"></span></label></div>
     <div class="tr2">
-      <div class="trx"><div class="trtl">Videos automatisch löschen</div><div class="trsb">Standard: an — Löschung direkt nach Bestätigung <span class="pill pg" style="font-size:9px;padding:1px 5px;margin-left:3px">empfohlen</span></div></div>
-      <label class="tog"><input type="checkbox" checked id="video-del-toggle" onchange="setVideoAutoDel(this.checked)"><span class="tsl"></span></label>
-    </div>
-    <div class="tr2">
       <div class="trx"><div class="trtl">Satzpause beim Aufnehmen</div><div class="trsb">Aufnahme pausiert nach jedem Set · <b style="color:var(--t0)" id="rest-label">1 Min</b></div></div>
-      <input type="range" class="rest-slider" id="rest-slider" min="0" max="3" step="1" value="2" oninput="restSliderInput(this.value)" onchange="saveRestSecs(this.value)">
+      <input type="range" class="rest-slider" id="rest-slider" min="0" max="6" step="1" value="3" oninput="restSliderInput(this.value)" onchange="saveRestSecs(this.value)">
     </div>
-    <div class="ib" id="video-keep-info" style="display:none;margin-top:.6rem">
+    <div class="ib" style="margin-top:.6rem">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      <span>Du hast <b style="color:var(--t0)">1 Tag</b> Zeit, dein eigenes Video zu behalten. Die Prüfer haben diese Möglichkeit nicht — ihr Zugriff endet mit der Verifizierung.</span>
+      <span><b style="color:var(--t0)">Videos werden automatisch gelöscht</b>, sobald die Prüfung abgeschlossen ist und keine Beschwerde vorliegt (24 h Beschwerdefenster). Videos können nicht behalten werden — der Zugriff der Prüfer endet mit ihrer Entscheidung.</span>
     </div>
   </div>
 
@@ -755,6 +745,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   </div>
 </div>
 
+<div class="modal-overlay" id="complaint-modal">
+  <div class="modal-box">
+    <div class="modal-title" style="text-align:left">Beschwerde einreichen</div>
+    <div class="modal-body" style="text-align:left;margin-bottom:8px">Der Admin prüft dein Video und das Review-Ergebnis. <strong style="color:var(--amb)">Achtung:</strong> Unberechtigte Beschwerden geben 1 Penalty — bei 3 Penaltys wird dein Konto blockiert.</div>
+    <textarea class="feedback-textarea" id="complaint-textarea" maxlength="500" placeholder="Was ist aus deiner Sicht falsch gelaufen?"></textarea>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn bg" onclick="closeModal('complaint-modal')">Abbrechen</button>
+      <button class="btn bp" onclick="submitComplaint()">Einreichen</button>
+    </div>
+  </div>
+</div>
+
+<div class="login-overlay" id="blocked-overlay" style="z-index:600">
+  <div class="login-card">
+    <div class="login-logo" style="background:var(--s3)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <div class="login-title">Konto blockiert</div>
+    <div class="login-sub" style="margin-bottom:1rem">Du hast 3 Penaltys erreicht. Dein Konto wurde gesperrt und wird vom Admin geprüft. Bei Fragen: Feedback → Fehler melden.</div>
+    <button class="btn bp bf" onclick="signOut()" style="font-size:12px">Abmelden</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="cam-unfinished-modal">
   <div class="modal-box">
     <div class="modal-icon" style="background:var(--amb-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amb)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
@@ -850,7 +861,7 @@ const ST = {
   session:null, profile:null,
   transactions:[], leaderboard:[], exProgress:{},
   monthUnits:0, todayUnit:null,
-  verifications:[], coReviewers:[], ratingsGiven:[], ratingsReceived:[]
+  verifications:[], myReviews:[], complaints:[]
 };
 
 // ── Hilfsfunktionen ──────────────────────────────────────────
@@ -900,7 +911,8 @@ function hideLogin(){ document.getElementById('login-overlay').style.display='no
 async function loadAll(){
   const uid = ST.session.user.id;
 
-  const [prof, txs, prog, ranks, units, today, vfs, coRev, rGiven, rRecv, total] = await Promise.all([
+  const weekAgo=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
+  const [prof, txs, prog, ranks, units, today, vfs, myRev, compl, total] = await Promise.all([
     supabase.from('users').select('*').eq('id',uid).single(),
     supabase.from('transactions').select('*').eq('user_id',uid).order('tx_date',{ascending:false}).order('created_at',{ascending:false}),
     supabase.from('exercise_progress').select('*').eq('user_id',uid),
@@ -908,9 +920,8 @@ async function loadAll(){
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
     supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle(),
     supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
-    supabase.rpc('get_co_reviewers'),
-    supabase.from('reviewer_ratings').select('unit_id,rated_id,stars').eq('rater_id',uid),
-    supabase.from('reviewer_ratings').select('stars').eq('rated_id',uid),
+    supabase.from('units').select('id,unit_date,points,video_path,set_marks,selection,verifications(reviewer_id,verdict,decided_at,set_counts,users(display_name))').eq('user_id',uid).gte('unit_date',weekAgo).order('unit_date',{ascending:false}),
+    supabase.from('complaints').select('*').eq('user_id',uid),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid)
   ]);
 
@@ -923,9 +934,8 @@ async function loadAll(){
   ST.monthUnits = units.count||0;
   ST.todayUnit = today.data||null;
   ST.verifications = vfs.data||[];
-  ST.coReviewers = coRev.data||[];
-  ST.ratingsGiven = rGiven.data||[];
-  ST.ratingsReceived = rRecv.data||[];
+  ST.myReviews = myRev.data||[];
+  ST.complaints = compl.data||[];
   ST.totalUnits = total.count||0;
 
   applyProfileToUI();
@@ -933,17 +943,20 @@ async function loadAll(){
   autoDeleteVideos();
 }
 
-// Besitzer-seitig: fertig geprüfte Videos löschen, wenn Auto-Löschen aktiv ist
+// Besitzer-seitig: Videos werden immer automatisch gelöscht, sobald die Prüfung
+// abgeschlossen ist, das 24-h-Beschwerdefenster vorbei ist und keine Beschwerde vorliegt
 async function autoDeleteVideos(){
-  if(!ST.profile.video_auto_del)return;
   const {data}=await supabase.from('units')
-    .select('id,video_path,verifications(verdict)')
+    .select('id,video_path,verifications(verdict,decided_at)')
     .eq('user_id',ST.session.user.id).not('video_path','is',null);
+  const cutoff=Date.now()-24*3600*1000;
   for(const u of (data||[])){
-    if(u.verifications.length>0&&u.verifications.every(v=>v.verdict)){
-      await supabase.storage.from('unit-videos').remove([u.video_path]);
-      await supabase.from('units').update({video_path:null}).eq('id',u.id);
-    }
+    if(!u.verifications.length||!u.verifications.every(v=>v.verdict))continue;
+    const lastDecision=Math.max(...u.verifications.map(v=>new Date(v.decided_at).getTime()));
+    if(lastDecision>cutoff)continue; // Beschwerdefenster läuft noch
+    if(ST.complaints.some(c=>c.unit_id===u.id))continue; // Beschwerde: Video bleibt als Beweis
+    await supabase.storage.from('unit-videos').remove([u.video_path]);
+    await supabase.from('units').update({video_path:null}).eq('id',u.id);
   }
 }
 
@@ -955,9 +968,9 @@ function applyProfileToUI(){
   document.querySelectorAll('.notif-mail').forEach(el=>el.textContent=email);
   document.getElementById('pub-profile-toggle').checked = p.pub_profile;
   document.getElementById('dashboard-toggle').checked = p.dashboard_public;
-  document.getElementById('video-del-toggle').checked = p.video_auto_del;
-  document.getElementById('video-keep-info').style.display = p.video_auto_del?'none':'flex';
-  const ri=Math.max(0,REST_OPTS.indexOf(p.rest_secs||60));
+  // Konto blockiert bei 3 Penaltys — Admin entscheidet über Entsperrung
+  document.getElementById('blocked-overlay').style.display=(p.penalties||0)>=3?'flex':'none';
+  const ri=Math.max(0,REST_OPTS.indexOf(p.rest_secs??60));
   document.getElementById('rest-slider').value = ri;
   document.getElementById('rest-label').textContent = restLabel(REST_OPTS[ri]);
   updateNameChangeUI();
@@ -966,7 +979,7 @@ function applyProfileToUI(){
 // ════════════════════════════════════════════════════════════
 //  RENDERING
 // ════════════════════════════════════════════════════════════
-function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderLevelProgress(); }
+function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); }
 
 // ── Stufen-Aufstieg (Programm-Seite) ─────────────────────────
 function renderLevelProgress(){
@@ -1205,8 +1218,8 @@ function closeLvPanel(){
 // ════════════════════════════════════════════════════════════
 let camStream=null,camRecorder=null,camChunks=[],camMime='',camTimerInt=null,camSecs=0;
 let camQueue=[],camIdx=0,camBusy=false,camMarks=[],camRest=0,camRestInt=null;
-const REST_OPTS=[30,45,60,90];
-const restLabel=s=>s<60?s+' Sek':(s===60?'1 Min':'1:30 Min');
+const REST_OPTS=[0,30,45,60,90,120,180];
+const restLabel=s=>s===0?'Keine':(s<60?s+' Sek':(s%60===0?(s/60)+' Min':'1:30 Min'));
 
 function camPickMime(){
   const c=['video/mp4','video/webm;codecs=vp9','video/webm'];
@@ -1239,13 +1252,14 @@ function camAdvance(i){
   camMarks.push({ex:cur.name,set:cur.done,t:camSecs}); // Zeitmarke: Set fertig bei Sekunde t
   if(cur.done>=cur.sets)camIdx++;
   renderCamRail();
-  if(!camAllDone())startRest(); // nach jedem bestätigten Set: Satzpause, Aufnahme angehalten
+  // nach jedem bestätigten Set: Satzpause (falls konfiguriert), Aufnahme angehalten
+  if(!camAllDone()&&(ST.profile.rest_secs??60)>0)startRest();
 }
 function camAllDone(){return camIdx>=camQueue.length;}
 
 // ── Satzpause: Aufnahme pausiert, Pause landet nicht im Video ──
 function startRest(){
-  camRest=ST.profile.rest_secs||60;
+  camRest=ST.profile.rest_secs??60;
   if(camRecorder&&camRecorder.state==='recording')camRecorder.pause();
   clearInterval(camTimerInt);camTimerInt=null; // Video-Zeit friert mit ein
   updateRestUI();
@@ -1395,7 +1409,6 @@ const vidBlobUrls={}; // verification.id -> Objekt-URL (nur im Speicher, nicht t
 const vcCounts={};    // verification.id -> {übung: gezählte Sets}
 const vcFocus={};     // verification.id -> Index der gerade fokussierten Übung
 let vqSel=null;       // aktuell ausgewähltes Review in der Warteschlange
-const FAIR_OPTS=[['sehr_fair','Sehr fair',5],['fair','Fair',4],['teils_unfair','Teils unfair',2],['unfair','Unfair',1]];
 
 // Übungs-Reihenfolge einer Einheit: aus den Zeitmarken, sonst aus der Auswahl
 function unitExOrder(u){
@@ -1411,12 +1424,10 @@ function renderVerify(){
   document.getElementById('verify-count').textContent=pending.length+' ausstehend';
   document.getElementById('vstat-done').textContent=doneMonth;
   document.getElementById('vstat-open').textContent=pending.length;
-  const recv=ST.ratingsReceived;
-  if(recv.length){
-    const avg=recv.reduce((s,r)=>s+r.stars,0)/recv.length;
-    document.getElementById('vstat-rating').textContent=(Math.round(avg*10)/10).toLocaleString('de-DE');
-    document.getElementById('vstat-rating-sub').textContent='aus '+recv.length+' Bewertung'+(recv.length>1?'en':'');
-  }
+  const pen=ST.profile.penalties||0;
+  document.getElementById('vstat-pen').textContent=pen+' / 3';
+  document.getElementById('vstat-pen').style.color=pen===0?'var(--grn)':(pen<3?'var(--amb)':'var(--acc)');
+  document.getElementById('vstat-pen-sub').textContent=pen===0?'alles sauber':'bei 3 wird das Konto blockiert';
 
   // Warteschlange: oben simple Auswahl, darunter genau eine Review-Karte
   const picker=document.getElementById('verify-picker');
@@ -1443,35 +1454,51 @@ function renderVerify(){
       +'</div></div>';
   }
 
-  // Fairness-Bewertung: wenn beide Prüfer fertig sind, siehst du seine Zählung und bewertest sie
-  const ratable=[];
-  for(const v of ST.verifications.filter(v=>v.verdict)){
-    const co=ST.coReviewers.find(c=>c.unit_id===v.unit_id);
-    if(!co||!co.decided)continue;
-    if(ST.ratingsGiven.some(r=>r.unit_id===v.unit_id&&r.rated_id===co.reviewer_id))continue;
-    ratable.push({v,co});
-  }
-  document.getElementById('verify-ratings').innerHTML=ratable.map(({v,co})=>{
-    const mine=v.set_counts||[], theirs=co.set_counts||[];
-    let rows=v.units?unitExOrder(v.units):[];
-    if(!rows.length)rows=[...new Set([...mine,...theirs].map(c=>c.ex))];
-    // Set für Set: jede Übung im direkten Vergleich
-    const cmp=rows.map(ex=>{
-      const m=mine.find(c=>c.ex===ex), t=theirs.find(c=>c.ex===ex);
-      const same=m&&t&&m.sets===t.sets;
-      return '<div class="vcmp-row"><span class="vcmp-ex">'+ex+'</span>'
-        +'<span class="vcmp-n">'+(m?m.sets:'—')+'</span>'
-        +'<span class="vcmp-n" style="color:'+(same?'var(--grn)':'var(--amb)')+'">'+(t?t.sets:'—')+'</span></div>';
+}
+
+// ── Review-Übersicht für den Besitzer: erscheint, sobald beide Prüfer fertig sind ──
+let complaintUnitId=null;
+function renderReviewOverview(){
+  const done=ST.myReviews.filter(u=>u.verifications.length>0&&u.verifications.every(v=>v.verdict));
+  document.getElementById('review-overview').innerHTML=done.map(u=>{
+    const allOk=u.verifications.every(v=>v.verdict==='approved');
+    const myTotal=(u.set_marks||[]).length||Object.values(u.selection||{}).reduce((s,o)=>s+(o.clicks||0),0);
+    const rows=u.verifications.map(v=>{
+      const name=v.users?.display_name||'Prüfer';
+      const counted=(v.set_counts||[]).reduce((s,c)=>s+c.sets,0);
+      const ok=v.verdict==='approved';
+      return '<div class="vcmp-row"><span class="vcmp-ex">'+name+'</span>'
+        +'<span class="vcmp-n">'+counted+' / '+myTotal+' Sets</span>'
+        +'<span class="vcmp-n" style="color:'+(ok?'var(--grn)':'var(--acc)')+'">'+(ok?'Bestätigt ✓':'Abgelehnt ✗')+'</span></div>';
     }).join('');
+    const compl=ST.complaints.find(c=>c.unit_id===u.id);
+    const complHtml=compl
+      ? '<div style="font-size:10px;color:var(--t2);margin-top:8px">Beschwerde: '+(compl.status==='open'?'<b style="color:var(--amb)">wird vom Admin geprüft</b>':(compl.status==='berechtigt'?'<b style="color:var(--grn)">berechtigt</b>':'<b style="color:var(--acc)">unberechtigt (+1 Penalty)</b>'))+'</div>'
+      : '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:9px;color:var(--t2)">Nicht einverstanden? 24 h Zeit — danach wird das Video gelöscht.</span><button class="btn bg" style="font-size:10px;padding:5px 10px" onclick="openComplaint('+u.id+')">Beschwerde</button></div>';
     return '<div class="card" style="margin-bottom:12px">'
-      +'<div style="font-size:12px;color:var(--t0);font-weight:600;margin-bottom:2px">Euer Zähl-Vergleich</div>'
-      +'<div style="font-size:10px;color:var(--t2);margin-bottom:8px">Set für Set — wie fair hat '+co.display_name+' bewertet?</div>'
-      +'<div class="vcmp-row vcmp-head"><span class="vcmp-ex"></span><span class="vcmp-n">du</span><span class="vcmp-n">'+co.display_name+'</span></div>'
-      +cmp
-      +'<div class="fair-btns" style="margin-top:10px">'+FAIR_OPTS.map(([key,label])=>
-        '<button class="fair-btn f-'+key+'" onclick="rateFairness('+v.unit_id+',\''+co.reviewer_id+'\',\''+key+'\')">'+label+'</button>').join('')
-      +'</div></div>';
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<span style="font-size:12px;font-weight:600;color:var(--t0)">Review-Ergebnis — '+fmtDate(u.unit_date)+'</span>'
+      +'<span class="pill '+(allOk?'pg':'ph')+'" style="'+(allOk?'':'color:var(--acc)')+'">'+(allOk?'Alles in Ordnung':'Nicht bestätigt')+'</span></div>'
+      +'<div class="vcmp-row vcmp-head"><span class="vcmp-ex">Prüfer</span><span class="vcmp-n">gezählt</span><span class="vcmp-n">Urteil</span></div>'
+      +rows+complHtml+'</div>';
   }).join('');
+}
+function openComplaint(unitId){
+  complaintUnitId=unitId;
+  document.getElementById('complaint-textarea').value='';
+  openModal('complaint-modal');
+}
+async function submitComplaint(){
+  const msg=document.getElementById('complaint-textarea').value.trim();
+  if(!msg){showToast('Bitte beschreibe das Problem');return;}
+  const {data,error}=await supabase.from('complaints').insert({
+    unit_id:complaintUnitId,user_id:ST.session.user.id,message:msg
+  }).select().single();
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.complaints.push(data);
+  closeModal('complaint-modal');
+  renderReviewOverview();
+  showToast('Beschwerde eingereicht — der Admin prüft den Fall');
 }
 
 function selectVerify(id){vqSel=id;renderVerify();}
@@ -1505,17 +1532,6 @@ function vcAdjust(vid,d){
   c[ex]=Math.max(0,Math.min(9,(c[ex]||0)+d));
   vcRerenderFocus(vid);
 }
-async function rateFairness(unitId,ratedId,fairness){
-  const opt=FAIR_OPTS.find(o=>o[0]===fairness);
-  const {error}=await supabase.from('reviewer_ratings').insert({
-    unit_id:unitId,rater_id:ST.session.user.id,rated_id:ratedId,fairness,stars:opt[2]
-  });
-  if(error){showToast('Fehler: '+error.message);return;}
-  ST.ratingsGiven.push({unit_id:unitId,rated_id:ratedId,stars:opt[2]});
-  renderVerify();
-  showToast('Danke — als „'+opt[1]+'" bewertet');
-}
-
 // Video als Blob laden (respektiert RLS; keine teilbare URL, kein Download-Endpunkt)
 async function loadVerifyVideo(vid){
   const v=ST.verifications.find(x=>x.id===vid);if(!v)return;
@@ -1571,9 +1587,6 @@ async function decideVerification(vid,verdict){
   if(error){showToast('Fehler: '+error.message);return;}
   v.verdict=verdict;v.decided_at=new Date().toISOString();v.set_counts=counts;
   if(vidBlobUrls[vid]){URL.revokeObjectURL(vidBlobUrls[vid]);delete vidBlobUrls[vid];}
-  // Co-Prüfer-Status aktualisieren (für die Bewertungs-Karte)
-  const {data:coRev}=await supabase.rpc('get_co_reviewers');
-  ST.coReviewers=coRev||[];
   renderVerify();
   showToast(verdict==='approved'?'Einheit bestätigt ✓':'Einheit abgelehnt');
 }
@@ -1637,13 +1650,6 @@ async function saveRestSecs(v){
   const {error}=await supabase.from('users').update({rest_secs:secs}).eq('id',ST.session.user.id);
   showToast(error?'Fehler: '+error.message:'Satzpause: '+restLabel(secs));
 }
-async function setVideoAutoDel(on){
-  ST.profile.video_auto_del=on;
-  await supabase.from('users').update({video_auto_del:on}).eq('id',ST.session.user.id);
-  document.getElementById('video-keep-info').style.display=on?'none':'flex';
-  showToast(on?'Videos werden sofort nach Bestätigung gelöscht':'Auto-Löschung pausiert — 1 Tag zum Behalten');
-}
-
 // ── Konto ────────────────────────────────────────────────────
 const NAME_CHANGE_LIMIT=3;
 function updateNameChangeUI(){
@@ -1753,10 +1759,10 @@ function showToast(msg){
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,rateFairness,levelUp,selectVerify,
-  endRest,restSliderInput,saveRestSecs,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,levelUp,selectVerify,
+  endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
-  armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setVideoAutoDel,
+  armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
 
 supabase.auth.onAuthStateChange((_event,session)=>{
