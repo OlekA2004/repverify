@@ -304,17 +304,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .ex-chip.cy{border-left:2px solid rgba(232,185,61,.55)}
 .ex-chip.cr{border-left:2px solid rgba(226,75,74,.55)}
 
-/* VERIFY: Warteschlangen-Auswahl */
-.vq-picker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+/* VERIFY: Warteschlangen-Auswahl — minimalistisch oben rechts in der Kopfzeile */
+.sh-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.vq-picker{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}
 .vq-picker:empty{display:none}
-.vqp{font-size:10px;padding:6px 11px;border-radius:999px;border:1px solid var(--bdm);background:var(--s1);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
-.vqp.active{border-color:var(--acc);color:var(--t0);background:var(--acc-bg)}
-/* Kompakte Zähler-Zeile: laufende Übung direkt am Zähler */
-.vfocus{display:flex;align-items:center;gap:8px;padding:10px 0 4px}
+.vqp{font-size:9px;padding:4px 10px;border-radius:999px;border:1px solid var(--bdm);background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.vqp:hover{color:var(--t0)}
+.vqp.active{border-color:var(--acc);color:var(--acc);background:var(--acc-bg)}
+/* Kompakte Zähler-Zeile: zentriert, laufende Übung direkt am Zähler */
+.vfocus{display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 0 4px}
 .vf-nav{width:26px;height:34px;border:none;background:transparent;color:var(--t2);font-size:17px;cursor:pointer;font-family:inherit;border-radius:var(--r);flex-shrink:0}
 .vf-nav:hover:not(:disabled){color:var(--t0)}
 .vf-nav:disabled{opacity:.25;cursor:default}
-.vf-name{flex:1;min-width:0}
+.vf-name{flex:0 1 auto;min-width:0;max-width:50%;text-align:center}
 .vf-ex{font-size:12px;font-weight:700;color:var(--acc);text-shadow:0 0 10px rgba(226,75,74,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vf-sub{font-size:9px;color:var(--t2);margin-top:1px}
 .vf-ctl{display:flex;align-items:center;gap:11px;flex-shrink:0}
@@ -455,8 +457,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 <!-- VERIFY -->
 <div class="page" id="page-verify">
-  <div class="sh"><span class="st">Verify-Warteschlange</span><span class="ss" id="verify-count"></span></div>
-  <div class="vq-picker" id="verify-picker"></div>
+  <div class="sh"><span class="st">Verify-Warteschlange</span><div class="sh-right"><span class="ss" id="verify-count"></span><div class="vq-picker" id="verify-picker"></div></div></div>
   <div id="verify-queue"></div>
   <div class="card">
     <div class="sh" style="margin-bottom:.8rem"><span class="st" style="font-size:13px">Deine Verify-Bilanz</span></div>
@@ -919,7 +920,7 @@ async function loadAll(){
     supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false}),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
     supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle(),
-    supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
+    supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name,dashboard_public))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
     supabase.from('units').select('id,unit_date,points,video_path,set_marks,selection,verifications(reviewer_id,verdict,decided_at,set_counts,users(display_name))').eq('user_id',uid).gte('unit_date',weekAgo).order('unit_date',{ascending:false}),
     supabase.from('complaints').select('*').eq('user_id',uid),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid)
@@ -1421,7 +1422,8 @@ function unitExOrder(u){
 function renderVerify(){
   const pending=ST.verifications.filter(v=>!v.verdict&&v.units&&v.units.video_path);
   const doneMonth=ST.verifications.filter(v=>v.verdict&&v.decided_at&&v.decided_at.slice(0,10)>=monthStart()).length;
-  document.getElementById('verify-count').textContent=pending.length+' ausstehend';
+  // Zähler nur zeigen, wenn keine Auswahl-Chips da sind (sonst doppelt)
+  document.getElementById('verify-count').textContent=pending.length<2?pending.length+' ausstehend':'';
   document.getElementById('vstat-done').textContent=doneMonth;
   document.getElementById('vstat-open').textContent=pending.length;
   const pen=ST.profile.penalties||0;
@@ -1435,7 +1437,9 @@ function renderVerify(){
   if(!pending.some(p=>p.id===vqSel))vqSel=pending.length?pending[0].id:null;
   picker.innerHTML=pending.length<2?'':pending.map(v=>{
     const owner=v.units.users?.display_name||'Athlet';
-    return '<button class="vqp'+(v.id===vqSel?' active':'')+'" onclick="selectVerify('+v.id+')">'+owner+' · '+Number(v.units.points)+' Pkt</button>';
+    // Punkte nur zeigen, wenn der Besitzer sein Dashboard öffentlich hat
+    const pts=v.units.users?.dashboard_public?' · '+Number(v.units.points)+' Pkt':'';
+    return '<button class="vqp'+(v.id===vqSel?' active':'')+'" onclick="selectVerify('+v.id+')">'+owner+pts+'</button>';
   }).join('');
   if(!pending.length){
     q.innerHTML='<div class="card" style="text-align:center;color:var(--t2);font-size:11px;padding:1.4rem">Keine offenen Prüfanfragen — stark! 💪</div>';
@@ -1445,7 +1449,7 @@ function renderVerify(){
     if(!vcCounts[v.id])vcCounts[v.id]={};
     if(vcFocus[v.id]===undefined)vcFocus[v.id]=0;
     q.innerHTML='<div class="vc" id="vq-'+v.id+'">'
-      +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div><span class="vtm">'+Number(u.points)+' Pkt</span></div>'
+      +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div>'+(u.users?.dashboard_public?'<span class="vtm">'+Number(u.points)+' Pkt</span>':'')+'</div>'
       +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
       +'<div class="vfocus" id="vfocus-'+v.id+'">'+vcFocusHtml(v.id)+'</div>'
       +'<div class="vac">'
