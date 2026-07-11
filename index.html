@@ -83,7 +83,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .ss2{font-size:10px;color:var(--t2)}
 .sga{color:var(--grn)}.sac{color:var(--acc)}
 .su{font-size:13px;font-weight:400;color:var(--t2)}
-.tc{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;align-items:start}
+#review-overview{margin-bottom:.9rem}
+#review-overview:empty{display:none}
 .today-done{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.4rem 1rem;gap:.55rem;text-align:center}
 .done-ring{width:54px;height:54px;border-radius:50%;background:var(--grn-bg);border:2px solid var(--grn);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(61,158,106,.2)}
 .done-label{font-size:13px;font-weight:600;color:var(--t0)}
@@ -398,12 +400,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="sc"><div class="sl2">Ranking</div><div class="sv sac" id="stat-rank">#15</div><div class="ss2" id="stat-rank-sub">—</div></div>
     <div class="sc"><div class="sl2">Guthaben</div><div class="sv" id="stat-balance">—</div><div class="ss2">verfügbar</div></div>
   </div>
+  <div id="review-overview"></div>
   <div class="tc">
     <div class="card">
       <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Heutige Einheit</div>
       <div id="today-inner"></div>
     </div>
-    <div id="review-overview"></div>
     <div class="card">
       <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Meist genutzte Übungen</div>
       <div id="month-overview"></div>
