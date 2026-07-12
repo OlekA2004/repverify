@@ -304,13 +304,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 /* Sprachwähler auf dem Login */
 .login-lang{margin-top:14px;font-size:11px;color:var(--t1);text-align:center}
 /* Satzpausen-Slider (Einstellungen): klein und dezent, rechts wie ein Toggle */
-.rest-slider{width:110px;flex-shrink:0;appearance:none;-webkit-appearance:none;height:7px;border-radius:999px;outline:none;cursor:pointer;
+.rest-slider{width:130px;flex-shrink:0;appearance:none;-webkit-appearance:none;height:7px;border-radius:999px;outline:none;cursor:pointer;
   background:
-    radial-gradient(circle 2.5px, var(--t2) 99%, transparent) no-repeat 2px 50%/5px 5px,
-    radial-gradient(circle 2.5px, var(--t2) 99%, transparent) no-repeat 33.3% 50%/5px 5px,
-    radial-gradient(circle 2.5px, var(--t2) 99%, transparent) no-repeat 66.7% 50%/5px 5px,
-    radial-gradient(circle 2.5px, var(--t2) 99%, transparent) no-repeat calc(100% - 2px) 50%/5px 5px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat 1px 50%/4px 4px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat 16.66% 50%/4px 4px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat 33.33% 50%/4px 4px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat 50% 50%/4px 4px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat 66.66% 50%/4px 4px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat 83.33% 50%/4px 4px,
+    radial-gradient(circle 2px, var(--t2) 99%, transparent) no-repeat calc(100% - 1px) 50%/4px 4px,
     linear-gradient(var(--s3),var(--s3)) no-repeat 0 50%/100% 3px}
+/* Status-Sanduhr im Logo */
+.logo-icon{position:relative}
+.hg-warn{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);opacity:.4}
+.hg-glass{position:relative;z-index:1}
+.hg-stream{display:none}
+.hg-pending .hg-stream{display:block;animation:hgfall 1s linear infinite}
+@keyframes hgfall{from{stroke-dashoffset:3.2}to{stroke-dashoffset:0}}
+.hg-pending .hg-top{opacity:.95}.hg-pending .hg-bottom{opacity:.45}
+.hg-late .hg-top{opacity:.12}.hg-late .hg-bottom{opacity:1}
+.hg-late .hg-warn{display:block;animation:hgwarn 1.6s ease-in-out infinite}
+@keyframes hgwarn{0%,100%{opacity:.28}50%{opacity:.55}}
+.hg-done .hg-top{opacity:.12}.hg-done .hg-bottom{opacity:1}
+.hg-review .hg-top{opacity:.6}.hg-review .hg-bottom{opacity:.6}
+.hg-review .hg-glass{animation:hgspin 3.2s linear infinite}
+@keyframes hgspin{to{transform:rotate(360deg)}}
+/* Blaue Alternative neben der roten Lösch-Fläche */
+.delete-alt-btn{flex:1;background:var(--blu-bg);border:1px solid rgba(90,140,255,.4);color:var(--blu);font-size:11px;line-height:1.3}
+.delete-alt-btn:hover{border-color:var(--blu)}
+/* Coin statt "Pkt" */
+.coin{display:inline-block;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5d98b,#e8b93d 55%,#9c7519);box-shadow:0 0 4px rgba(232,185,61,.4);vertical-align:0;margin-left:1px}
 .rest-slider::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--acc);cursor:grab}
 .rest-slider::-moz-range-thumb{width:12px;height:12px;border:none;border-radius:50%;background:var(--acc);cursor:grab}
 
@@ -369,7 +392,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 <div class="shell">
 
 <aside class="sidebar">
-  <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.09 12.5H12L11 22L19.91 11.5H12L13 2z"/></svg></div>
+  <!-- Status-Sanduhr: Sand fällt = Einheit heute offen · voll+⚠ = zu spät · dreht = wird geprüft · steht = fertig -->
+  <div class="logo-icon hg-pending" id="status-hourglass">
+    <svg class="hg-warn" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e8b93d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+    <svg class="hg-glass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 2h12M6 22h12"/>
+      <path d="M7 2c0 6 4 6 4 10s-4 4-4 10"/>
+      <path d="M17 2c0 6-4 6-4 10s4 4 4 10"/>
+      <polygon class="hg-top" points="9.6,4.5 14.4,4.5 12,8.5" fill="#fff" stroke="none"/>
+      <polygon class="hg-bottom" points="8.8,20 15.2,20 12,15.5" fill="#fff" stroke="none"/>
+      <line class="hg-stream" x1="12" y1="11" x2="12" y2="15" stroke="#fff" stroke-width="1.2" stroke-dasharray="1.6 1.6"/>
+    </svg>
+  </div>
   <div class="nav-sep"></div>
   <div class="ni active" id="ni-dashboard" onclick="nav('dashboard')" title="Dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
   <div class="ni" id="ni-program" onclick="nav('program')" title="My program"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div>
@@ -436,15 +470,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="lv-grid" id="lv-grid">
     <div class="lv-card" id="lvc-0" onclick="openLevel(0)">
       <div class="lv-lbl" style="color:var(--grn)">Anfänger</div><div class="lv-name">Foundation</div>
-      <div class="lv-meta">30 Übungen · max 15 Pkt</div><span class="pill pg">Freigeschaltet</span>
+      <div class="lv-meta">30 Übungen · max 15 <span class="coin"></span></div><span class="pill pg">Freigeschaltet</span>
     </div>
     <div class="lv-card" id="lvc-1" onclick="openLevel(1)">
       <div class="lv-lbl" style="color:var(--acc)">Mittelstufe</div><div class="lv-name">Build Strength</div>
-      <div class="lv-meta">30 Übungen · max 17 Pkt</div><span class="pill pr">Aktiv</span>
+      <div class="lv-meta">30 Übungen · max 17 <span class="coin"></span></div><span class="pill pr">Aktiv</span>
     </div>
     <div class="lv-card" id="lvc-2" onclick="openLevel(2)">
       <div class="lv-lbl" style="color:var(--t2)">Fortgeschritten</div><div class="lv-name">Peak Performance</div>
-      <div class="lv-meta">30 Übungen · max 19 Pkt</div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
+      <div class="lv-meta">30 Übungen · max 19 <span class="coin"></span></div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
     </div>
     <div class="lv-card" id="lvc-3" onclick="openLevel(3)">
       <div class="lv-lbl" style="color:var(--t2)">Profi</div><div class="lv-name">Elite</div>
@@ -458,14 +492,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
     <div class="pts-header">
       <span class="pts-label">Punkte · Ziel 10 · Max <span id="pts-max-label">17</span></span>
-      <div style="display:flex;align-items:center"><span class="pts-value"><span id="pts-cur">0</span> Pkt</span><span class="pts-full-badge" id="pts-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="pts-badge-txt">Tagesziel erreicht</span></span></div>
+      <div style="display:flex;align-items:center"><span class="pts-value"><span id="pts-cur">0</span> <span class="coin"></span></span><span class="pts-full-badge" id="pts-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="pts-badge-txt">Tagesziel erreicht</span></span></div>
     </div>
     <div class="pts-track"><div class="pts-fill" id="pts-fill" style="width:0%"></div><div class="pts-goal-mark" id="pts-goal-mark"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:3px"><span style="font-size:9px;color:var(--t2)">0</span><span style="font-size:9px;color:var(--grn)" id="goal-tick">Ziel 10</span><span style="font-size:9px;color:var(--t2)" id="max-tick">17</span></div>
     <div style="font-size:10px;color:var(--t2);margin:.6rem 0 .2rem" id="panel-hint"><span class="cat-dot cd-g"></span>leicht · <span class="cat-dot cd-y"></span>mittel · <span class="cat-dot cd-r"></span>schwer — schwerere Übungen geben mehr Punkte · Übungs-Level steigert den Wert langsam · Durchmischen gibt Ranking-Bonus</div>
     <div class="ex-list" id="ex-list"></div>
     <div class="panel-footer">
-      <div class="sel-count">Einheit: <b id="pts-total">0</b> Pkt · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
+      <div class="sel-count">Einheit: <b id="pts-total">0</b> <span class="coin"></span> · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
       <button class="btn bp" id="rec-btn" onclick="startRecording()" style="font-size:11px;opacity:.4;pointer-events:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Einheit aufnehmen</button>
     </div>
   </div>
@@ -570,9 +604,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
           <span id="name-changes-text">Wird in Rankings angezeigt</span>
         </div>
       </div>
-      <div class="fb2"><div class="fl">E-Mail</div><input class="fi" type="email" value="" id="user-email-input"></div>
-      <div class="fb2"><div class="fl">Region &amp; Währung</div><div class="fst"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:12px;color:var(--t0)" id="region-label">—</span><button class="btn bg" style="margin-left:auto;font-size:10px;padding:4px 10px" onclick="openRegionModal()">Ändern</button></div></div>
-      <div class="fb2"><div class="fl">Sprache</div><select class="fi" id="lang-select" onchange="saveLang(this.value)"></select></div>
+      <div class="fb2"><div class="fl">E-Mail</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg><input class="fi" type="email" value="" id="user-email-input" style="border:none;background:transparent;padding:0;flex:1"></div></div>
+      <div class="fb2"><div class="fl">Region &amp; Währung</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:12px;color:var(--t0)" id="region-label">—</span><button class="btn bg" style="margin-left:auto;font-size:10px;padding:4px 10px" onclick="openRegionModal()">Ändern</button></div></div>
+      <div class="fb2"><div class="fl">Sprache</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg><select class="fi" id="lang-select" onchange="saveLang(this.value)" style="border:none;background:transparent;padding:0;flex:1"></select></div></div>
       <div class="tr2">
         <div class="trx"><div class="trtl">Satzpause beim Aufnehmen</div><div class="trsb"><b style="color:var(--t0)" id="rest-label">1 Min</b></div></div>
         <input type="range" class="rest-slider" id="rest-slider" min="0" max="6" step="1" value="3" oninput="restSliderInput(this.value)" onchange="saveRestSecs(this.value)">
@@ -582,26 +616,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div id="delete-zone-simple" style="display:flex;justify-content:flex-start">
       <button class="btn bg" style="font-size:11px;color:var(--t2)" onclick="armDelete()">Konto löschen</button>
     </div>
+    <!-- Scharf: rote Halte-Fläche und blaue Alternative teilen sich die Zeile -->
     <div id="delete-zone-armed" style="display:none">
-      <div class="hold-delete-btn" id="hold-delete-btn">
-        <div class="hold-delete-fill" id="hold-delete-fill"></div>
-        <span class="hold-delete-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg><span class="hold-txt">Halten zum Löschen</span></span>
+      <div style="display:flex;gap:8px;align-items:stretch">
+        <div class="hold-delete-btn" id="hold-delete-btn" style="flex:1.6">
+          <div class="hold-delete-fill" id="hold-delete-fill"></div>
+          <span class="hold-delete-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg><span class="hold-txt">Halten zum Löschen</span></span>
+        </div>
+        <button class="btn delete-alt-btn" onclick="openModal('delete-app-modal')">Nur App entfernen</button>
       </div>
-    </div>
-
-    <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)">
-      <div style="font-size:10px;color:var(--t2);margin-bottom:6px">Willst du nur pausieren statt löschen?</div>
-      <span style="font-size:12px;color:var(--blu);cursor:pointer" onclick="openModal('delete-app-modal')">Nur App entfernen (Konto bleibt bestehen)</span>
     </div>
   </div>
 
   <!-- BENACHRICHTIGUNGEN -->
   <div class="stp" id="s-notifications">
     <div class="sd">E-Mail-Benachrichtigungen</div>
-    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-verify" onchange="saveNotifPref('verify',this.checked)"><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit alle Stimmen hat · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-confirmed" onchange="saveNotifPref('confirmed',this.checked)"><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-ranking" onchange="saveNotifPref('ranking',this.checked)"><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-payout" onchange="saveNotifPref('payout',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst</div></div><label class="tog"><input type="checkbox" id="notif-verify" onchange="saveNotifPref('verify',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit alle Stimmen hat</div></div><label class="tog"><input type="checkbox" id="notif-confirmed" onchange="saveNotifPref('confirmed',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung</div></div><label class="tog"><input type="checkbox" id="notif-ranking" onchange="saveNotifPref('ranking',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende</div></div><label class="tog"><input type="checkbox" id="notif-payout" onchange="saveNotifPref('payout',this.checked)"><span class="tsl"></span></label></div>
   </div>
 
   <!-- DATENSCHUTZ -->
@@ -609,11 +642,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="sd">Sichtbarkeit</div>
     <div class="tr2"><div class="trx"><div class="trtl">Profil</div><div class="trsb">Aktuell: Name in Rankings <b id="priv-name-state" style="color:var(--t0)">unscharf</b></div></div><label class="tog"><input type="checkbox" id="pub-profile-toggle" onchange="setPubProfile(this.checked)"><span class="tsl"></span></label></div>
     <div class="priv-viz" id="priv-name-viz">
-      <span class="pv-rank">#4</span><span class="pv-name" id="priv-viz-name">Max Kraft</span><span class="pv-pts">25 Pkt</span>
+      <span class="pv-rank">#4</span><span class="pv-name" id="priv-viz-name">Max Kraft</span><span class="pv-pts">25 <span class="coin"></span></span>
     </div>
     <div class="tr2"><div class="trx"><div class="trtl">Statistiken</div><div class="trsb">Aktuell: Punkte bei Statistiken <b id="priv-stats-state" style="color:var(--t0)">unscharf</b></div></div><label class="tog"><input type="checkbox" id="dashboard-toggle" onchange="setDashboardPublic(this.checked)"><span class="tsl"></span></label></div>
     <div class="priv-viz" id="priv-stats-viz">
-      <span class="pv-name" id="priv-viz-name2">Max Kraft</span><span class="pv-pts" id="priv-viz-pts">10,5 Pkt · 28/30 Einheiten</span>
+      <span class="pv-name" id="priv-viz-name2">Max Kraft</span><span class="pv-pts" id="priv-viz-pts">10,5 <span class="coin"></span> · 28/30 Einheiten</span>
     </div>
     <div class="ib" style="margin-top:.6rem">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -845,21 +878,21 @@ const MONTH_TARGET = 30;
 const CAT_PTS = { 0:{g:1, y:1.5, r:2}, 1:{g:1.5, y:2, r:2.5}, 2:{g:2, y:2.5, r:3}, 3:{g:2.5, y:3, r:3.5} };
 const CAT_LABEL = { g:'leicht', y:'mittel', r:'schwer' };
 const EX_DATA = [
-  { name:'Foundation', label:'Anfänger', locked:false, sub:'Bodyweight · 🟢 1 · 🟡 1,5 · 🔴 2 Pkt/Set',
+  { name:'Foundation', label:'Anfänger', locked:false, sub:'Bodyweight · 🟢 1 · 🟡 1,5 · 🔴 2 pro Set',
     ex:[['Squats','g'],['Wall Push-ups','g'],['Incline Push-ups','g'],['Glute Bridge','g'],['Calf Raises','g'],
         ['Dead Bug','g'],['Bird Dog','g'],['Crunches','g'],['Leg Lifts','g'],['Jumping Jacks','g'],
         ['Assisted Push-ups','y'],['Reverse Lunges','y'],['Walking Lunges','y'],['Side Lunges','y'],['Step-ups','y'],
         ['Single-Leg Glute Bridge','y'],['Wall Sit','y'],['Side Plank','y'],['Bicycle Crunches','y'],['Russian Twists','y'],
         ['Push-ups','r'],['Australian Pull-ups','r'],['Inverted Row','r'],['Assisted Pull-ups','r'],['Assisted Chin-ups','r'],
         ['Plank','r'],['Superman Hold','r'],['Mountain Climbers','r'],['High Knees','r'],['Burpees','r']] },
-  { name:'Build Strength', label:'Mittelstufe', locked:false, sub:'Compound · 🟢 1,5 · 🟡 2 · 🔴 2,5 Pkt/Set',
+  { name:'Build Strength', label:'Mittelstufe', locked:false, sub:'Compound · 🟢 1,5 · 🟡 2 · 🔴 2,5 pro Set',
     ex:[['Hollow Hold','g'],['Plank to Push-up','g'],['Bear Crawl','g'],['Crab Walk','g'],['Toes-to-Bench','g'],
         ['Diamond Push-ups','g'],['Pike Push-ups','g'],['Decline Push-ups','g'],['Bulgarian Split Squats','g'],['Cossack Squats','g'],
         ['Hanging Knee Raises','y'],['Hollow Rocks','y'],['V-Ups','y'],['Commando Plank','y'],['Box Jumps','y'],
         ['Chin-ups','y'],['Dips','y'],['Archer Push-ups','y'],['Assisted Pistol Squats','y'],['Shrimp Squats','y'],
         ['Single-Leg Romanian Deadlift','r'],['Broad Jumps','r'],['Skater Jumps','r'],['Tuck Jumps','r'],['Archer Rows','r'],
         ['Pull-ups','r'],['Pseudo Planche Push-ups','r'],['Assisted Nordic Curl','r'],['Burpee Pull-ups','r'],['Explosive Push-ups','r']] },
-  { name:'Peak Performance', label:'Fortgeschritten', locked:false, sub:'Advanced · 🟢 2 · 🟡 2,5 · 🔴 3 Pkt/Set',
+  { name:'Peak Performance', label:'Fortgeschritten', locked:false, sub:'Advanced · 🟢 2 · 🟡 2,5 · 🔴 3 pro Set',
     ex:[['Hanging Leg Raises','g'],['L-Sit','g'],['Planche Lean','g'],['Wall Handstand Shoulder Taps','g'],['Front Lever Tuck','g'],
         ['Toes-to-Bar','g'],['Explosive Pull-ups','g'],['V-Sit','g'],['Back Lever Tuck','g'],['Pistol Squats','g'],
         ['Handstand Push-ups','y'],['Archer Pull-ups','y'],['Typewriter Pull-ups','y'],['Clap Pull-ups','y'],['Dragon Flag','y'],
@@ -1028,7 +1061,7 @@ function updatePrivViz(){
   const p=ST.profile,name=p.display_name||'Athlet';
   document.getElementById('priv-viz-name').textContent=name;
   document.getElementById('priv-viz-name2').textContent=name;
-  document.getElementById('priv-viz-pts').textContent=(ST.todayUnit?Number(ST.todayUnit.points):10.5).toLocaleString()+' Pkt · '+ST.monthUnits+'/'+MONTH_TARGET+' Einheiten';
+  document.getElementById('priv-viz-pts').textContent=(ST.todayUnit?Number(ST.todayUnit.points):10.5).toLocaleString()+' <span class="coin"></span> · '+ST.monthUnits+'/'+MONTH_TARGET+' Einheiten';
   document.getElementById('priv-viz-name').classList.toggle('blurred',!p.pub_profile);
   document.getElementById('priv-name-state').textContent=p.pub_profile?'scharf':'unscharf';
   document.getElementById('priv-viz-pts').classList.toggle('blurred',!p.dashboard_public);
@@ -1050,11 +1083,17 @@ function renderRegionList(filter){
   document.getElementById('region-list').innerHTML=items.map(x=>
     '<div class="region-item'+(ST.profile&&ST.profile.region===x.c?' active':'')+'" onclick="selectRegion(\''+x.c+'\')"><span>'+x.n+'</span><span class="ri-cur">'+CUR_MAP[x.c]+'</span></div>').join('');
 }
+// Zeitzone zuerst (physischer Standort), dann Gerätesprache — sonst zeigt ein
+// Browser mit englischer Sprache (en-GB) fälschlich UK an
+const TZ_MAP={'Europe/Berlin':'DE','Europe/Vienna':'AT','Europe/Zurich':'CH','Europe/Paris':'FR','Europe/Madrid':'ES','Europe/Rome':'IT','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Lisbon':'PT','Europe/London':'GB','Europe/Dublin':'IE','Europe/Warsaw':'PL','Europe/Prague':'CZ','Europe/Stockholm':'SE','Europe/Oslo':'NO','Europe/Copenhagen':'DK','Europe/Helsinki':'FI','Europe/Athens':'GR','Europe/Istanbul':'TR','Europe/Kyiv':'UA','Europe/Moscow':'RU','Europe/Budapest':'HU','Europe/Bucharest':'RO','America/New_York':'US','America/Chicago':'US','America/Denver':'US','America/Los_Angeles':'US','America/Phoenix':'US','America/Toronto':'CA','America/Vancouver':'CA','America/Mexico_City':'MX','America/Sao_Paulo':'BR','America/Argentina/Buenos_Aires':'AR','America/Bogota':'CO','America/Lima':'PE','America/Santiago':'CL','Asia/Tokyo':'JP','Asia/Seoul':'KR','Asia/Shanghai':'CN','Asia/Hong_Kong':'HK','Asia/Taipei':'TW','Asia/Singapore':'SG','Asia/Kolkata':'IN','Asia/Karachi':'PK','Asia/Dhaka':'BD','Asia/Dubai':'AE','Asia/Riyadh':'SA','Asia/Jakarta':'ID','Asia/Bangkok':'TH','Asia/Manila':'PH','Asia/Kuala_Lumpur':'MY','Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Brisbane':'AU','Pacific/Auckland':'NZ','Africa/Cairo':'EG','Africa/Lagos':'NG','Africa/Johannesburg':'ZA','Africa/Nairobi':'KE','Africa/Casablanca':'MA'};
 function autoDetectRegion(){
-  // Region aus der Gerätesprache ableiten (z. B. de-DE → DE)
-  const loc=(navigator.language||'de-DE').split('-');
-  const code=(loc[1]||'DE').toUpperCase();
-  selectRegion(CUR_MAP[code]?code:'DE');
+  const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||'');
+  if(TZ_MAP[tz])return selectRegion(TZ_MAP[tz]);
+  for(const l of (navigator.languages||[navigator.language||'de-DE'])){
+    const m=String(l).match(/-([A-Za-z]{2})\b/);
+    if(m&&CUR_MAP[m[1].toUpperCase()])return selectRegion(m[1].toUpperCase());
+  }
+  selectRegion('DE');
 }
 async function selectRegion(code){
   const cur=CUR_MAP[code]||'USD';
@@ -1085,7 +1124,19 @@ async function saveNotifPref(key,on){
 // ════════════════════════════════════════════════════════════
 //  RENDERING
 // ════════════════════════════════════════════════════════════
-function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); }
+function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); updateHourglass(); }
+
+// ── Status-Sanduhr im Logo ───────────────────────────────────
+// offen: Sand rieselt · zu spät (ab 20 Uhr): unten voll + ⚠ · in Prüfung: dreht · fertig: steht
+function updateHourglass(){
+  const el=document.getElementById('status-hourglass');if(!el)return;
+  let st='pending';
+  if(ST.todayUnit){
+    const mine=ST.myReviews.find(u=>u.id===ST.todayUnit.id);
+    st=(mine&&mine.verifications.length&&!mine.verifications.every(v=>v.verdict))?'review':'done';
+  } else if(new Date().getHours()>=20){ st='late'; }
+  el.className='logo-icon hg-'+st;
+}
 
 // ── Stufen-Aufstieg (Programm-Seite) ─────────────────────────
 function renderLevelProgress(){
@@ -1140,7 +1191,7 @@ function renderDashboard(){
   document.getElementById('stat-rank-sub').textContent = ST.leaderboard.length+' Teilnehmer';
   document.getElementById('stat-balance').textContent = fmtEUR(balance());
   const tu=ST.todayUnit;
-  document.getElementById('stat-today').textContent = tu ? Number(tu.points)+' Pkt' : '—';
+  document.getElementById('stat-today').innerHTML = tu ? Number(tu.points)+' <span class="coin"></span>' : '—';
   document.getElementById('stat-today-sub').textContent = tu ? (tu.points>=GOAL_PTS?'Ziel erreicht ✓':'unter Ziel') : 'Einheit offen';
   renderToday(); renderMonthOverview();
 }
@@ -1153,13 +1204,13 @@ function renderToday(){
     el.innerHTML = '<div class="today-done">'
       +'<div class="done-ring"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--grn)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>'
       +'<div class="done-label">Einheit abgeschlossen — '+Number(t.points)+' Punkte</div>'
-      +'<div class="done-sub">'+(extra>0?'+'+Math.round(extra*10)/10+' Pkt über Ziel · ':'')+t.distinct_count+' Übungen · Ranking-Wert '+t.ranking_points+'</div>'
+      +'<div class="done-sub">'+(extra>0?'+'+Math.round(extra*10)/10+' <span class="coin"></span> über Ziel · ':'')+t.distinct_count+' Übungen · Ranking-Wert '+t.ranking_points+'</div>'
       +'</div>';
   } else {
     el.innerHTML = '<div style="padding:.4rem 0 .2rem">'
       +'<div style="font-size:11px;color:var(--t1);margin-bottom:8px">Stelle deine Einheit im Programm zusammen — mindestens <b style="color:var(--t0)">'+GOAL_PTS+' Punkte</b> für einen erfolgreichen Tag.</div>'
       +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'
-      +'<span class="pill ph">Ziel: '+GOAL_PTS+' Pkt</span><span class="pill ph">Max: '+maxPtsForLevel(lvl)+' Pkt</span><span class="pill ph">Extra-Punkte = Ranking-Vorsprung</span></div>'
+      +'<span class="pill ph">Ziel: '+GOAL_PTS+' <span class="coin"></span></span><span class="pill ph">Max: '+maxPtsForLevel(lvl)+' <span class="coin"></span></span><span class="pill ph">Extra-Punkte = Ranking-Vorsprung</span></div>'
       +'<button class="btn bp bf" id="today-cta-btn" style="font-size:11px">'
       +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'
       +'Einheit zusammenstellen</button></div>';
@@ -1197,7 +1248,7 @@ function renderRanking(){
       +'<span class="rp '+(pos<=3||me?'rpt':'')+'">'+pos+'</span>'
       +'<div class="rav" style="background:'+(me?'var(--acc-bg2)':bgs[ci])+';color:'+(me?'var(--acc)':colors[ci])+'"><span class="'+nameBlur+'">'+initials(r.name)+'</span></div>'
       +'<div><div class="rn"><span class="'+nameBlur+'">'+r.name+'</span>'+(me?'<span class="pill pb" style="font-size:9px;padding:1px 5px">du</span>':'')+'</div>'
-      +'<div class="ru"><span class="'+statsBlur+'">'+r.points+' Pkt</span></div></div>'
+      +'<div class="ru"><span class="'+statsBlur+'">'+r.points+' <span class="coin"></span></span></div></div>'
       +'<div class="rw">'+(me?'+'+RANK_BONUS_PER_POS.toFixed(2).replace('.',',')+' €/Pos.':'—')+'</div></div>';
   });
   document.getElementById('ranking-list').innerHTML=html;
@@ -1282,7 +1333,7 @@ function renderChip(name,base,idx,cat){
   chip.innerHTML='<div class="ex-chip-top"><span class="ex-lvl-tag">Lv '+p.level+'</span>'
     +'<span class="ex-chip-name">'+name+'</span>'
     +'<span class="ex-chip-cnt">'+(clicks>0?'+'+(Math.round(clicks*val*10)/10):'')+'</span></div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span><span class="cat-dot cd-'+cat+'"></span>'+CAT_LABEL[cat]+' · '+val+' Pkt/Set</span><span>'+clicks+'/3</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span><span class="cat-dot cd-'+cat+'"></span>'+CAT_LABEL[cat]+' · '+val+' <span class="coin"></span>/Set</span><span>'+clicks+'/3</span></div>'
     +'<div class="ex-mini-bar"><div class="ex-mini-fill" style="width:'+(clicks/3)*100+'%"></div></div>';
 }
 
@@ -1298,7 +1349,7 @@ function openLevel(idx){
   if(lv.ex.length===0){
     list.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--t2)"><div style="font-size:12px">Kommt bald.</div></div>';
   } else if(!isUsable){
-    list.innerHTML=lv.ex.map(([n,c])=>'<div class="ex-chip c'+c+'" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+exBasePts(idx,c)+' P</span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
+    list.innerHTML=lv.ex.map(([n,c])=>'<div class="ex-chip c'+c+'" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+exBasePts(idx,c)+' <span class="coin"></span></span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
   } else {
     list.innerHTML=lv.ex.map(([n,c],i)=>'<div class="ex-chip c'+c+'" id="exc-'+i+'"></div>').join('');
     lv.ex.forEach(([n,c],i)=>{
@@ -1543,7 +1594,7 @@ function renderVerify(){
   picker.innerHTML=pending.length<2?'':pending.map(v=>{
     const owner=v.units.users?.display_name||'Athlet';
     // Punkte nur zeigen, wenn der Besitzer sein Dashboard öffentlich hat
-    const pts=v.units.users?.dashboard_public?' · '+Number(v.units.points)+' Pkt':'';
+    const pts=v.units.users?.dashboard_public?' · '+Number(v.units.points)+' <span class="coin"></span>':'';
     return '<button class="vqp'+(v.id===vqSel?' active':'')+'" onclick="selectVerify('+v.id+')">'+owner+pts+'</button>';
   }).join('');
   if(!pending.length){
@@ -1554,7 +1605,7 @@ function renderVerify(){
     if(!vcCounts[v.id])vcCounts[v.id]={};
     if(vcFocus[v.id]===undefined)vcFocus[v.id]=0;
     q.innerHTML='<div class="vc" id="vq-'+v.id+'">'
-      +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div>'+(u.users?.dashboard_public?'<span class="vtm">'+Number(u.points)+' Pkt</span>':'')+'</div>'
+      +'<div class="vh"><div class="ld2"></div><div class="vt">'+owner+' — '+fmtDate(u.unit_date)+'</div>'+(u.users?.dashboard_public?'<span class="vtm">'+Number(u.points)+' <span class="coin"></span></span>':'')+'</div>'
       +'<div id="vp-'+v.id+'"><button class="vp-load" onclick="loadVerifyVideo('+v.id+')">▶ Video laden (nur für dich sichtbar)</button></div>'
       +'<div class="vfocus" id="vfocus-'+v.id+'">'+vcFocusHtml(v.id)+'</div>'
       +'<div class="vac">'
