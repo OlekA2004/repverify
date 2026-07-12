@@ -320,7 +320,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .hg-glass{position:relative;z-index:1}
 .hg-stream{display:none}
 .hg-pending .hg-stream{display:block;animation:hgfall 1s linear infinite}
-@keyframes hgfall{from{stroke-dashoffset:3.2}to{stroke-dashoffset:0}}
+@keyframes hgfall{from{stroke-dashoffset:4.4}to{stroke-dashoffset:0}}
 .hg-pending .hg-top{opacity:.95}.hg-pending .hg-bottom{opacity:.45}
 .hg-late .hg-top{opacity:.12}.hg-late .hg-bottom{opacity:1}
 .hg-late .hg-warn{display:block;animation:hgwarn 1.6s ease-in-out infinite}
@@ -333,7 +333,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .delete-alt-btn{flex:1;background:var(--blu-bg);border:1px solid rgba(90,140,255,.4);color:var(--blu);font-size:11px;line-height:1.3}
 .delete-alt-btn:hover{border-color:var(--blu)}
 /* Coin statt "Pkt" */
-.coin{display:inline-block;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5d98b,#e8b93d 55%,#9c7519);box-shadow:0 0 4px rgba(232,185,61,.4);vertical-align:0;margin-left:1px}
+.coin{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5d98b,#e8b93d 55%,#9c7519);box-shadow:0 0 4px rgba(232,185,61,.4);vertical-align:-1px;margin-left:1px}
+.coin::after{content:'P';font-size:8px;font-weight:800;color:#5c430e;line-height:1}
+/* CJK: Uppercase-Tracking der Labels neutralisieren */
+html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2,html[lang="ja"] .sl2,html[lang="ko"] .sl2,html[lang="zh"] .lv-lbl,html[lang="ja"] .lv-lbl,html[lang="ko"] .lv-lbl{letter-spacing:.05em}
 .rest-slider::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--acc);cursor:grab}
 .rest-slider::-moz-range-thumb{width:12px;height:12px;border:none;border-radius:50%;background:var(--acc);cursor:grab}
 
@@ -393,7 +396,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 <aside class="sidebar">
   <!-- Status-Sanduhr: Sand fällt = Einheit heute offen · voll+⚠ = zu spät · dreht = wird geprüft · steht = fertig -->
-  <div class="logo-icon hg-pending" id="status-hourglass">
+  <div class="logo-icon hg-pending" id="status-hourglass" onclick="nav('program')" style="cursor:pointer" title="Zum Aufzeichnen">
     <svg class="hg-warn" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e8b93d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
     <svg class="hg-glass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M6 2h12M6 22h12"/>
@@ -401,7 +404,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <path d="M17 2c0 6-4 6-4 10s4 4 4 10"/>
       <polygon class="hg-top" points="9.6,4.5 14.4,4.5 12,8.5" fill="#fff" stroke="none"/>
       <polygon class="hg-bottom" points="8.8,20 15.2,20 12,15.5" fill="#fff" stroke="none"/>
-      <line class="hg-stream" x1="12" y1="11" x2="12" y2="15" stroke="#fff" stroke-width="1.2" stroke-dasharray="1.6 1.6"/>
+      <line class="hg-stream" x1="12" y1="10.5" x2="12" y2="19" stroke="#fff" stroke-width="1.8" stroke-dasharray="2.2 2.2"/>
     </svg>
   </div>
   <div class="nav-sep"></div>
@@ -470,15 +473,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="lv-grid" id="lv-grid">
     <div class="lv-card" id="lvc-0" onclick="openLevel(0)">
       <div class="lv-lbl" style="color:var(--grn)">Anfänger</div><div class="lv-name">Foundation</div>
-      <div class="lv-meta">30 Übungen · max 15 <span class="coin"></span></div><span class="pill pg">Freigeschaltet</span>
+      <div class="lv-meta">30 Übungen · max 15</div><span class="pill pg">Freigeschaltet</span>
     </div>
     <div class="lv-card" id="lvc-1" onclick="openLevel(1)">
       <div class="lv-lbl" style="color:var(--acc)">Mittelstufe</div><div class="lv-name">Build Strength</div>
-      <div class="lv-meta">30 Übungen · max 17 <span class="coin"></span></div><span class="pill pr">Aktiv</span>
+      <div class="lv-meta">30 Übungen · max 17</div><span class="pill pr">Aktiv</span>
     </div>
     <div class="lv-card" id="lvc-2" onclick="openLevel(2)">
       <div class="lv-lbl" style="color:var(--t2)">Fortgeschritten</div><div class="lv-name">Peak Performance</div>
-      <div class="lv-meta">30 Übungen · max 19 <span class="coin"></span></div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
+      <div class="lv-meta">30 Übungen · max 19</div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
     </div>
     <div class="lv-card" id="lvc-3" onclick="openLevel(3)">
       <div class="lv-lbl" style="color:var(--t2)">Profi</div><div class="lv-name">Elite</div>
@@ -1061,7 +1064,7 @@ function updatePrivViz(){
   const p=ST.profile,name=p.display_name||'Athlet';
   document.getElementById('priv-viz-name').textContent=name;
   document.getElementById('priv-viz-name2').textContent=name;
-  document.getElementById('priv-viz-pts').textContent=(ST.todayUnit?Number(ST.todayUnit.points):10.5).toLocaleString()+' <span class="coin"></span> · '+ST.monthUnits+'/'+MONTH_TARGET+' Einheiten';
+  document.getElementById('priv-viz-pts').innerHTML=(ST.todayUnit?Number(ST.todayUnit.points):10.5).toLocaleString()+' <span class="coin"></span> · '+ST.monthUnits+'/'+MONTH_TARGET+' Einheiten';
   document.getElementById('priv-viz-name').classList.toggle('blurred',!p.pub_profile);
   document.getElementById('priv-name-state').textContent=p.pub_profile?'scharf':'unscharf';
   document.getElementById('priv-viz-pts').classList.toggle('blurred',!p.dashboard_public);
@@ -1333,7 +1336,7 @@ function renderChip(name,base,idx,cat){
   chip.innerHTML='<div class="ex-chip-top"><span class="ex-lvl-tag">Lv '+p.level+'</span>'
     +'<span class="ex-chip-name">'+name+'</span>'
     +'<span class="ex-chip-cnt">'+(clicks>0?'+'+(Math.round(clicks*val*10)/10):'')+'</span></div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span><span class="cat-dot cd-'+cat+'"></span>'+CAT_LABEL[cat]+' · '+val+' <span class="coin"></span>/Set</span><span>'+clicks+'/3</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span><span class="cat-dot cd-'+cat+'"></span>'+CAT_LABEL[cat]+' · '+val+'/Set</span><span>'+clicks+'/3</span></div>'
     +'<div class="ex-mini-bar"><div class="ex-mini-fill" style="width:'+(clicks/3)*100+'%"></div></div>';
 }
 
@@ -1349,7 +1352,7 @@ function openLevel(idx){
   if(lv.ex.length===0){
     list.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--t2)"><div style="font-size:12px">Kommt bald.</div></div>';
   } else if(!isUsable){
-    list.innerHTML=lv.ex.map(([n,c])=>'<div class="ex-chip c'+c+'" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+exBasePts(idx,c)+' <span class="coin"></span></span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
+    list.innerHTML=lv.ex.map(([n,c])=>'<div class="ex-chip c'+c+'" style="opacity:.45;cursor:default"><div class="ex-chip-top"><span class="ex-chip-name">'+n+'</span><span class="ex-lvl-tag">'+exBasePts(idx,c)+' P</span></div><div class="ex-mini-bar"><div class="ex-mini-fill" style="width:0%"></div></div></div>').join('');
   } else {
     list.innerHTML=lv.ex.map(([n,c],i)=>'<div class="ex-chip c'+c+'" id="exc-'+i+'"></div>').join('');
     lv.ex.forEach(([n,c],i)=>{

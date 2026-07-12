@@ -332,3 +332,44 @@ window.I18N_PATTERNS.push(
 [/^Auszahlung ab (.+) möglich$/,["Withdrawal available from $1","满 $1 可提现","$1 से निकासी संभव","Retiro posible desde $1","Retrait possible dès $1","السحب متاح من $1","$1 থেকে উত্তোলন সম্ভব","Вывод от $1","Saque a partir de $1","$1 سے نکاسی ممکن","Penarikan mulai $1","$1から出金可能","$1 itibaren çekim","$1부터 출금 가능"]],
 [/^(Bodyweight|Compound|Advanced) · (.+) pro Set$/,["$1 · $2 per set","$1 · $2 每组","$1 · $2 प्रति सेट","$1 · $2 por serie","$1 · $2 par série","$1 · $2 لكل مجموعة","$1 · $2 প্রতি সেটে","$1 · $2 за подход","$1 · $2 por série","$1 · $2 فی سیٹ","$1 · $2 per set","$1 · $2（1セットあたり）","$1 · $2 set başına","$1 · $2 세트당"]]
 );
+// Nachtrag 2: Verify-Tab, Pausen-Label, Punkte-Muster, gängige Übungsnamen
+Object.assign(window.I18N_SRC,{
+"Verify":["Verify","审核","सत्यापन","Verificar","Vérif","تحقق","যাচাই","Проверка","Verificar","تصدیق","Verifikasi","確認","Doğrulama","검증"],
+"Keine":["None","无","कोई नहीं","Ninguna","Aucune","بدون","কোনোটি নয়","Без паузы","Nenhuma","کوئی نہیں","Tidak ada","なし","Yok","없음"],
+"1:30 Min":["1:30 min","1分30秒","1:30 मिनट","1:30 min","1 min 30","دقيقة ونصف","১:৩০ মিনিট","1:30 мин","1:30 min","1:30 منٹ","1:30 mnt","1分30秒","1:30 dk","1분 30초"],
+"Squats":["Squats","深蹲","स्क्वैट्स","Sentadillas","Squats","سكوات","স্কোয়াট","Приседания","Agachamentos","اسکواٹس","Squat","スクワット","Squat","스쿼트"],
+"Push-ups":["Push-ups","俯卧撑","पुश-अप्स","Flexiones","Pompes","تمرين الضغط","পুশ-আপ","Отжимания","Flexões","پش اپس","Push-up","腕立て伏せ","Şınav","푸시업"],
+"Wall Push-ups":["Wall push-ups","靠墙俯卧撑","वॉल पुश-अप्स","Flexiones en pared","Pompes au mur","ضغط على الحائط","ওয়াল পুশ-আপ","Отжимания от стены","Flexões na parede","دیوار پش اپس","Push-up dinding","壁腕立て伏せ","Duvar şınavı","벽 푸시업"],
+"Incline Push-ups":["Incline push-ups","上斜俯卧撑","इनक्लाइन पुश-अप्स","Flexiones inclinadas","Pompes inclinées","ضغط مائل","ইনক্লাইন পুশ-আপ","Отжимания с упором","Flexões inclinadas","مائل پش اپس","Push-up miring","インクライン腕立て","Eğimli şınav","인클라인 푸시업"],
+"Assisted Push-ups":["Assisted push-ups","辅助俯卧撑","असिस्टेड पुश-अप्स","Flexiones asistidas","Pompes assistées","ضغط بمساعدة","সহায়ক পুশ-আপ","Отжимания с поддержкой","Flexões assistidas","معاون پش اپس","Push-up dibantu","補助付き腕立て","Destekli şınav","보조 푸시업"],
+"Glute Bridge":["Glute bridge","臀桥","ग्लूट ब्रिज","Puente de glúteos","Pont fessier","جسر الورك","গ্লুট ব্রিজ","Ягодичный мостик","Ponte de glúteos","گلوٹ برج","Glute bridge","ヒップリフト","Kalça köprüsü","힙 브리지"],
+"Calf Raises":["Calf raises","提踵","काफ रेज़","Elevación de talones","Extensions mollets","رفع الكعبين","কাফ রেইজ","Подъёмы на носки","Elevação de panturrilha","کاف ریز","Calf raise","カーフレイズ","Baldır kaldırma","카프 레이즈"],
+"Crunches":["Crunches","卷腹","क्रंचेस","Abdominales","Crunchs","كرنش","ক্রাঞ্চ","Скручивания","Abdominais","کرنچز","Crunch","クランチ","Mekik","크런치"],
+"Leg Lifts":["Leg lifts","举腿","लेग लिफ्ट्स","Elevación de piernas","Relevés de jambes","رفع الساقين","লেগ লিফট","Подъёмы ног","Elevação de pernas","لیگ لفٹس","Angkat kaki","レッグレイズ","Bacak kaldırma","레그 레이즈"],
+"Jumping Jacks":["Jumping jacks","开合跳","जंपिंग जैक्स","Saltos de tijera","Jumping jacks","قفز فتح وضم","জাম্পিং জ্যাক","Джампинг джек","Polichinelos","جمپنگ جیکس","Jumping jack","ジャンピングジャック","Jumping jack","팔벌려뛰기"],
+"Reverse Lunges":["Reverse lunges","后弓步","रिवर्स लंजेस","Zancadas inversas","Fentes arrière","طعنات خلفية","রিভার্স লাঞ্জ","Выпады назад","Afundos reversos","ریورس لنجز","Lunge mundur","リバースランジ","Geri lunge","리버스 런지"],
+"Walking Lunges":["Walking lunges","行走弓步","वॉकिंग लंजेस","Zancadas caminando","Fentes marchées","طعنات مشي","ওয়াকিং লাঞ্জ","Выпады в движении","Afundos caminhando","واکنگ لنجز","Lunge berjalan","ウォーキングランジ","Yürüyerek lunge","워킹 런지"],
+"Side Lunges":["Side lunges","侧弓步","साइड लंजेस","Zancadas laterales","Fentes latérales","طعنات جانبية","সাইড লাঞ্জ","Боковые выпады","Afundos laterais","سائیڈ لنجز","Lunge samping","サイドランジ","Yan lunge","사이드 런지"],
+"Step-ups":["Step-ups","登阶","स्टेप-अप्स","Subidas al cajón","Montées de marche","صعود الدرجة","স্টেপ-আপ","Зашагивания","Subida no banco","اسٹیپ اپس","Step-up","ステップアップ","Step-up","스텝업"],
+"Wall Sit":["Wall sit","靠墙静蹲","वॉल सिट","Sentadilla en pared","Chaise murale","جلسة الحائط","ওয়াল সিট","Стульчик у стены","Cadeirinha na parede","وال سٹ","Wall sit","空気椅子","Duvar oturuşu","월 싯"],
+"Plank":["Plank","平板支撑","प्लैंक","Plancha","Gainage","بلانك","প্ল্যাঙ্ক","Планка","Prancha","پلینک","Plank","プランク","Plank","플랭크"],
+"Side Plank":["Side plank","侧平板支撑","साइड प्लैंक","Plancha lateral","Gainage latéral","بلانك جانبي","সাইড প্ল্যাঙ্ক","Боковая планка","Prancha lateral","سائیڈ پلینک","Plank samping","サイドプランク","Yan plank","사이드 플랭크"],
+"Bicycle Crunches":["Bicycle crunches","自行车卷腹","बाइसिकल क्रंचेस","Abdominales bicicleta","Crunchs vélo","كرنش الدراجة","বাইসাইকেল ক্রাঞ্চ","Велосипед","Abdominal bicicleta","بائیسکل کرنچ","Crunch sepeda","バイシクルクランチ","Bisiklet mekik","바이시클 크런치"],
+"Russian Twists":["Russian twists","俄罗斯转体","रशियन ट्विस्ट्स","Giros rusos","Russian twists","التفاف روسي","রাশিয়ান টুইস্ট","Русские скручивания","Giro russo","رشین ٹوئسٹ","Russian twist","ロシアンツイスト","Rus twisti","러시안 트위스트"],
+"Pull-ups":["Pull-ups","引体向上","पुल-अप्स","Dominadas","Tractions","العقلة","পুল-আপ","Подтягивания","Barra fixa","پل اپس","Pull-up","懸垂","Barfiks","풀업"],
+"Assisted Pull-ups":["Assisted pull-ups","辅助引体向上","असिस्टेड पुल-अप्स","Dominadas asistidas","Tractions assistées","عقلة بمساعدة","সহায়ক পুল-আপ","Подтягивания с поддержкой","Barra assistida","معاون پل اپس","Pull-up dibantu","補助付き懸垂","Destekli barfiks","보조 풀업"],
+"Chin-ups":["Chin-ups","反手引体","चिन-अप्स","Dominadas supinas","Tractions supination","عقلة عكسية","চিন-আপ","Подтягивания обратным хватом","Barra supinada","چن اپس","Chin-up","逆手懸垂","Ters barfiks","친업"],
+"Assisted Chin-ups":["Assisted chin-ups","辅助反手引体","असिस्टेड चिन-अप्स","Dominadas supinas asistidas","Tractions supination assistées","عقلة عكسية بمساعدة","সহায়ক চিন-আপ","Обратные подтягивания с поддержкой","Supinada assistida","معاون چن اپس","Chin-up dibantu","補助付き逆手懸垂","Destekli ters barfiks","보조 친업"],
+"Dips":["Dips","双杠臂屈伸","डिप्स","Fondos","Dips","المتوازي","ডিপস","Отжимания на брусьях","Paralelas","ڈپس","Dip","ディップス","Dips","딥스"],
+"Mountain Climbers":["Mountain climbers","登山者","माउंटेन क्लाइम्बर्स","Escaladores","Mountain climbers","متسلق الجبال","মাউন্টেন ক্লাইম্বার","Скалолаз","Escalador","ماؤنٹین کلائمبرز","Mountain climber","マウンテンクライマー","Dağcı","마운틴 클라이머"],
+"High Knees":["High knees","高抬腿","हाई नीज़","Rodillas altas","Montées de genoux","رفع الركبتين","হাই নিজ","Высокие колени","Elevação de joelhos","ہائی نیز","High knees","もも上げ","Yüksek diz","하이 니즈"],
+"Burpees":["Burpees","波比跳","बर्पीज़","Burpees","Burpees","بيربي","বার্পি","Бёрпи","Burpees","برپیز","Burpee","バーピー","Burpee","버피"],
+"Superman Hold":["Superman hold","超人式","सुपरमैन होल्ड","Superman","Superman","سوبرمان","সুপারম্যান হোল্ড","Супермен","Superman","سپرمین ہولڈ","Superman hold","スーパーマンホールド","Superman","슈퍼맨 홀드"],
+"Dead Bug":["Dead bug","死虫式","डेड बग","Bicho muerto","Dead bug","الحشرة الميتة","ডেড বাগ","Мёртвый жук","Dead bug","ڈیڈ بگ","Dead bug","デッドバグ","Dead bug","데드 버그"],
+"Bird Dog":["Bird dog","鸟狗式","बर्ड डॉग","Perro de caza","Bird dog","الطير والكلب","বার্ড ডগ","Птица-собака","Bird dog","برڈ ڈاگ","Bird dog","バードドッグ","Bird dog","버드 독"]
+});
+window.I18N_PATTERNS.push(
+[/^(\d+) Sek$/,["$1 sec","$1 秒","$1 सेकंड","$1 s","$1 s","$1 ث","$1 সেকেন্ড","$1 сек","$1 s","$1 سیکنڈ","$1 dtk","$1秒","$1 sn","$1초"]],
+[/^(\d+) Min$/,["$1 min","$1 分钟","$1 मिनट","$1 min","$1 min","$1 د","$1 মিনিট","$1 мин","$1 min","$1 منٹ","$1 mnt","$1分","$1 dk","$1분"]],
+[/^([\d.,]+) Punkte$/,["$1 points","$1 分","$1 अंक","$1 puntos","$1 points","$1 نقطة","$1 পয়েন্ট","$1 очков","$1 pontos","$1 پوائنٹس","$1 poin","$1ポイント","$1 puan","$1점"]]
+);
