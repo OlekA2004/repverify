@@ -376,3 +376,13 @@ window.I18N_PATTERNS.push(
 Object.assign(window.I18N_SRC,{
 "Nicht einverstanden? Beschwerde einreichen (24 h)":["Disagree? File a complaint (24 h)","不同意？提交投诉（24小时内）","असहमत? शिकायत करें (24 घंटे)","¿No estás de acuerdo? Presenta una queja (24 h)","Pas d'accord ? Dépose une plainte (24 h)","غير موافق؟ قدّم شكوى (24 ساعة)","একমত নন? অভিযোগ করুন (২৪ ঘণ্টা)","Не согласны? Подайте жалобу (24 ч)","Discorda? Registre uma reclamação (24 h)","متفق نہیں؟ شکایت کریں (24 گھنٹے)","Tidak setuju? Ajukan keluhan (24 jam)","不服がある場合は異議申し立てを（24時間以内）","Katılmıyor musun? Şikâyet et (24 saat)","동의하지 않나요? 이의 제기 (24시간)"]
 });
+Object.assign(window.I18N_SRC,{
+"Set geschafft":["Set done","完成一组","सेट पूरा","Serie hecha","Série faite","أنجزت المجموعة","সেট সম্পন্ন","Подход сделан","Série feita","سیٹ مکمل","Set selesai","セット完了","Set bitti","세트 완료"],
+"Als Nächstes":["Up next","接下来","अगला","A continuación","À suivre","التالي","এরপর","Далее","A seguir","اگلا","Berikutnya","次は","Sıradaki","다음"]
+});
+window.I18N_PATTERNS.push(
+[/^KI-Check: Person (\d+) % · Bewegung (\d+) %$/,["AI check: person $1% · motion $2%","AI检测：人物 $1% · 动作 $2%","AI जांच: व्यक्ति $1% · गति $2%","Chequeo IA: persona $1 % · movimiento $2 %","Contrôle IA : personne $1 % · mouvement $2 %","فحص الذكاء الاصطناعي: شخص $1٪ · حركة $2٪","এআই চেক: ব্যক্তি $1% · নড়াচড়া $2%","ИИ-проверка: человек $1% · движение $2%","Checagem IA: pessoa $1% · movimento $2%","اے آئی چیک: شخص $1٪ · حرکت $2٪","Cek AI: orang $1% · gerakan $2%","AIチェック：人物 $1%・動き $2%","YZ kontrolü: kişi %$1 · hareket %$2","AI 체크: 사람 $1% · 움직임 $2%"]],
+[/^Set (\d+)\/(\d+)$/,["Set $1/$2","第 $1/$2 组","सेट $1/$2","Serie $1/$2","Série $1/$2","المجموعة $1/$2","সেট $1/$2","Подход $1/$2","Série $1/$2","سیٹ $1/$2","Set $1/$2","セット$1/$2","Set $1/$2","세트 $1/$2"]],
+[/^Set (\d+) \/ (\d+)$/,["Set $1 / $2","第 $1 / $2 组","सेट $1 / $2","Serie $1 / $2","Série $1 / $2","المجموعة $1 / $2","সেট $1 / $2","Подход $1 / $2","Série $1 / $2","سیٹ $1 / $2","Set $1 / $2","セット$1 / $2","Set $1 / $2","세트 $1 / $2"]],
+[/^Set (\d+) von (\d+)$/,["Set $1 of $2","第 $1/$2 组","सेट $1/$2","Serie $1 de $2","Série $1 sur $2","المجموعة $1 من $2","সেট $1/$2","Подход $1 из $2","Série $1 de $2","سیٹ $1/$2","Set $1 dari $2","セット$1/$2","Set $1/$2","세트 $1/$2"]]
+);
