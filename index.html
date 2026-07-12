@@ -288,6 +288,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-rest-time{font-size:52px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(226,75,74,.55)}
 .cam-rest-sub{font-size:11px;color:rgba(255,255,255,.65)}
 .cam-rest-skip{margin-top:14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22);font-size:12px;padding:9px 20px}
+/* Datenschutz-Visualisierung: so sehen andere dich */
+.priv-viz{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--r);padding:8px 12px;margin:-4px 0 10px;font-size:11px}
+.pv-rank{color:var(--acc);font-weight:700}
+.pv-name{color:var(--t0);font-weight:600}
+.pv-pts{color:var(--t1);margin-left:auto}
+.blurred{filter:blur(4px);user-select:none}
+/* Region-Auswahl */
+.region-list{max-height:240px;overflow-y:auto;border:1px solid var(--bdm);border-radius:var(--r)}
+.region-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:12px;color:var(--t0);cursor:pointer;border-bottom:1px solid var(--bd)}
+.region-item:last-child{border-bottom:none}
+.region-item:hover{background:var(--s2)}
+.region-item.active{background:var(--acc-bg);color:var(--acc)}
+.ri-cur{font-size:10px;color:var(--t2)}
+/* Sprachwähler auf dem Login */
+.login-lang{margin-top:14px;font-size:11px;color:var(--t1);text-align:center}
 /* Satzpausen-Slider (Einstellungen): klein und dezent, rechts wie ein Toggle */
 .rest-slider{width:110px;flex-shrink:0;appearance:none;-webkit-appearance:none;height:7px;border-radius:999px;outline:none;cursor:pointer;
   background:
@@ -556,15 +571,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
         </div>
       </div>
       <div class="fb2"><div class="fl">E-Mail</div><input class="fi" type="email" value="" id="user-email-input"></div>
-      <div class="fb2">
-        <div class="fl">Passwort</div>
-        <div class="fst">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span style="font-size:12px;color:var(--t2)">Zurücksetzen über Gmail</span>
-          <button class="at-retry-btn" onclick="retryPasswordReset()" title="Reset-Mail senden" style="margin-left:auto">@</button>
-        </div>
+      <div class="fb2"><div class="fl">Region &amp; Währung</div><div class="fst"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:12px;color:var(--t0)" id="region-label">—</span><button class="btn bg" style="margin-left:auto;font-size:10px;padding:4px 10px" onclick="openRegionModal()">Ändern</button></div></div>
+      <div class="fb2"><div class="fl">Sprache</div><select class="fi" id="lang-select" onchange="saveLang(this.value)"></select></div>
+      <div class="tr2">
+        <div class="trx"><div class="trtl">Satzpause beim Aufnehmen</div><div class="trsb"><b style="color:var(--t0)" id="rest-label">1 Min</b></div></div>
+        <input type="range" class="rest-slider" id="rest-slider" min="0" max="6" step="1" value="3" oninput="restSliderInput(this.value)" onchange="saveRestSecs(this.value)">
       </div>
-      <div class="fb2"><div class="fl">Währung</div><div class="fst"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:12px;color:var(--t0)">€ Euro</span><span style="margin-left:auto;font-size:10px;color:var(--t2)">Automatisch erkannt</span></div></div>
     </div>
 
     <div id="delete-zone-simple" style="display:flex;justify-content:flex-start">
@@ -585,21 +597,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
   <!-- BENACHRICHTIGUNGEN -->
   <div class="stp" id="s-notifications">
-    <div class="sd">Push-Benachrichtigungen</div>
-    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit 3/3 Stimmen hat · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox"><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+    <div class="sd">E-Mail-Benachrichtigungen</div>
+    <div class="tr2"><div class="trx"><div class="trtl">Verifizierungsanfragen</div><div class="trsb">Wenn du als Prüfer ausgewählt wirst · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-verify" onchange="saveNotifPref('verify',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Einheit bestätigt</div><div class="trsb">Wenn deine Einheit alle Stimmen hat · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-confirmed" onchange="saveNotifPref('confirmed',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Ranking-Updates</div><div class="trsb">Tägliche Zusammenfassung · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-ranking" onchange="saveNotifPref('ranking',this.checked)"><span class="tsl"></span></label></div>
+    <div class="tr2"><div class="trx"><div class="trtl">Monatliche Auszahlung</div><div class="trsb">Erinnerung vor Monatsende · <span class="notif-mail">—</span></div></div><label class="tog"><input type="checkbox" id="notif-payout" onchange="saveNotifPref('payout',this.checked)"><span class="tsl"></span></label></div>
   </div>
 
   <!-- DATENSCHUTZ -->
   <div class="stp" id="s-privacy">
     <div class="sd">Sichtbarkeit</div>
-    <div class="tr2"><div class="trx"><div class="trtl">Öffentliches Profil</div><div class="trsb">Aus = dein Name wird für andere im Ranking unscharf angezeigt</div></div><label class="tog"><input type="checkbox" checked id="pub-profile-toggle" onchange="setPubProfile(this.checked)"><span class="tsl"></span></label></div>
-    <div class="tr2"><div class="trx"><div class="trtl">Dashboard</div><div class="trsb">Aus = deine Statistiken werden für andere unscharf angezeigt</div></div><label class="tog"><input type="checkbox" id="dashboard-toggle" onchange="setDashboardPublic(this.checked)"><span class="tsl"></span></label></div>
-    <div class="tr2">
-      <div class="trx"><div class="trtl">Satzpause beim Aufnehmen</div><div class="trsb">Aufnahme pausiert nach jedem Set · <b style="color:var(--t0)" id="rest-label">1 Min</b></div></div>
-      <input type="range" class="rest-slider" id="rest-slider" min="0" max="6" step="1" value="3" oninput="restSliderInput(this.value)" onchange="saveRestSecs(this.value)">
+    <div class="tr2"><div class="trx"><div class="trtl">Profil</div><div class="trsb">Aktuell: Name in Rankings <b id="priv-name-state" style="color:var(--t0)">unscharf</b></div></div><label class="tog"><input type="checkbox" id="pub-profile-toggle" onchange="setPubProfile(this.checked)"><span class="tsl"></span></label></div>
+    <div class="priv-viz" id="priv-name-viz">
+      <span class="pv-rank">#4</span><span class="pv-name" id="priv-viz-name">Max Kraft</span><span class="pv-pts">25 Pkt</span>
+    </div>
+    <div class="tr2"><div class="trx"><div class="trtl">Statistiken</div><div class="trsb">Aktuell: Punkte bei Statistiken <b id="priv-stats-state" style="color:var(--t0)">unscharf</b></div></div><label class="tog"><input type="checkbox" id="dashboard-toggle" onchange="setDashboardPublic(this.checked)"><span class="tsl"></span></label></div>
+    <div class="priv-viz" id="priv-stats-viz">
+      <span class="pv-name" id="priv-viz-name2">Max Kraft</span><span class="pv-pts" id="priv-viz-pts">10,5 Pkt · 28/30 Einheiten</span>
     </div>
     <div class="ib" style="margin-top:.6rem">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -723,6 +737,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="login-div">oder</div>
     <input class="fi" id="login-email" type="email" placeholder="deine@email.de" style="margin-bottom:8px" onkeydown="if(event.key==='Enter'){signInEmail()}">
     <button class="btn bp bf" onclick="signInEmail()" style="font-size:12px">Magic-Link senden</button>
+    <select class="fi login-lang" id="login-lang-select" onchange="saveLang(this.value)" aria-label="Language"></select>
   </div>
 </div>
 
@@ -745,6 +760,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="cam-controls">
     <button class="btn cam-cancel" onclick="askCancelRecording()">Abbruch</button>
     <button class="btn bp cam-confirm" id="cam-confirm-btn" onclick="confirmRecording()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Einheit bestätigen</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="region-modal">
+  <div class="modal-box" style="text-align:left">
+    <div class="modal-title" style="text-align:left">Wähle deine Region</div>
+    <div class="modal-body" style="text-align:left;margin-bottom:10px">Preise, Erstattungen und Auszahlungen richten sich nach deiner Region.</div>
+    <button class="btn bg bf" style="font-size:11px;margin-bottom:8px" onclick="autoDetectRegion()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Automatisch erkennen</button>
+    <input class="fi" id="region-search" type="text" placeholder="Suchen…" oninput="renderRegionList(this.value)" style="margin-bottom:8px">
+    <div class="region-list" id="region-list"></div>
   </div>
 </div>
 
@@ -795,6 +820,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 <div class="toast" id="toast"></div>
 
+<script src="/i18n.js"></script>
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -868,7 +894,11 @@ const ST = {
 };
 
 // ── Hilfsfunktionen ──────────────────────────────────────────
-const fmtEUR = v => v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+// Beträge in der regionalen Währung des Nutzers formatieren
+const fmtEUR = v => {
+  try{ return new Intl.NumberFormat(localStorage.getItem('rv-lang')||'de',{style:'currency',currency:ST.profile?.currency||'EUR'}).format(v); }
+  catch(e){ return v.toFixed(2)+' €'; }
+};
 const isoToday = () => new Date().toISOString().slice(0,10);
 const fmtDate = iso => { const [y,m,d]=iso.split('-'); return d+'.'+m+'.'+y; };
 const monthStart = () => { const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); };
@@ -965,6 +995,8 @@ async function autoDeleteVideos(){
 
 function applyProfileToUI(){
   const p=ST.profile, email=ST.session.user.email||'';
+  // Sprache aus dem Profil übernehmen (z. B. neues Gerät)
+  if(p.lang&&p.lang!==(localStorage.getItem('rv-lang')||'de')){localStorage.setItem('rv-lang',p.lang);location.reload();return;}
   document.getElementById('side-av').textContent = initials(p.display_name);
   document.getElementById('display-name-input').value = p.display_name;
   const em=document.getElementById('user-email-input'); em.value=email; em.readOnly=true; em.style.opacity='.6';
@@ -976,7 +1008,78 @@ function applyProfileToUI(){
   const ri=Math.max(0,REST_OPTS.indexOf(p.rest_secs??60));
   document.getElementById('rest-slider').value = ri;
   document.getElementById('rest-label').textContent = restLabel(REST_OPTS[ri]);
+  // Region & Währung
+  document.getElementById('region-label').textContent = p.region
+    ? regionName(p.region)+' · '+p.currency : '— noch nicht gewählt';
+  // Benachrichtigungs-Präferenzen
+  const np=p.notif_prefs||{};
+  for(const k of ['verify','confirmed','ranking','payout']){
+    const el=document.getElementById('notif-'+k);if(el)el.checked=np[k]!==false&&(k!=='ranking'||np[k]===true);
+  }
+  document.getElementById('lang-select').value=p.lang||localStorage.getItem('rv-lang')||'de';
+  updatePrivViz();
   updateNameChangeUI();
+  // Region noch nicht gewählt → Onboarding direkt nach der Registrierung
+  if(!p.region){renderRegionList('');openModal('region-modal');}
+}
+
+// ── Datenschutz-Visualisierung: zeigt live, wie andere dich sehen ──
+function updatePrivViz(){
+  const p=ST.profile,name=p.display_name||'Athlet';
+  document.getElementById('priv-viz-name').textContent=name;
+  document.getElementById('priv-viz-name2').textContent=name;
+  document.getElementById('priv-viz-pts').textContent=(ST.todayUnit?Number(ST.todayUnit.points):10.5).toLocaleString()+' Pkt · '+ST.monthUnits+'/'+MONTH_TARGET+' Einheiten';
+  document.getElementById('priv-viz-name').classList.toggle('blurred',!p.pub_profile);
+  document.getElementById('priv-name-state').textContent=p.pub_profile?'scharf':'unscharf';
+  document.getElementById('priv-viz-pts').classList.toggle('blurred',!p.dashboard_public);
+  document.getElementById('priv-stats-state').textContent=p.dashboard_public?'scharf':'unscharf';
+}
+
+// ── Region & Währung ─────────────────────────────────────────
+const CUR_MAP={AD:'EUR',AE:'AED',AF:'AFN',AG:'XCD',AL:'ALL',AM:'AMD',AO:'AOA',AR:'ARS',AT:'EUR',AU:'AUD',AZ:'AZN',BA:'BAM',BB:'BBD',BD:'BDT',BE:'EUR',BF:'XOF',BG:'BGN',BH:'BHD',BI:'BIF',BJ:'XOF',BN:'BND',BO:'BOB',BR:'BRL',BS:'BSD',BT:'BTN',BW:'BWP',BY:'BYN',BZ:'BZD',CA:'CAD',CD:'CDF',CF:'XAF',CG:'XAF',CH:'CHF',CI:'XOF',CL:'CLP',CM:'XAF',CN:'CNY',CO:'COP',CR:'CRC',CU:'CUP',CV:'CVE',CY:'EUR',CZ:'CZK',DE:'EUR',DJ:'DJF',DK:'DKK',DM:'XCD',DO:'DOP',DZ:'DZD',EC:'USD',EE:'EUR',EG:'EGP',ER:'ERN',ES:'EUR',ET:'ETB',FI:'EUR',FJ:'FJD',FR:'EUR',GA:'XAF',GB:'GBP',GD:'XCD',GE:'GEL',GH:'GHS',GM:'GMD',GN:'GNF',GQ:'XAF',GR:'EUR',GT:'GTQ',GW:'XOF',GY:'GYD',HK:'HKD',HN:'HNL',HR:'EUR',HT:'HTG',HU:'HUF',ID:'IDR',IE:'EUR',IL:'ILS',IN:'INR',IQ:'IQD',IR:'IRR',IS:'ISK',IT:'EUR',JM:'JMD',JO:'JOD',JP:'JPY',KE:'KES',KG:'KGS',KH:'KHR',KM:'KMF',KN:'XCD',KR:'KRW',KW:'KWD',KZ:'KZT',LA:'LAK',LB:'LBP',LC:'XCD',LI:'CHF',LK:'LKR',LR:'LRD',LS:'LSL',LT:'EUR',LU:'EUR',LV:'EUR',LY:'LYD',MA:'MAD',MC:'EUR',MD:'MDL',ME:'EUR',MG:'MGA',MK:'MKD',ML:'XOF',MM:'MMK',MN:'MNT',MR:'MRU',MT:'EUR',MU:'MUR',MV:'MVR',MW:'MWK',MX:'MXN',MY:'MYR',MZ:'MZN',NA:'NAD',NE:'XOF',NG:'NGN',NI:'NIO',NL:'EUR',NO:'NOK',NP:'NPR',NZ:'NZD',OM:'OMR',PA:'PAB',PE:'PEN',PG:'PGK',PH:'PHP',PK:'PKR',PL:'PLN',PT:'EUR',PY:'PYG',QA:'QAR',RO:'RON',RS:'RSD',RU:'RUB',RW:'RWF',SA:'SAR',SB:'SBD',SC:'SCR',SD:'SDG',SE:'SEK',SG:'SGD',SI:'EUR',SK:'EUR',SL:'SLE',SM:'EUR',SN:'XOF',SO:'SOS',SR:'SRD',SS:'SSP',ST:'STN',SV:'USD',SY:'SYP',SZ:'SZL',TD:'XAF',TG:'XOF',TH:'THB',TJ:'TJS',TM:'TMT',TN:'TND',TO:'TOP',TR:'TRY',TT:'TTD',TW:'TWD',TZ:'TZS',UA:'UAH',UG:'UGX',US:'USD',UY:'UYU',UZ:'UZS',VC:'XCD',VE:'VES',VN:'VND',VU:'VUV',WS:'WST',YE:'YER',ZA:'ZAR',ZM:'ZMW',ZW:'ZWL'};
+function regionName(code){
+  try{ return new Intl.DisplayNames([localStorage.getItem('rv-lang')||'de'],{type:'region'}).of(code); }
+  catch(e){ return code; }
+}
+function openRegionModal(){renderRegionList('');openModal('region-modal');}
+function renderRegionList(filter){
+  const f=(filter||'').toLowerCase();
+  const items=Object.keys(CUR_MAP).map(c=>({c,n:regionName(c)}))
+    .filter(x=>!f||x.n.toLowerCase().includes(f)||x.c.toLowerCase().includes(f))
+    .sort((a,b)=>a.n.localeCompare(b.n));
+  document.getElementById('region-list').innerHTML=items.map(x=>
+    '<div class="region-item'+(ST.profile&&ST.profile.region===x.c?' active':'')+'" onclick="selectRegion(\''+x.c+'\')"><span>'+x.n+'</span><span class="ri-cur">'+CUR_MAP[x.c]+'</span></div>').join('');
+}
+function autoDetectRegion(){
+  // Region aus der Gerätesprache ableiten (z. B. de-DE → DE)
+  const loc=(navigator.language||'de-DE').split('-');
+  const code=(loc[1]||'DE').toUpperCase();
+  selectRegion(CUR_MAP[code]?code:'DE');
+}
+async function selectRegion(code){
+  const cur=CUR_MAP[code]||'USD';
+  const {error}=await supabase.from('users').update({region:code,currency:cur}).eq('id',ST.session.user.id);
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.profile.region=code;ST.profile.currency=cur;
+  document.getElementById('region-label').textContent=regionName(code)+' · '+cur;
+  closeModal('region-modal');
+  renderAll();
+  showToast('Region: '+regionName(code)+' — Währung '+cur);
+}
+
+// ── Sprache ──────────────────────────────────────────────────
+async function saveLang(code){
+  localStorage.setItem('rv-lang',code);
+  if(ST.session)await supabase.from('users').update({lang:code}).eq('id',ST.session.user.id);
+  location.reload(); // Übersetzung läuft beim Laden über i18n.js
+}
+
+// ── Benachrichtigungs-Präferenzen ────────────────────────────
+async function saveNotifPref(key,on){
+  const np=Object.assign({},ST.profile.notif_prefs||{});np[key]=on;
+  ST.profile.notif_prefs=np;
+  const {error}=await supabase.from('users').update({notif_prefs:np}).eq('id',ST.session.user.id);
+  showToast(error?'Fehler: '+error.message:(on?'Benachrichtigung aktiviert':'Benachrichtigung deaktiviert'));
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1638,14 +1741,14 @@ function switchStab(el,id){
 async function setPubProfile(on){
   ST.profile.pub_profile=on;
   await supabase.from('users').update({pub_profile:on}).eq('id',ST.session.user.id);
-  renderRanking();
+  renderRanking();updatePrivViz();
   showToast(on?'Profil öffentlich — Name sichtbar':'Profil privat — Name wird für andere geblurt');
 }
 async function setDashboardPublic(on){
   ST.profile.dashboard_public=on;
   await supabase.from('users').update({dashboard_public:on}).eq('id',ST.session.user.id);
-  renderRanking();
-  showToast(on?'Dashboard für andere sichtbar':'Dashboard wird für andere geblurt');
+  renderRanking();updatePrivViz();
+  showToast(on?'Statistiken für andere sichtbar':'Statistiken werden für andere geblurt');
 }
 function restSliderInput(v){
   document.getElementById('rest-label').textContent=restLabel(REST_OPTS[+v]);
@@ -1684,17 +1787,24 @@ async function saveDisplayName(){
   updateNameChangeUI();renderRanking();
   showToast('Anzeigename aktualisiert');
 }
-async function retryPasswordReset(){
-  const email=ST.session.user.email;
-  const {error}=await supabase.auth.resetPasswordForEmail(email);
-  showToast(error?'Fehler: '+error.message:'Reset-Link an '+email+' gesendet');
-}
-
-// Zweistufiger Lösch-Button
+// Zweistufiger Lösch-Button — entschärft sich nach 8 s von selbst,
+// damit der rote Zustand nicht zum Löschen verleitet
+let disarmTimer=null;
 function armDelete(){
   document.getElementById('delete-zone-simple').style.display='none';
   document.getElementById('delete-zone-armed').style.display='block';
   initHoldDelete();
+  clearTimeout(disarmTimer);
+  disarmTimer=setTimeout(disarmDelete,8000);
+}
+function disarmDelete(){
+  const btn=document.getElementById('hold-delete-btn');
+  if(btn&&btn.classList.contains('holding')){ // gerade am Halten → später erneut prüfen
+    disarmTimer=setTimeout(disarmDelete,3000);return;
+  }
+  document.getElementById('delete-zone-armed').style.display='none';
+  document.getElementById('delete-zone-simple').style.display='flex';
+  const f=document.getElementById('hold-delete-fill');if(f)f.style.width='0%';
 }
 let holdInit=false;
 function initHoldDelete(){
@@ -1767,9 +1877,20 @@ Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,levelUp,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,
-  openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,retryPasswordReset,
+  openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
+  openRegionModal,renderRegionList,autoDetectRegion,selectRegion,saveLang,saveNotifPref,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
+
+// Sprachwähler befüllen (Sprachen in eigener Schrift, Englisch immer zuerst)
+(function initLangSelects(){
+  const langs=window.I18N_LANGS||[['de','Deutsch']];
+  const cur=localStorage.getItem('rv-lang')||'de';
+  for(const id of ['lang-select','login-lang-select']){
+    const sel=document.getElementById(id);if(!sel)continue;
+    sel.innerHTML=langs.map(([c,n])=>'<option value="'+c+'"'+(c===cur?' selected':'')+'>'+n+'</option>').join('');
+  }
+})();
 
 supabase.auth.onAuthStateChange((_event,session)=>{
   ST.session=session;
