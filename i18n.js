@@ -373,3 +373,6 @@ window.I18N_PATTERNS.push(
 [/^(\d+) Min$/,["$1 min","$1 分钟","$1 मिनट","$1 min","$1 min","$1 د","$1 মিনিট","$1 мин","$1 min","$1 منٹ","$1 mnt","$1分","$1 dk","$1분"]],
 [/^([\d.,]+) Punkte$/,["$1 points","$1 分","$1 अंक","$1 puntos","$1 points","$1 نقطة","$1 পয়েন্ট","$1 очков","$1 pontos","$1 پوائنٹس","$1 poin","$1ポイント","$1 puan","$1점"]]
 );
+Object.assign(window.I18N_SRC,{
+"Nicht einverstanden? Beschwerde einreichen (24 h)":["Disagree? File a complaint (24 h)","不同意？提交投诉（24小时内）","असहमत? शिकायत करें (24 घंटे)","¿No estás de acuerdo? Presenta una queja (24 h)","Pas d'accord ? Dépose une plainte (24 h)","غير موافق؟ قدّم شكوى (24 ساعة)","একমত নন? অভিযোগ করুন (২৪ ঘণ্টা)","Не согласны? Подайте жалобу (24 ч)","Discorda? Registre uma reclamação (24 h)","متفق نہیں؟ شکایت کریں (24 گھنٹے)","Tidak setuju? Ajukan keluhan (24 jam)","不服がある場合は異議申し立てを（24時間以内）","Katılmıyor musun? Şikâyet et (24 saat)","동의하지 않나요? 이의 제기 (24시간)"]
+});

@@ -281,7 +281,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-cancel{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);font-size:11px;padding:8px 14px}
 .cam-confirm{font-size:13px;padding:11px 22px;flex:0 1 260px}
 /* Platzhalter unten rechts im Video: später 3D-Männchen-Animation der Übung */
-.cam-anim-slot{position:absolute;right:12px;bottom:120px;width:0;height:0}
+/* Strichmännchen-Karte unten rechts im Kamera-Overlay */
+.cam-fig{position:absolute;right:12px;bottom:118px;z-index:4;display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(10,10,10,.5);backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:8px 10px 7px}
+.cam-fig-svg svg{display:block}
+.cam-fig-svg .fg{stroke:#fff;stroke-width:2.6;stroke-linecap:round;fill:none}
+.cam-fig-svg .fg-head{fill:#fff;stroke:none}
+.cam-settime{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.85);font-variant-numeric:tabular-nums}
+#cam-setring{transition:stroke-dashoffset 1s linear}
+/* Bewegungsmuster */
+.fig-squat .f-body{animation:figsquat 1.6s ease-in-out infinite}
+@keyframes figsquat{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(7px) scaleY(.82)}}
+.fig-pushup .f-body{animation:figpush 1.6s ease-in-out infinite}
+@keyframes figpush{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+.fig-pull .f-body{animation:figpull 1.8s ease-in-out infinite}
+@keyframes figpull{0%,100%{transform:translateY(6px)}50%{transform:translateY(-2px)}}
+.fig-jump .f-body{animation:figjump .9s ease-in-out infinite}
+@keyframes figjump{0%,100%{transform:translateY(3px)}40%{transform:translateY(-4px)}}
+.fig-jump .f-armL{transform-origin:24px 24px;animation:figarmL .9s ease-in-out infinite}
+.fig-jump .f-armR{transform-origin:40px 24px;animation:figarmR .9s ease-in-out infinite}
+@keyframes figarmL{0%,100%{transform:rotate(0)}40%{transform:rotate(-70deg)}}
+@keyframes figarmR{0%,100%{transform:rotate(0)}40%{transform:rotate(70deg)}}
+.fig-lunge .f-body{animation:figlunge 1.6s ease-in-out infinite}
+@keyframes figlunge{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.fig-crunch .f-torso{transform-origin:26px 44px;animation:figcrunch 1.7s ease-in-out infinite}
+@keyframes figcrunch{0%,100%{transform:rotate(0)}50%{transform:rotate(-38deg)}}
+.fig-hold .f-body{animation:fighold 2.4s ease-in-out infinite}
+@keyframes fighold{0%,100%{opacity:1}50%{opacity:.65}}
 /* Satzpause: Aufnahme angehalten */
 .cam-rest{display:none;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;gap:6px}
 .cam-rest.show{display:flex}
@@ -332,8 +357,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 /* Blaue Alternative neben der roten Lösch-Fläche */
 .delete-alt-btn{flex:1;background:var(--blu-bg);border:1px solid rgba(90,140,255,.4);color:var(--blu);font-size:11px;line-height:1.3}
 .delete-alt-btn:hover{border-color:var(--blu)}
+/* Beschwerde-Link in der Review-Karte */
+.rv-complain{font-size:10px;color:var(--t2);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.rv-complain:hover{color:var(--amb)}
 /* Coin statt "Pkt" */
-.coin{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5d98b,#e8b93d 55%,#9c7519);box-shadow:0 0 4px rgba(232,185,61,.4);vertical-align:-1px;margin-left:1px}
+.coin{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#f5d98b,#e8b93d 58%,#9c7519);box-shadow:0 0 4px rgba(232,185,61,.4);vertical-align:middle;margin:-1px 0 0 2px}
 .coin::after{content:'P';font-size:8px;font-weight:800;color:#5c430e;line-height:1}
 /* CJK: Uppercase-Tracking der Labels neutralisieren */
 html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2,html[lang="ja"] .sl2,html[lang="ko"] .sl2,html[lang="zh"] .lv-lbl,html[lang="ja"] .lv-lbl,html[lang="ko"] .lv-lbl{letter-spacing:.05em}
@@ -786,8 +814,14 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
   </div>
   <div class="cam-rec"><span class="cam-rec-dot"></span><span id="cam-timer">0:00</span></div>
   <div class="cam-rail-wrap"><div class="cam-rail" id="cam-rail"></div></div>
-  <!-- TODO: hier später 3D-Männchen-Animation der aktuellen Übung einblenden -->
-  <div class="cam-anim-slot" id="cam-anim-slot"></div>
+  <!-- Strichmännchen: zeigt die Bewegung der aktuellen Übung + Set-Timer (später: 3D) -->
+  <div class="cam-fig" id="cam-fig">
+    <div class="cam-fig-svg" id="cam-fig-svg"></div>
+    <div class="cam-settime">
+      <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2"/><circle id="cam-setring" cx="8" cy="8" r="6.5" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-dasharray="40.8" stroke-dashoffset="40.8" transform="rotate(-90 8 8)"/></svg>
+      <span id="cam-settime-txt">0:00</span>
+    </div>
+  </div>
   <div class="cam-rest" id="cam-rest">
     <div class="cam-rest-time" id="cam-rest-time">0:60</div>
     <div class="cam-rest-sub">Satzpause — Aufnahme angehalten</div>
@@ -989,7 +1023,7 @@ async function loadAll(){
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
     supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle(),
     supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name,dashboard_public))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
-    supabase.from('units').select('id,unit_date,points,video_path,set_marks,selection,verifications(reviewer_id,verdict,decided_at,set_counts,users(display_name))').eq('user_id',uid).gte('unit_date',weekAgo).order('unit_date',{ascending:false}),
+    supabase.from('units').select('id,unit_date,points,video_path,set_marks,selection,review_ack,verifications(reviewer_id,verdict,decided_at,set_counts,users(display_name))').eq('user_id',uid).gte('unit_date',weekAgo).order('unit_date',{ascending:false}),
     supabase.from('complaints').select('*').eq('user_id',uid),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid)
   ]);
@@ -1166,7 +1200,7 @@ function renderLevelProgress(){
       +'<div class="pts-track" style="height:4px"><div class="pts-fill" style="width:'+pct+'%;'+(done?'background:var(--grn)':'')+'"></div></div></div>';
   };
   el.innerHTML='<div class="card" style="margin-top:14px">'
-    +'<div class="sh" style="margin-bottom:.7rem"><span class="st" style="font-size:13px">Aufstieg zu „'+EX_DATA[p.next-1].name+'"</span>'
+    +'<div class="sh" style="margin-bottom:.7rem"><span class="st" style="font-size:13px">Aufstieg zu „'+EX_DATA[p.next-1].name+'“</span>'
     +(p.ok?'<button class="btn bp" style="font-size:11px" onclick="levelUp()">Jetzt aufsteigen ↑</button>':'')+'</div>'
     +row('Vielfalt — Übungen deiner Stufe auf Level 2+',p.variety,ADV_NEED.variety)
     +row('Härte — davon rote (schwere) Übungen',p.red,ADV_NEED.red)
@@ -1404,6 +1438,38 @@ function renderCamRail(){
   const cur=camQueue[camIdx];
   document.getElementById('cam-ex-name').textContent=cur?cur.name:'Fertig!';
   document.getElementById('cam-ex-sub').textContent=cur?('Set '+Math.min(cur.done+1,cur.sets)+' von '+cur.sets+' · Bläschen antippen wenn geschafft'):'Einheit bestätigen, um abzuschließen';
+  updateCamFig();
+}
+
+// ── Strichmännchen: stilisierte Bewegung der aktuellen Übung ──
+const FIGS={
+  squat:'<svg width="56" height="56" viewBox="0 0 64 64"><g class="f-body" style="transform-origin:32px 52px"><circle class="fg-head" cx="32" cy="12" r="5"/><path class="fg" d="M32 17v19M32 24l-10 8M32 24l10 8M32 36l-8 16M32 36l8 16"/></g></svg>',
+  pushup:'<svg width="56" height="56" viewBox="0 0 64 64"><path class="fg" style="opacity:.3" d="M6 54h52"/><g class="f-body"><circle class="fg-head" cx="50" cy="31" r="5"/><path class="fg" d="M12 44L45 34M41 36l2 16M16 43l-6 10"/></g></svg>',
+  pull:'<svg width="56" height="56" viewBox="0 0 64 64"><path class="fg" style="opacity:.5" d="M14 7h36"/><g class="f-body"><path class="fg" d="M26 8l5 13M38 8l-5 13"/><circle class="fg-head" cx="32" cy="26" r="5"/><path class="fg" d="M32 31v13M32 44l-5 9M32 44l5 9"/></g></svg>',
+  jump:'<svg width="56" height="56" viewBox="0 0 64 64"><g class="f-body"><circle class="fg-head" cx="32" cy="13" r="5"/><path class="fg" d="M32 18v18"/><path class="fg f-armL" d="M32 24l-9 7"/><path class="fg f-armR" d="M32 24l9 7"/><path class="fg" d="M32 36l-9 16M32 36l9 16"/></g></svg>',
+  lunge:'<svg width="56" height="56" viewBox="0 0 64 64"><g class="f-body"><circle class="fg-head" cx="32" cy="14" r="5"/><path class="fg" d="M32 19v17M32 26l-8 6M32 26l8 6M32 36l13 8 0 8M32 36l-11 10-3 8"/></g></svg>',
+  crunch:'<svg width="56" height="56" viewBox="0 0 64 64"><path class="fg" style="opacity:.3" d="M6 50h52"/><g class="f-torso"><circle class="fg-head" cx="12" cy="42" r="5"/><path class="fg" d="M16 45l10 2"/></g><path class="fg" d="M26 47l12-6M38 41l8 8"/></svg>',
+  hold:'<svg width="56" height="56" viewBox="0 0 64 64"><path class="fg" style="opacity:.3" d="M6 54h52"/><g class="f-body"><circle class="fg-head" cx="50" cy="30" r="5"/><path class="fg" d="M10 42L45 33M40 35l3 17M14 42l-4 11"/></g></svg>'
+};
+function figPattern(name){
+  const n=name.toLowerCase();
+  if(/push-?up|planche/.test(n))return 'pushup';
+  if(/pull|chin|row|muscle/.test(n))return 'pull';
+  if(/jump|jack|burpee|skater|high knees|climber|crawl|walk/.test(n))return 'jump';
+  if(/lunge|step-?up|cossack|split|pistol|shrimp/.test(n))return 'lunge';
+  if(/crunch|twist|v-?up|leg lift|leg raise|knee raise|dead bug|rocks|toes|dragon/.test(n))return 'crunch';
+  if(/plank|hold|sit|lever|flag|handstand|superman|bird dog|dip/.test(n))return 'hold';
+  if(/squat|bridge|deadlift|calf|curl/.test(n))return 'squat';
+  return 'hold';
+}
+function updateCamFig(){
+  const card=document.getElementById('cam-fig'),el=document.getElementById('cam-fig-svg');
+  if(!card||!el)return;
+  const cur=camQueue[camIdx];
+  if(!cur){card.style.display='none';return;}
+  card.style.display='flex';
+  const p=figPattern(cur.name);
+  if(el.dataset.p!==p){el.dataset.p=p;el.innerHTML=FIGS[p];el.className='cam-fig-svg fig-'+p;}
 }
 function camAdvance(i){
   if(i!==camIdx||camRest>0)return; // nur die aktuelle Übung, und nur einmal — nicht während der Pause
@@ -1438,6 +1504,13 @@ function endRest(){
 function camTimerTick(){
   camSecs++;
   document.getElementById('cam-timer').textContent=Math.floor(camSecs/60)+':'+String(camSecs%60).padStart(2,'0');
+  // Set-Timer: Zeit seit dem letzten bestätigten Set, Ring füllt sich über 60 s
+  const lastT=camMarks.length?camMarks[camMarks.length-1].t:0;
+  const s=camSecs-lastT;
+  const txt=document.getElementById('cam-settime-txt');
+  if(txt)txt.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+  const ring=document.getElementById('cam-setring');
+  if(ring)ring.style.strokeDashoffset=(40.8*(1-Math.min(1,s/60))).toFixed(1);
 }
 async function startRecording(){
   if(ST.todayUnit)return;
@@ -1619,32 +1692,50 @@ function renderVerify(){
 
 }
 
-// ── Review-Übersicht für den Besitzer: erscheint, sobald beide Prüfer fertig sind ──
-let complaintUnitId=null;
+// ── Review-Übersicht für den Besitzer: Chips zum Umschalten, eine Karte, Bestätigen als Hauptaktion ──
+let complaintUnitId=null,rvSel=null;
+function selectReview(id){rvSel=id;renderReviewOverview();}
+async function ackReview(id){
+  const {error}=await supabase.from('units').update({review_ack:true}).eq('id',id);
+  if(error){showToast('Fehler: '+error.message);return;}
+  const u=ST.myReviews.find(x=>x.id===id);if(u)u.review_ack=true;
+  renderReviewOverview();
+}
 function renderReviewOverview(){
-  const done=ST.myReviews.filter(u=>u.verifications.length>0&&u.verifications.every(v=>v.verdict));
-  document.getElementById('review-overview').innerHTML=done.map(u=>{
-    const allOk=u.verifications.every(v=>v.verdict==='approved');
-    const myTotal=(u.set_marks||[]).length||Object.values(u.selection||{}).reduce((s,o)=>s+(o.clicks||0),0);
-    const rows=u.verifications.map(v=>{
-      const name=v.users?.display_name||'Prüfer';
-      const counted=(v.set_counts||[]).reduce((s,c)=>s+c.sets,0);
-      const ok=v.verdict==='approved';
-      return '<div class="vcmp-row"><span class="vcmp-ex">'+name+'</span>'
-        +'<span class="vcmp-n">'+counted+' / '+myTotal+' Sets</span>'
-        +'<span class="vcmp-n" style="color:'+(ok?'var(--grn)':'var(--acc)')+'">'+(ok?'Bestätigt ✓':'Abgelehnt ✗')+'</span></div>';
-    }).join('');
-    const compl=ST.complaints.find(c=>c.unit_id===u.id);
-    const complHtml=compl
-      ? '<div style="font-size:10px;color:var(--t2);margin-top:8px">Beschwerde: '+(compl.status==='open'?'<b style="color:var(--amb)">wird vom Admin geprüft</b>':(compl.status==='berechtigt'?'<b style="color:var(--grn)">berechtigt</b>':'<b style="color:var(--acc)">unberechtigt (+1 Penalty)</b>'))+'</div>'
-      : '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:9px;color:var(--t2)">Nicht einverstanden? 24 h Zeit — danach wird das Video gelöscht.</span><button class="btn bg" style="font-size:10px;padding:5px 10px" onclick="openComplaint('+u.id+')">Beschwerde</button></div>';
-    return '<div class="card" style="margin-bottom:12px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
-      +'<span style="font-size:12px;font-weight:600;color:var(--t0)">Review-Ergebnis — '+fmtDate(u.unit_date)+'</span>'
-      +'<span class="pill '+(allOk?'pg':'ph')+'" style="'+(allOk?'':'color:var(--acc)')+'">'+(allOk?'Alles in Ordnung':'Nicht bestätigt')+'</span></div>'
-      +'<div class="vcmp-row vcmp-head"><span class="vcmp-ex">Prüfer</span><span class="vcmp-n">gezählt</span><span class="vcmp-n">Urteil</span></div>'
-      +rows+complHtml+'</div>';
+  const done=ST.myReviews.filter(u=>u.verifications.length>0&&u.verifications.every(v=>v.verdict)&&!u.review_ack);
+  const box=document.getElementById('review-overview');
+  if(!done.length){box.innerHTML='';return;}
+  if(!done.some(u=>u.id===rvSel))rvSel=done[0].id;
+  // Umschalt-Chips wie in der Verify-Warteschlange (ab 2 Ergebnissen)
+  const chips=done.length<2?'':'<div class="vq-picker" style="justify-content:flex-start;margin-bottom:8px">'+done.map(u=>{
+    const ok=u.verifications.every(v=>v.verdict==='approved');
+    return '<button class="vqp'+(u.id===rvSel?' active':'')+'" onclick="selectReview('+u.id+')">'+fmtDate(u.unit_date)+' · '+(ok?'✓':'✗')+'</button>';
+  }).join('')+'</div>';
+  const u=done.find(x=>x.id===rvSel);
+  const allOk=u.verifications.every(v=>v.verdict==='approved');
+  const myTotal=(u.set_marks||[]).length||Object.values(u.selection||{}).reduce((s,o)=>s+(o.clicks||0),0);
+  const rows=u.verifications.map(v=>{
+    const name=v.users?.display_name||'Prüfer';
+    const counted=(v.set_counts||[]).reduce((s,c)=>s+c.sets,0);
+    const ok=v.verdict==='approved';
+    return '<div class="vcmp-row"><span class="vcmp-ex">'+name+'</span>'
+      +'<span class="vcmp-n">'+counted+' / '+myTotal+' Sets</span>'
+      +'<span class="vcmp-n" style="color:'+(ok?'var(--grn)':'var(--acc)')+'">'+(ok?'Bestätigt ✓':'Abgelehnt ✗')+'</span></div>';
   }).join('');
+  const compl=ST.complaints.find(c=>c.unit_id===u.id);
+  const foot=compl
+    ? '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px">'
+      +'<span style="font-size:10px;color:var(--t2)">Beschwerde: '+(compl.status==='open'?'<b style="color:var(--amb)">wird vom Admin geprüft</b>':(compl.status==='berechtigt'?'<b style="color:var(--grn)">berechtigt</b>':'<b style="color:var(--acc)">unberechtigt (+1 Penalty)</b>'))+'</span>'
+      +'<button class="btn bp" style="font-size:11px" onclick="ackReview('+u.id+')">Bestätigen</button></div>'
+    : '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px">'
+      +'<span class="rv-complain" onclick="openComplaint('+u.id+')">Nicht einverstanden? Beschwerde einreichen (24 h)</span>'
+      +'<button class="btn bp" style="font-size:11px;flex-shrink:0" onclick="ackReview('+u.id+')">Bestätigen</button></div>';
+  box.innerHTML=chips+'<div class="card" style="margin-bottom:12px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+    +'<span style="font-size:12px;font-weight:600;color:var(--t0)">Review-Ergebnis — '+fmtDate(u.unit_date)+'</span>'
+    +'<span class="pill '+(allOk?'pg':'ph')+'" style="'+(allOk?'':'color:var(--acc)')+'">'+(allOk?'Alles in Ordnung':'Nicht bestätigt')+'</span></div>'
+    +'<div class="vcmp-row vcmp-head"><span class="vcmp-ex">Prüfer</span><span class="vcmp-n">gezählt</span><span class="vcmp-n">Urteil</span></div>'
+    +rows+foot+'</div>';
 }
 function openComplaint(unitId){
   complaintUnitId=unitId;
@@ -1930,7 +2021,7 @@ function showToast(msg){
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camAdvance,askCancelRecording,confirmCancelRecording,confirmRecording,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,levelUp,selectVerify,
-  endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,
+  endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
   openRegionModal,renderRegionList,autoDetectRegion,selectRegion,saveLang,saveNotifPref,
   armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,
