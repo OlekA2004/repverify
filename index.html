@@ -318,8 +318,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 @keyframes hgwarn{0%,100%{opacity:.28}50%{opacity:.55}}
 .hg-done .hg-top{opacity:.12}.hg-done .hg-bottom{opacity:1}
 .hg-review .hg-top{opacity:.6}.hg-review .hg-bottom{opacity:.6}
-.hg-review .hg-glass{animation:hgspin 3.2s linear infinite}
-@keyframes hgspin{to{transform:rotate(360deg)}}
+.hg-review .hg-glass{animation:hgspin 4.5s ease-in-out infinite}
+@keyframes hgspin{0%{transform:rotate(0)}30%{transform:rotate(180deg)}50%{transform:rotate(180deg)}80%{transform:rotate(360deg)}100%{transform:rotate(360deg)}}
+/* Übungsbilder (free-exercise-db, Public Domain): 2-Frame-Animation auf weißer Karte */
+.exdb-anim{position:relative;background:#fff;border-radius:10px;overflow:hidden;width:88px;height:66px}
+.exdb-anim img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.exdb-anim img:last-child{opacity:0;animation:exswap 1.6s steps(1) infinite}
+@keyframes exswap{50%,100%{opacity:1}0%,49%{opacity:0}}
+.exdb-anim.mid{width:200px;height:140px;border-radius:14px}
+.exdb-anim.big{width:min(84vw,420px);height:min(58vw,300px);border-radius:18px}
+.fig-fallback{display:flex;align-items:center;justify-content:center}
+/* Set-Fortschritt oben als Segmente */
+.cam-segs{position:absolute;top:calc(8px + env(safe-area-inset-top));left:70px;right:70px;display:flex;gap:4px;z-index:3}
+.cam-segs span{flex:1;height:3px;border-radius:999px;background:rgba(255,255,255,.22)}
+.cam-segs span.on{background:#fff}
+/* Videocall-Swap: großes Männchen/Bild, eigenes Video klein mit Ausschnitt-Ampel */
+.cam-bigfig{display:none;position:absolute;inset:0;z-index:2;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(8,8,8,.55);backdrop-filter:blur(4px);cursor:pointer}
+.cam-overlay.swapped .cam-bigfig{display:flex}
+.cam-overlay.swapped .cam-fig{display:none!important}
+.bf-name{font-size:16px;font-weight:700;color:#fff}
+.bf-hint{font-size:9px;color:rgba(255,255,255,.5)}
+#cam-video{transition:all .25s ease}
+.cam-overlay.swapped #cam-video{position:absolute;inset:auto;left:12px;bottom:118px;width:104px;height:150px;object-fit:cover;border-radius:14px;border:2px solid var(--grn);z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.cam-overlay.swapped #cam-video.frame-bad{border-color:var(--acc)}
+.cam-framedot{display:none;position:absolute;left:22px;bottom:252px;z-index:7;font-size:8px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.55);color:var(--grn);pointer-events:none}
+.cam-overlay.swapped .cam-framedot{display:block}
+.cam-framedot.bad{color:var(--acc)}
+/* Set-Vorschläge im Programm */
+.preset-row{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .2rem}
+.preset-row:empty{display:none}
+.preset-chip{font-size:10px;padding:6px 11px;border-radius:999px;border:1px solid var(--bdm);background:var(--s2);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.preset-chip:hover{border-color:var(--acc);color:var(--t0)}
+/* ?-Button für Übungsinfo */
+.ex-q{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.14);color:rgba(255,255,255,.75);font-size:9px;font-weight:700;cursor:pointer;vertical-align:middle;margin-left:6px;flex-shrink:0}
+.ex-chip .ex-q{background:var(--s3);color:var(--t2);width:13px;height:13px;font-size:8px}
 /* KI-Check-Badge im Review */
 .pose-badge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t1);padding:2px 0 6px;justify-content:center}
 .pb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -519,6 +551,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
     <div class="pts-track"><div class="pts-fill" id="pts-fill" style="width:0%"></div><div class="pts-goal-mark" id="pts-goal-mark"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:3px"><span style="font-size:9px;color:var(--t2)">0</span><span style="font-size:9px;color:var(--grn)" id="goal-tick">Ziel 10</span><span style="font-size:9px;color:var(--t2)" id="max-tick">17</span></div>
     <div style="font-size:10px;color:var(--t2);margin:.6rem 0 .2rem" id="panel-hint"><span class="cat-dot cd-g"></span>leicht · <span class="cat-dot cd-y"></span>mittel · <span class="cat-dot cd-r"></span>schwer — schwerere Übungen geben mehr Punkte · Übungs-Level steigert den Wert langsam · Durchmischen gibt Ranking-Bonus</div>
+    <div class="preset-row" id="preset-row"></div>
     <div class="ex-list" id="ex-list"></div>
     <div class="panel-footer">
       <div class="sel-count">Einheit: <b id="pts-total">0</b> <span class="coin"></span> · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
@@ -798,15 +831,21 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
 
 <!-- KAMERA-AUFNAHME -->
 <div class="cam-overlay" id="cam-overlay">
-  <video id="cam-video" autoplay playsinline muted></video>
+  <video id="cam-video" autoplay playsinline muted onclick="camUnswap()"></video>
   <div class="cam-top">
-    <div class="cam-ex-name" id="cam-ex-name">—</div>
+    <div class="cam-ex-name"><span id="cam-ex-name">—</span><span class="ex-q" id="cam-ex-q" onclick="openExInfoCur()">?</span></div>
     <div class="cam-ex-sub" id="cam-ex-sub"></div>
   </div>
   <div class="cam-rec"><span class="cam-rec-dot"></span><span id="cam-timer">0:00</span></div>
-  <div class="cam-poselight" id="cam-poselight" title="KI-Check">KI</div>
+  <div class="cam-segs" id="cam-segs"></div>
+  <div class="cam-bigfig" id="cam-bigfig" onclick="camSwap()">
+    <div id="cam-bigfig-anim"></div>
+    <div class="bf-name" id="cam-bigfig-name"></div>
+    <div class="bf-hint">Tippen zum Zurücktauschen</div>
+  </div>
+  <div class="cam-framedot" id="cam-framedot">GANZ IM BILD</div>
   <!-- Übungs-Karte: animiertes Männchen + Set-Fortschritt + Set-Timer (ersetzt die Bläschen) -->
-  <div class="cam-fig" id="cam-fig">
+  <div class="cam-fig" id="cam-fig" onclick="camSwap()" style="cursor:pointer">
     <div class="cam-fig-svg" id="cam-fig-svg"></div>
     <div class="cf-name" id="cf-name"></div>
     <div class="cf-set" id="cf-set"></div>
@@ -821,7 +860,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
     <div class="cam-next" id="cam-next">
       <div class="cn-label">Als Nächstes</div>
       <div class="cam-next-fig" id="cam-next-fig"></div>
-      <div class="cn-name" id="cam-next-name"></div>
+      <div class="cn-name"><span id="cam-next-name"></span><span class="ex-q" onclick="event.stopPropagation();openExInfoNext()">?</span></div>
       <div class="cn-set" id="cam-next-set"></div>
     </div>
     <button class="btn cam-rest-skip" onclick="endRest()">Weiter ▶</button>
@@ -829,6 +868,15 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
   <div class="cam-controls">
     <button class="btn cam-cancel" onclick="askCancelRecording()">Abbruch</button>
     <button class="btn bp cam-confirm" id="cam-main-btn" onclick="camMain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="cam-main-txt">Set geschafft</span></button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="exinfo-modal">
+  <div class="modal-box" style="text-align:center">
+    <div id="exinfo-anim" style="display:flex;justify-content:center;margin-bottom:10px"></div>
+    <div class="modal-title" id="exinfo-title" style="margin-bottom:4px"></div>
+    <div class="modal-body" id="exinfo-desc" style="margin-bottom:12px"></div>
+    <button class="btn bg bf" onclick="closeModal('exinfo-modal')">Alles klar</button>
   </div>
 </div>
 
@@ -1367,10 +1415,43 @@ function renderChip(name,base,idx,cat){
   const val=Math.round(base*exMultiplier(p.level)*10)/10;
   chip.className='ex-chip c'+cat+(clicks>0?' has-pts':'')+(clicks>=3?' maxed':'');
   chip.innerHTML='<div class="ex-chip-top"><span class="ex-lvl-tag">Lv '+p.level+'</span>'
-    +'<span class="ex-chip-name">'+name+'</span>'
+    +'<span class="ex-chip-name">'+name+'</span><span class="ex-q" onclick="event.stopPropagation();openExInfo(\''+name.replace(/'/g,"\\'")+'\')">?</span>'
     +'<span class="ex-chip-cnt">'+(clicks>0?'+'+(Math.round(clicks*val*10)/10):'')+'</span></div>'
     +'<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--t2);margin-bottom:3px"><span><span class="cat-dot cd-'+cat+'"></span>'+CAT_LABEL[cat]+' · '+val+'/Set</span><span>'+clicks+'/3</span></div>'
     +'<div class="ex-mini-bar"><div class="ex-mini-fill" style="width:'+(clicks/3)*100+'%"></div></div>';
+}
+
+// ── Kuratierte Set-Vorschläge pro Stufe (erfüllen das 10-Punkte-Ziel) ──
+const PRESETS=[
+ [['Ganzkörper Start',{'Squats':2,'Push-ups':2,'Plank':1,'Glute Bridge':2,'Jumping Jacks':2}],
+  ['Core & Stabilität',{'Crunches':2,'Dead Bug':2,'Side Plank':2,'Russian Twists':2,'Bird Dog':1}],
+  ['Cardio Kick',{'Jumping Jacks':2,'High Knees':2,'Mountain Climbers':2,'Burpees':1}]],
+ [['Push & Core',{'Diamond Push-ups':2,'Pike Push-ups':2,'V-Ups':2,'Hollow Hold':2}],
+  ['Zug-Tag',{'Chin-ups':2,'Archer Rows':2,'Hanging Knee Raises':2}],
+  ['Beine explosiv',{'Bulgarian Split Squats':2,'Cossack Squats':2,'Box Jumps':2,'Broad Jumps':1}]],
+ [['Skill Basics',{'Hanging Leg Raises':2,'L-Sit':2,'Pistol Squats':2,'Toes-to-Bar':1}],
+  ['Push Elite',{'Handstand Push-ups':2,'Planche Lean':2,'One-Arm Push-ups':1,'Tuck Planche':1}],
+  ['Pull Elite',{'Explosive Pull-ups':2,'Archer Pull-ups':2,'Front Lever Tuck':2}]]
+];
+function renderPresets(idx,usable){
+  const row=document.getElementById('preset-row');
+  const ps=PRESETS[idx];
+  if(!ps||!usable){row.innerHTML='';return;}
+  row.innerHTML='<span style="font-size:9px;color:var(--t2);align-self:center">Vorschläge:</span>'
+    +ps.map((p,i)=>'<button class="preset-chip" onclick="applyPreset('+idx+','+i+')">'+p[0]+'</button>').join('');
+}
+function applyPreset(idx,i){
+  if(ST.todayUnit){showToast('Heutige Einheit ist bereits aufgenommen');return;}
+  const p=PRESETS[idx][i];
+  unitSel={};
+  const lv=EX_DATA[idx];
+  for(const [name,clicks] of Object.entries(p[1])){
+    const e=lv.ex.find(x=>x[0]===name);if(!e)continue;
+    unitSel[name]={clicks,base:exBasePts(idx,e[1]),cat:e[1]};
+  }
+  lv.ex.forEach(([n,c],j)=>renderChip(n,exBasePts(idx,c),j,c));
+  updatePtsUI();
+  showToast(p[0]+' geladen — '+Math.round(unitPts()*10)/10+' Punkte');
 }
 
 function openLevel(idx){
@@ -1395,6 +1476,7 @@ function openLevel(idx){
       renderChip(n,b,i,c);
     });
   }
+  renderPresets(idx,isUsable&&lv.ex.length>0);
   updatePtsUI();
   document.getElementById('lv-panel').classList.add('open');
   document.getElementById('lv-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1426,13 +1508,90 @@ function buildCamQueue(){
 function renderCamRail(){
   const cur=camQueue[camIdx];
   document.getElementById('cam-ex-name').textContent=cur?cur.name:'Fertig!';
+  document.getElementById('cam-ex-q').style.display=cur?'inline-flex':'none';
   document.getElementById('cam-ex-sub').textContent=cur?('Set '+Math.min(cur.done+1,cur.sets)+' von '+cur.sets):'Einheit bestätigen, um abzuschließen';
   const btnTxt=document.getElementById('cam-main-txt');
   if(btnTxt)btnTxt.textContent=camAllDone()?'Einheit bestätigen':'Set geschafft';
+  // Set-Fortschritt als Segmente (ein Segment pro Set)
+  const total=camQueue.reduce((s,q)=>s+q.sets,0);
+  const done=camQueue.reduce((s,q)=>s+q.done,0);
+  document.getElementById('cam-segs').innerHTML=Array.from({length:total},(_,i)=>'<span class="'+(i<done?'on':'')+'"></span>').join('');
   updateCamFig();
 }
 
 // ── Männchen: gelenkig animierte Bewegungen (SMIL-Posen-Morph) ──
+// ── Übungsbilder: free-exercise-db (Public Domain), 2 Frames im Wechsel ──
+const EXDB_BASE='https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/';
+const EXDB={
+"Squats":"Bodyweight_Squat",
+"Wall Push-ups":"Incline_Push-Up",
+"Incline Push-ups":"Incline_Push-Up",
+"Glute Bridge":"Butt_Lift_Bridge",
+"Calf Raises":"Standing_Calf_Raises",
+"Dead Bug":"Dead_Bug",
+"Crunches":"Crunches",
+"Leg Lifts":"Flat_Bench_Lying_Leg_Raise",
+"Assisted Push-ups":"Push-Ups_With_Feet_Elevated",
+"Reverse Lunges":"Crossover_Reverse_Lunge",
+"Walking Lunges":"Bodyweight_Walking_Lunge",
+"Step-ups":"Step-up_with_Knee_Raise",
+"Single-Leg Glute Bridge":"Single_Leg_Glute_Bridge",
+"Side Plank":"Push_Up_to_Side_Plank",
+"Bicycle Crunches":"Air_Bike",
+"Russian Twists":"Russian_Twist",
+"Push-ups":"Pushups",
+"Australian Pull-ups":"Inverted_Row",
+"Inverted Row":"Inverted_Row",
+"Assisted Pull-ups":"Band_Assisted_Pull-Up",
+"Plank":"Plank",
+"Superman Hold":"Superman",
+"Mountain Climbers":"Mountain_Climbers",
+"Pike Push-ups":"Handstand_Push-Ups",
+"Decline Push-ups":"Decline_Push-Up",
+"V-Ups":"Jackknife_Sit-Up",
+"Box Jumps":"Front_Box_Jump",
+"Chin-ups":"Chin-Up",
+"Dips":"Dips_-_Triceps_Version",
+"Tuck Jumps":"Knee_Tuck_Jump",
+"Pull-ups":"Pullups",
+"Hanging Leg Raises":"Hanging_Leg_Raise",
+"Toes-to-Bar":"Hanging_Pike",
+"Pistol Squats":"Kettlebell_Pistol_Squat",
+"Handstand Push-ups":"Handstand_Push-Ups",
+"Muscle-ups":"Muscle_Up",
+"90° Push-up":"Plyo_Push-up"
+};
+function exAnimHtml(name,cls){
+  const id=EXDB[name];
+  if(id)return '<div class="exdb-anim '+(cls||'')+'"><img src="'+EXDB_BASE+id+'/0.jpg" alt="" loading="lazy"><img src="'+EXDB_BASE+id+'/1.jpg" alt="" loading="lazy"></div>';
+  return '<div class="fig-fallback">'+figSvg(figPattern(name),cls==='big'?120:(cls==='mid'?96:56))+'</div>';
+}
+
+// ── Kurzbeschreibungen (Basis Deutsch — Übersetzung folgt via i18n) ──
+const EX_DESC={
+"Squats":"Füße schulterbreit, Hüfte tief nach hinten-unten, Rücken gerade.","Wall Push-ups":"Liegestütz im Stehen gegen die Wand — Körper gerade, Arme beugen.","Incline Push-ups":"Liegestütz mit erhöhten Händen (Bank/Tisch), Körper in Linie.","Glute Bridge":"Rückenlage, Füße aufgestellt, Hüfte hochdrücken, Po anspannen.","Calf Raises":"Im Stand auf die Zehenspitzen drücken, langsam absenken.","Dead Bug":"Rückenlage — gegenüberliegenden Arm und Bein strecken, Rumpf stabil.","Bird Dog":"Vierfüßler — gegenüberliegenden Arm und Bein strecken, Rücken gerade.","Crunches":"Rückenlage, Schulterblätter anheben, Bauch anspannen — ohne Schwung.","Leg Lifts":"Rückenlage, gestreckte Beine heben und langsam senken.","Jumping Jacks":"Hampelmann: Beine grätschen, Arme über den Kopf, im Rhythmus.","Assisted Push-ups":"Liegestütz auf den Knien oder mit Unterstützung.","Reverse Lunges":"Schritt nach hinten, Knie tief, vorderes Bein drückt hoch.","Walking Lunges":"Ausfallschritte im Gehen, Oberkörper aufrecht.","Side Lunges":"Seitlicher Ausfallschritt, Gewicht auf der gebeugten Seite.","Step-ups":"Auf eine Erhöhung steigen, Bein ganz strecken, kontrolliert runter.","Single-Leg Glute Bridge":"Glute Bridge einbeinig, Hüfte bleibt gerade.","Wall Sit":"Rücken an der Wand, Knie 90 Grad, halten.","Side Plank":"Seitstütz auf dem Unterarm, Hüfte oben halten.","Bicycle Crunches":"Ellbogen zum gegenüberliegenden Knie, Beine treten in der Luft.","Russian Twists":"Sitz, Oberkörper leicht zurück, kontrolliert von Seite zu Seite drehen.","Push-ups":"Hände unter den Schultern, Körper in Linie, Brust zum Boden.","Australian Pull-ups":"Rudern an niedriger Stange, Körper gerade, Brust zur Stange.","Inverted Row":"Horizontal unter der Stange ziehen, Schulterblätter zusammen.","Assisted Pull-ups":"Klimmzug mit Band- oder Stuhl-Unterstützung.","Assisted Chin-ups":"Klimmzug im Untergriff mit Unterstützung.","Plank":"Unterarmstütz, Körper in einer Linie, Bauch fest.","Superman Hold":"Bauchlage, Arme und Beine anheben und halten.","Mountain Climbers":"Stützposition, Knie abwechselnd schnell zur Brust.","High Knees":"Laufen auf der Stelle, Knie auf Hüfthöhe.","Burpees":"Liegestütz, aufspringen, Strecksprung — eine flüssige Bewegung.","Hollow Hold":"Rückenlage, Arme/Beine gestreckt anheben, unterer Rücken bleibt am Boden.","Plank to Push-up":"Vom Unterarmstütz in den Liegestütz wechseln, Hüfte stabil.","Bear Crawl":"Vierfüßlergang, Knie knapp über dem Boden.","Crab Walk":"Rückwärts-Vierfüßler, Hüfte oben, laufen.","Toes-to-Bench":"Im Stütz die Zehen zur Bank führen.","Diamond Push-ups":"Liegestütz mit engen Händen (Dreieck) — Trizeps.","Pike Push-ups":"Hüfte hoch (V-Form), Kopf Richtung Boden — Schultern.","Decline Push-ups":"Liegestütz mit erhöhten Füßen.","Bulgarian Split Squats":"Hinterer Fuß erhöht, tiefe Kniebeuge vorn.","Cossack Squats":"Tiefe seitliche Kniebeuge, anderes Bein gestreckt.","Hanging Knee Raises":"Hängend die Knie zur Brust ziehen, ohne Schwung.","Hollow Rocks":"In Hollow-Position kontrolliert schaukeln.","V-Ups":"Arme und Beine gleichzeitig zur Mitte — V-Form.","Commando Plank":"Plank, abwechselnd auf Unterarme und Hände.","Box Jumps":"Explosiv auf die Box springen, weich landen.","Chin-ups":"Klimmzug im Untergriff, Kinn über die Stange.","Dips":"Am Barren abstützen, Arme tief beugen und strecken.","Archer Push-ups":"Breiter Liegestütz — ein Arm beugt, der andere bleibt gestreckt.","Assisted Pistol Squats":"Einbeinige Kniebeuge mit Festhalten.","Shrimp Squats":"Einbeinige Kniebeuge, hinteres Bein gegriffen.","Single-Leg Romanian Deadlift":"Standwaage: Hüfte beugt, hinteres Bein streckt nach hinten.","Broad Jumps":"Weitsprung aus dem Stand, weich landen.","Skater Jumps":"Seitliche Sprünge von Bein zu Bein.","Tuck Jumps":"Sprung mit Knien zur Brust.","Archer Rows":"Einseitiges Rudern, der andere Arm bleibt gestreckt.","Pull-ups":"Klimmzug im Obergriff, Brust Richtung Stange.","Pseudo Planche Push-ups":"Liegestütz mit Händen an der Hüfte, Schultern weit vorgelehnt.","Assisted Nordic Curl":"Kniend langsam nach vorn ablassen — Beinbeuger bremst, mit Unterstützung.","Burpee Pull-ups":"Burpee und direkt danach ein Klimmzug.","Explosive Push-ups":"Liegestütz, Hände lösen sich explosiv vom Boden.","Hanging Leg Raises":"Hängend gestreckte Beine bis zur Waagerechten heben.","L-Sit":"Im Stütz die gestreckten Beine vorn halten — L-Form.","Planche Lean":"Im Stütz die Schultern weit über die Hände lehnen.","Wall Handstand Shoulder Taps":"Handstand an der Wand, abwechselnd die Schultern antippen.","Front Lever Tuck":"An der Stange, Rücken waagerecht, Knie angezogen.","Toes-to-Bar":"Hängend die Zehen zur Stange führen.","Explosive Pull-ups":"Maximal explosiver Klimmzug — Brust bis zur Stange.","V-Sit":"L-Sit mit höher angehobenen, gestreckten Beinen.","Back Lever Tuck":"Rücklings waagerecht an der Stange, Knie angezogen.","Pistol Squats":"Einbeinige tiefe Kniebeuge, freies Bein gestreckt.","Handstand Push-ups":"Liegestütz im Handstand (an der Wand).","Archer Pull-ups":"Klimmzug zur Seite, ein Arm bleibt fast gestreckt.","Typewriter Pull-ups":"Oben an der Stange seitlich hin- und herschieben.","Clap Pull-ups":"Explosiver Klimmzug mit Klatschen.","Dragon Flag":"Schultern aufgestützt, gestreckten Körper langsam absenken.","Tuck Planche":"Freier Stütz, Knie angezogen, Füße ohne Bodenkontakt.","Nordic Curl":"Kniend kontrolliert nach vorn ablassen — Beinbeuger.","Jumping Pistol Squats":"Pistol Squat mit explosivem Absprung.","Handstand Walk":"Im Handstand gehen.","Shrimp Squats (weighted)":"Shrimp Squat mit Zusatzgewicht.","Muscle-ups":"Klimmzug mit Umgreifen in den Stütz über der Stange.","One-Arm Push-ups":"Einarmiger Liegestütz, Beine weit.","Front Lever":"Körper waagerecht vorn an der Stange, komplett gestreckt.","Back Lever":"Körper waagerecht rücklings an der Stange, gestreckt.","Human Flag Progression":"Flaggen-Vorstufen an der Stange mit angezogenen Beinen.","Human Flag":"Körper seitlich waagerecht an der vertikalen Stange.","Advanced Tuck Planche":"Planche mit leicht geöffneter Hüfte.","Planche Push-up Progression":"Liegestütz-Vorstufen Richtung Planche.","Freestanding Handstand Hold":"Freier Handstand ohne Wand.","90° Push-up":"Explosiver Liegestütz mit Absenken in die 90-Grad-Halte."
+};
+let exInfoName=null;
+function openExInfo(name){
+  exInfoName=name;
+  document.getElementById('exinfo-title').textContent=name;
+  document.getElementById('exinfo-desc').textContent=EX_DESC[name]||'';
+  document.getElementById('exinfo-anim').innerHTML=exAnimHtml(name,'mid');
+  openModal('exinfo-modal');
+}
+function openExInfoCur(){const c=camQueue[camIdx];if(c)openExInfo(c.name);}
+function openExInfoNext(){const c=camQueue[camIdx];if(c)openExInfo(c.name);}
+
+// ── Videocall-Swap: großes Übungsbild vs. eigenes Video ──
+function camSwap(){
+  document.getElementById('cam-overlay').classList.toggle('swapped');
+  renderCamRail();
+}
+function camUnswap(){
+  const ov=document.getElementById('cam-overlay');
+  if(ov.classList.contains('swapped')){ov.classList.remove('swapped');renderCamRail();}
+}
+
 function figSvg(pattern,size){
   const S=size||56, D='dur="1.7s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1" keyTimes="0;.5;1"';
   const P={
@@ -1493,12 +1652,15 @@ function updateCamFig(){
   const card=document.getElementById('cam-fig'),el=document.getElementById('cam-fig-svg');
   if(!card||!el)return;
   const cur=camQueue[camIdx];
-  if(!cur){card.style.display='none';return;}
+  const ov=document.getElementById('cam-overlay');
+  if(!cur){card.style.display='none';ov.classList.remove('swapped');return;}
   card.style.display='flex';
   document.getElementById('cf-name').textContent=cur.name;
   document.getElementById('cf-set').textContent='Set '+Math.min(cur.done+1,cur.sets)+'/'+cur.sets;
-  const p=figPattern(cur.name);
-  if(el.dataset.p!==p){el.dataset.p=p;el.innerHTML=figSvg(p,56);}
+  if(el.dataset.ex!==cur.name){el.dataset.ex=cur.name;el.innerHTML=exAnimHtml(cur.name);}
+  // Groß-Ansicht (getauscht)
+  const bf=document.getElementById('cam-bigfig-anim');
+  if(bf&&bf.dataset.ex!==cur.name){bf.dataset.ex=cur.name;bf.innerHTML=exAnimHtml(cur.name,'big');document.getElementById('cam-bigfig-name').textContent=cur.name;}
 }
 // Ein Button für alles: Sets abhaken, am Ende Einheit bestätigen
 function camMain(){ camAllDone()?confirmRecording():camSetDone(); }
@@ -1523,7 +1685,7 @@ function startRest(){
   // Naechste Uebung gross in der Mitte ankuendigen
   const nxt=camQueue[camIdx];
   if(nxt){
-    document.getElementById('cam-next-fig').innerHTML=figSvg(figPattern(nxt.name),96);
+    document.getElementById('cam-next-fig').innerHTML=exAnimHtml(nxt.name,'mid');
     document.getElementById('cam-next-name').textContent=nxt.name;
     document.getElementById('cam-next-set').textContent='Set '+(nxt.done+1)+' / '+nxt.sets;
   }
@@ -1572,13 +1734,17 @@ async function initPose(){
 }
 function poseReset(){poseStat={f:0,p:0,m:0};poseLastLm=null;}
 function updatePoseLight(){
-  const el=document.getElementById('cam-poselight');if(!el)return;
-  if(!camStream){el.className='cam-poselight';return;}
-  el.classList.add('on');
-  if(!poseLm){el.classList.remove('ok','warn');return;}
-  const recent=poseLastLm?'ok':'warn';
-  el.classList.toggle('ok',recent==='ok');
-  el.classList.toggle('warn',recent==='warn');
+  // Bildausschnitt-Ampel am kleinen Selbst-Video: grün = komplett im Bild
+  const vd=document.getElementById('cam-video'),dot=document.getElementById('cam-framedot');
+  if(!vd||!dot)return;
+  let full=false;
+  if(poseLastLm){
+    const vis=i=>poseLastLm[i]&&(poseLastLm[i].visibility??1)>0.5;
+    full=vis(0)&&vis(27)&&vis(28); // Kopf + beide Knöchel sichtbar
+  }
+  vd.classList.toggle('frame-bad',!full);
+  dot.classList.toggle('bad',!full);
+  dot.textContent=full?'GANZ IM BILD':'NICHT GANZ IM BILD';
 }
 function startPoseLoop(){
   poseReset();
@@ -2126,7 +2292,7 @@ function showToast(msg){
 //  INIT + globale Handler (für onclick-Attribute)
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
-  startRecording,camMain,askCancelRecording,confirmCancelRecording,confirmRecording,
+  startRecording,camMain,camSwap,camUnswap,openExInfo,openExInfoCur,openExInfoNext,applyPreset,askCancelRecording,confirmCancelRecording,confirmRecording,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,levelUp,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,

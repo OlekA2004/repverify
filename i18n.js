@@ -386,3 +386,21 @@ window.I18N_PATTERNS.push(
 [/^Set (\d+) \/ (\d+)$/,["Set $1 / $2","第 $1 / $2 组","सेट $1 / $2","Serie $1 / $2","Série $1 / $2","المجموعة $1 / $2","সেট $1 / $2","Подход $1 / $2","Série $1 / $2","سیٹ $1 / $2","Set $1 / $2","セット$1 / $2","Set $1 / $2","세트 $1 / $2"]],
 [/^Set (\d+) von (\d+)$/,["Set $1 of $2","第 $1/$2 组","सेट $1/$2","Serie $1 de $2","Série $1 sur $2","المجموعة $1 من $2","সেট $1/$2","Подход $1 из $2","Série $1 de $2","سیٹ $1/$2","Set $1 dari $2","セット$1/$2","Set $1/$2","세트 $1/$2"]]
 );
+Object.assign(window.I18N_SRC,{
+"Tippen zum Zurücktauschen":["Tap to swap back","点击换回","वापस बदलने के लिए टैप करें","Toca para volver","Touche pour rebasculer","اضغط للتبديل","ফিরে যেতে ট্যাপ করুন","Нажмите, чтобы вернуть","Toque para voltar","واپس کے لیے ٹیپ کریں","Ketuk untuk kembali","タップで切り替え","Geri almak için dokun","탭하여 되돌리기"],
+"GANZ IM BILD":["FULLY IN FRAME","完全入镜","पूरी तरह फ्रेम में","EN CUADRO","BIEN CADRÉ","داخل الإطار","পুরো ফ্রেমে","ПОЛНОСТЬЮ В КАДРЕ","NO ENQUADRAMENTO","مکمل فریم میں","PENUH DI FRAME","全身が映っています","TAM KADRAJDA","화면에 전신"],
+"NICHT GANZ IM BILD":["NOT FULLY IN FRAME","未完全入镜","पूरी तरह फ्रेम में नहीं","FUERA DE CUADRO","MAL CADRÉ","خارج الإطار جزئياً","পুরো ফ্রেমে নেই","НЕ ПОЛНОСТЬЮ В КАДРЕ","FORA DO ENQUADRAMENTO","مکمل فریم میں نہیں","TIDAK PENUH DI FRAME","全身が映っていません","TAM KADRAJDA DEĞİL","전신이 안 보임"],
+"Vorschläge:":["Suggestions:","推荐：","सुझाव:","Sugerencias:","Suggestions :","اقتراحات:","পরামর্শ:","Подборки:","Sugestões:","تجاویز:","Saran:","おすすめ：","Öneriler:","추천:"],
+"Ganzkörper Start":["Full-Body Start","全身入门","फुल-बॉडी स्टार्ट","Cuerpo completo inicial","Full body débutant","الجسم كامل — بداية","ফুল-বডি স্টার্ট","Всё тело — старт","Corpo inteiro inicial","فل باڈی اسٹارٹ","Full body pemula","全身スタート","Tüm vücut başlangıç","전신 스타트"],
+"Core & Stabilität":["Core & Stability","核心与稳定","कोर और स्थिरता","Core y estabilidad","Gainage & stabilité","الجذع والثبات","কোর ও স্থিতিশীলতা","Кор и стабильность","Core e estabilidade","کور اور استحکام","Core & stabilitas","体幹と安定","Core ve denge","코어 & 안정성"],
+"Cardio Kick":["Cardio Kick","燃脂冲刺","कार्डियो किक","Cardio intenso","Cardio kick","دفعة كارديو","কার্ডিও কিক","Кардио-заряд","Cardio intenso","کارڈیو کک","Cardio kick","有酸素キック","Kardiyo patlaması","카디오 킥"],
+"Push & Core":["Push & Core","推力与核心","पुश और कोर","Empuje y core","Poussée & gainage","دفع وجذع","পুশ ও কোর","Жим и кор","Empurrar e core","پش اور کور","Push & core","プッシュ＆体幹","İtiş ve core","푸시 & 코어"],
+"Zug-Tag":["Pull Day","拉力日","पुल डे","Día de tirón","Journée tirage","يوم السحب","পুল ডে","День тяги","Dia de puxar","پل ڈے","Hari tarikan","プルの日","Çekiş günü","풀 데이"],
+"Beine explosiv":["Explosive Legs","爆发力腿部","विस्फोटक टांगें","Piernas explosivas","Jambes explosives","أرجل انفجارية","বিস্ফোরক পা","Взрывные ноги","Pernas explosivas","دھماکہ خیز ٹانگیں","Kaki eksplosif","脚力爆発","Patlayıcı bacak","폭발적인 하체"],
+"Skill Basics":["Skill Basics","技巧基础","स्किल बेसिक्स","Bases de skills","Bases de skills","أساسيات المهارات","স্কিল বেসিক","Основы скиллов","Bases de skills","اسکل بیسکس","Dasar skill","スキル基礎","Beceri temelleri","스킬 기초"],
+"Push Elite":["Push Elite","推力精英","पुश एलीट","Empuje élite","Poussée élite","دفع النخبة","পুশ এলিট","Жим — элита","Empurrar elite","پش ایلیٹ","Push elit","プッシュエリート","Elit itiş","푸시 엘리트"],
+"Pull Elite":["Pull Elite","拉力精英","पुल एलीट","Tirón élite","Tirage élite","سحب النخبة","পুল এলিট","Тяга — элита","Puxar elite","پل ایلیٹ","Pull elit","プルエリート","Elit çekiş","풀 엘리트"]
+});
+window.I18N_PATTERNS.push(
+[/^(.+) geladen — ([\d.,]+) Punkte$/,["$1 loaded — $2 points","已加载 $1——$2 分","$1 लोड — $2 अंक","$1 cargado: $2 puntos","$1 chargé — $2 points","تم تحميل $1 — $2 نقطة","$1 লোড হয়েছে — $2 পয়েন্ট","$1 загружен — $2 очков","$1 carregado — $2 pontos","$1 لوڈ ہوا — $2 پوائنٹس","$1 dimuat — $2 poin","$1を読み込み — $2ポイント","$1 yüklendi — $2 puan","$1 로드됨 — $2점"]]
+);
