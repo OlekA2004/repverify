@@ -305,6 +305,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 @keyframes tocorner{to{transform:translate(30vw,26vh) scale(.25);opacity:0}}
 .cam-settime{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.85);font-variant-numeric:tabular-nums}
 #cam-setring{transition:stroke-dashoffset 1s linear}
+/* Status-Sanduhr im Logo */
+.logo-icon{position:relative}
+.hg-warn{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);opacity:.4}
+.hg-glass{position:relative;z-index:1}
+.hg-stream{display:none}
+.hg-pending .hg-stream{display:block;animation:hgfall 1s linear infinite}
+@keyframes hgfall{from{stroke-dashoffset:4.4}to{stroke-dashoffset:0}}
+.hg-pending .hg-top{opacity:.95}.hg-pending .hg-bottom{opacity:.45}
+.hg-late .hg-top{opacity:.12}.hg-late .hg-bottom{opacity:1}
+.hg-late .hg-warn{display:block;animation:hgwarn 1.6s ease-in-out infinite}
+@keyframes hgwarn{0%,100%{opacity:.28}50%{opacity:.55}}
+.hg-done .hg-top{opacity:.12}.hg-done .hg-bottom{opacity:1}
+.hg-review .hg-top{opacity:.6}.hg-review .hg-bottom{opacity:.6}
+.hg-review .hg-glass{animation:hgspin 3.2s linear infinite}
+@keyframes hgspin{to{transform:rotate(360deg)}}
 /* KI-Check-Badge im Review */
 .pose-badge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t1);padding:2px 0 6px;justify-content:center}
 .pb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}

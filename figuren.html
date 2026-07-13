@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepVerify — Bewegungsmuster</title>
+<style>
+:root{--bg:#0d0d0d;--s1:#161616;--bd:#262626;--t0:#e8e8e8;--t2:#555;--acc:#E24B4A}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t0);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:2rem 1.2rem;max-width:900px;margin:0 auto}
+h1{font-size:18px;margin-bottom:4px}
+p{font-size:11px;color:var(--t2);margin-bottom:1.4rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.card svg{display:block}
+.fg{stroke:#fff;stroke-width:2.6;stroke-linecap:round;fill:none}
+.fg-head{fill:#fff;stroke:none}
+.fg.dim{opacity:.22}.fg.dim2{opacity:.5}
+.nm{font-size:13px;font-weight:700}
+.ex{font-size:9.5px;color:var(--t2);text-align:center;line-height:1.5}
+a{color:var(--acc);font-size:11px}
+</style>
+</head>
+<body>
+<h1>Bewegungsmuster der Übungs-Männchen</h1>
+<p>Diese 7 Animationen laufen im Aufnahme-Flow — in der Ecken-Karte und groß bei der Pausen-Ankündigung. Jede Übung wird automatisch einem Muster zugeordnet.</p>
+<div class="grid" id="grid"></div>
+<script>
+function figSvg(pattern,size){
+  const S=size||56, D='dur="1.7s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1" keyTimes="0;.5;1"';
+  const P={
+  squat:'<path class="fg dim" d="M8 54h48"/>'
+    +'<circle class="fg-head" r="4.5" cx="37" cy="10"><animate attributeName="cy" values="10;21;10" '+D+'/><animate attributeName="cx" values="37;35;37" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M36 14 L31 32;M34 25 L29 38;M36 14 L31 32" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M34 19 L44 23;M32 29 L43 30;M34 19 L44 23" '+D+'/></path>'
+    +'<path class="fg dim2"><animate attributeName="d" values="M31 32 L35 43 L31 53;M29 38 L37 43 L32 53;M31 32 L35 43 L31 53" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M31 32 L38 42 L35 53;M29 38 L41 41 L36 53;M31 32 L38 42 L35 53" '+D+'/></path>',
+  pushup:'<path class="fg dim" d="M6 54h52"/>'
+    +'<circle class="fg-head" r="4.5" cx="49" cy="30"><animate attributeName="cy" values="30;38;30" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M13 45 L44 33;M13 49 L44 41;M13 45 L44 33" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M41 35 L37 44 L42 53;M40 42 L34 47 L42 53;M41 35 L37 44 L42 53" '+D+'/></path>'
+    +'<path class="fg dim2"><animate attributeName="d" values="M13 45 L9 53;M13 49 L9 53;M13 45 L9 53" '+D+'/></path>',
+  pull:'<path class="fg dim2" d="M14 7h36"/>'
+    +'<circle class="fg-head" r="4.5" cx="32" cy="27"><animate attributeName="cy" values="27;18;27" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M25 8 L28 16 L31 23;M25 8 L28 11 L31 14;M25 8 L28 16 L31 23" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M39 8 L36 16 L33 23;M39 8 L36 11 L33 14;M39 8 L36 16 L33 23" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 32 L32 44;M32 23 L32 35;M32 32 L32 44" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 44 L28 50 L31 56;M32 35 L28 41 L31 47;M32 44 L28 50 L31 56" '+D+'/></path>',
+  jump:'<path class="fg dim" d="M8 54h48"/>'
+    +'<circle class="fg-head" r="4.5" cx="32" cy="13"><animate attributeName="cy" values="13;9;13" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M32 18 L32 36;M32 14 L32 32;M32 18 L32 36" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 23 L24 31;M32 19 L25 8;M32 23 L24 31" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 23 L40 31;M32 19 L39 8;M32 23 L40 31" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 36 L27 53;M32 32 L22 50;M32 36 L27 53" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 36 L37 53;M32 32 L42 50;M32 36 L37 53" '+D+'/></path>',
+  lunge:'<path class="fg dim" d="M8 54h48"/>'
+    +'<circle class="fg-head" r="4.5" cx="34" cy="12"><animate attributeName="cy" values="12;17;12" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M33 16 L31 34;M33 21 L31 39;M33 16 L31 34" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M32 22 L41 27;M32 27 L41 32;M32 22 L41 27" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M31 34 L42 41 L42 53;M31 39 L44 43 L44 53;M31 34 L42 41 L42 53" '+D+'/></path>'
+    +'<path class="fg dim2"><animate attributeName="d" values="M31 34 L24 45 L20 53;M31 39 L23 48 L18 53;M31 34 L24 45 L20 53" '+D+'/></path>',
+  crunch:'<path class="fg dim" d="M6 50h52"/>'
+    +'<circle class="fg-head" r="4.5" cx="13" cy="42"><animate attributeName="cx" values="13;19;13" '+D+'/><animate attributeName="cy" values="42;31;42" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M28 46 L16 44;M28 46 L21 34;M28 46 L16 44" '+D+'/></path>'
+    +'<path class="fg"><animate attributeName="d" values="M18 46 L26 40;M22 38 L29 39;M18 46 L26 40" '+D+'/></path>'
+    +'<path class="fg" d="M28 46 L38 38 L46 48"/>',
+  hold:'<path class="fg dim" d="M6 54h52"/>'
+    +'<circle class="fg-head" r="4.5" cx="49" cy="31"><animate attributeName="cy" values="31;32.5;31" '+D+'/></circle>'
+    +'<path class="fg"><animate attributeName="d" values="M12 45 L44 34;M12 45 L44 35.5;M12 45 L44 34" '+D+'/></path>'
+    +'<path class="fg" d="M41 36 L42 53"/><path class="fg dim2" d="M12 45 L8 53"/>'
+  };
+  return '<svg width="'+S+'" height="'+S+'" viewBox="0 0 64 64">'+(P[pattern]||P.hold)+'</svg>';
+}
+
+function figPattern(name){
+  const n=name.toLowerCase();
+  if(/push-?up|planche/.test(n))return 'pushup';
+  if(/pull|chin|row|muscle/.test(n))return 'pull';
+  if(/jump|jack|burpee|skater|high knees|climber|crawl|walk/.test(n))return 'jump';
+  if(/lunge|step-?up|cossack|split|pistol|shrimp/.test(n))return 'lunge';
+  if(/crunch|twist|v-?up|leg lift|leg raise|knee raise|dead bug|rocks|toes|dragon/.test(n))return 'crunch';
+  if(/plank|hold|sit|lever|flag|handstand|superman|bird dog|dip/.test(n))return 'hold';
+  if(/squat|bridge|deadlift|calf|curl/.test(n))return 'squat';
+  return 'hold';
+}
+
+const DEMOS=[
+ ['squat','Kniebeuge','Squats, Glute Bridge, Deadlifts, Calf Raises, Nordic Curl'],
+ ['pushup','Liegestütz','Push-ups (alle Varianten), Planche-Progressionen'],
+ ['pull','Zug / Klimmzug','Pull-ups, Chin-ups, Rows, Muscle-ups'],
+ ['jump','Sprung / Cardio','Jumping Jacks, Burpees, Box Jumps, High Knees, Mountain Climbers'],
+ ['lunge','Ausfallschritt','Lunges, Step-ups, Pistol Squats, Cossack Squats'],
+ ['crunch','Core / Beugen','Crunches, Twists, V-Ups, Leg Raises, Dragon Flag'],
+ ['hold','Halteübung','Plank, L-Sit, Lever, Flags, Handstand, Dips']
+];
+document.getElementById('grid').innerHTML=DEMOS.map(([p,nm,ex])=>
+ '<div class="card">'+figSvg(p,96)+'<div class="nm">'+nm+'</div><div class="ex">'+ex+'</div></div>').join('');
+</script>
+</body>
+</html>
