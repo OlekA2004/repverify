@@ -352,6 +352,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 /* ?-Button für Übungsinfo */
 .ex-q{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.14);color:rgba(255,255,255,.75);font-size:9px;font-weight:700;cursor:pointer;vertical-align:middle;margin-left:6px;flex-shrink:0}
 .ex-chip .ex-q{background:var(--s3);color:var(--t2);width:13px;height:13px;font-size:8px}
+/* Trainingsplan */
+.goal-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.goal-chip{display:flex;align-items:center;gap:7px;font-size:11px;padding:8px 13px;border-radius:999px;border:1px solid var(--bdm);background:var(--s1);color:var(--t1);cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.goal-chip.active{border-color:var(--acc);color:var(--t0);background:var(--acc-bg)}
+.gc-ic{font-size:13px}
+.rt-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd);cursor:pointer}
+.rt-row:last-of-type{border-bottom:none}
+.rt-thumb{width:44px;height:32px;border-radius:7px;background:#fff;object-fit:contain;flex-shrink:0}
+.rt-name{font-size:11px;color:var(--t0);flex:1}
+.rt-sets{font-size:11px;color:var(--t1);font-weight:700}
+/* Vorbereitung */
+.cam-prep{display:none;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.cam-prep.show{display:flex}
+.prep-frame{font-size:11px;color:rgba(255,255,255,.7);padding:5px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
+.prep-frame.ok{color:var(--grn);border-color:rgba(61,158,106,.6)}
 /* KI-Check-Badge im Review */
 .pose-badge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t1);padding:2px 0 6px;justify-content:center}
 .pb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -520,19 +535,22 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
 
 <!-- PROGRAM -->
 <div class="page" id="page-program">
-  <div class="sh"><span class="st">Trainingsprogramm</span><span class="sl" onclick="closeLvPanel()">Übersicht</span></div>
+  <div class="sh"><span class="st">Trainingsplan</span><span class="ss" id="tp-badge"></span></div>
+  <div class="goal-row" id="goal-row"></div>
+  <div id="routine-card"></div>
+  <div class="sh" style="margin-top:1.2rem"><span class="st" style="font-size:13px">Eigenes Set</span><span class="sl" onclick="closeLvPanel()">Übersicht</span></div>
   <div class="lv-grid" id="lv-grid">
     <div class="lv-card" id="lvc-0" onclick="openLevel(0)">
       <div class="lv-lbl" style="color:var(--grn)">Anfänger</div><div class="lv-name">Foundation</div>
-      <div class="lv-meta">30 Übungen · max 15</div><span class="pill pg">Freigeschaltet</span>
+      <div class="lv-meta">24 Übungen · max 15</div><span class="pill pg">Freigeschaltet</span>
     </div>
     <div class="lv-card" id="lvc-1" onclick="openLevel(1)">
       <div class="lv-lbl" style="color:var(--acc)">Mittelstufe</div><div class="lv-name">Build Strength</div>
-      <div class="lv-meta">30 Übungen · max 17</div><span class="pill pr">Aktiv</span>
+      <div class="lv-meta">24 Übungen · max 17</div><span class="pill pr">Aktiv</span>
     </div>
     <div class="lv-card" id="lvc-2" onclick="openLevel(2)">
       <div class="lv-lbl" style="color:var(--t2)">Fortgeschritten</div><div class="lv-name">Peak Performance</div>
-      <div class="lv-meta">30 Übungen · max 19</div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
+      <div class="lv-meta">24 Übungen · max 19</div><span class="pill ph"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Gesperrt</span>
     </div>
     <div class="lv-card" id="lvc-3" onclick="openLevel(3)">
       <div class="lv-lbl" style="color:var(--t2)">Profi</div><div class="lv-name">Elite</div>
@@ -551,7 +569,6 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
     <div class="pts-track"><div class="pts-fill" id="pts-fill" style="width:0%"></div><div class="pts-goal-mark" id="pts-goal-mark"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:3px"><span style="font-size:9px;color:var(--t2)">0</span><span style="font-size:9px;color:var(--grn)" id="goal-tick">Ziel 10</span><span style="font-size:9px;color:var(--t2)" id="max-tick">17</span></div>
     <div style="font-size:10px;color:var(--t2);margin:.6rem 0 .2rem" id="panel-hint"><span class="cat-dot cd-g"></span>leicht · <span class="cat-dot cd-y"></span>mittel · <span class="cat-dot cd-r"></span>schwer — schwerere Übungen geben mehr Punkte · Übungs-Level steigert den Wert langsam · Durchmischen gibt Ranking-Bonus</div>
-    <div class="preset-row" id="preset-row"></div>
     <div class="ex-list" id="ex-list"></div>
     <div class="panel-footer">
       <div class="sel-count">Einheit: <b id="pts-total">0</b> <span class="coin"></span> · Vielfalt: <b id="variety-count">0</b> Übungen · Ranking-Wert: <b id="ranking-pts">0</b></div>
@@ -854,6 +871,12 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
       <span id="cam-settime-txt">0:00</span>
     </div>
   </div>
+  <div class="cam-prep" id="cam-prep">
+    <div class="cn-label">Bereite dich vor</div>
+    <div class="cam-rest-time" id="cam-prep-time">10</div>
+    <div class="prep-frame" id="prep-frame">Stelle dein Handy so auf, dass du ganz im Bild bist</div>
+    <button class="btn bp cam-rest-skip" style="background:var(--acc);border:none" onclick="endPrep()">Start!</button>
+  </div>
   <div class="cam-rest" id="cam-rest">
     <div class="cam-rest-time" id="cam-rest-time">0:60</div>
     <div class="cam-rest-sub">Satzpause — Aufnahme angehalten</div>
@@ -867,6 +890,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
   </div>
   <div class="cam-controls">
     <button class="btn cam-cancel" onclick="askCancelRecording()">Abbruch</button>
+    <button class="btn cam-cancel" id="cam-skip-btn" onclick="camSkipExercise()" title="Übung überspringen">⏭</button>
     <button class="btn bp cam-confirm" id="cam-main-btn" onclick="camMain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="cam-main-txt">Set geschafft</span></button>
   </div>
 </div>
@@ -963,26 +987,26 @@ const CAT_PTS = { 0:{g:1, y:1.5, r:2}, 1:{g:1.5, y:2, r:2.5}, 2:{g:2, y:2.5, r:3
 const CAT_LABEL = { g:'leicht', y:'mittel', r:'schwer' };
 const EX_DATA = [
   { name:'Foundation', label:'Anfänger', locked:false, sub:'Bodyweight · 🟢 1 · 🟡 1,5 · 🔴 2 pro Set',
-    ex:[['Squats','g'],['Wall Push-ups','g'],['Incline Push-ups','g'],['Glute Bridge','g'],['Calf Raises','g'],
-        ['Dead Bug','g'],['Bird Dog','g'],['Crunches','g'],['Leg Lifts','g'],['Jumping Jacks','g'],
-        ['Assisted Push-ups','y'],['Reverse Lunges','y'],['Walking Lunges','y'],['Side Lunges','y'],['Step-ups','y'],
-        ['Single-Leg Glute Bridge','y'],['Wall Sit','y'],['Side Plank','y'],['Bicycle Crunches','y'],['Russian Twists','y'],
-        ['Push-ups','r'],['Australian Pull-ups','r'],['Inverted Row','r'],['Assisted Pull-ups','r'],['Assisted Chin-ups','r'],
-        ['Plank','r'],['Superman Hold','r'],['Mountain Climbers','r'],['High Knees','r'],['Burpees','r']] },
+    ex:[['Bodyweight Squat','g'],['Butt Lift (Bridge)','g'],['Crunches','g'],['Dead Bug','g'],
+        ['Leg Lift','g'],['Incline Push-Up','g'],['Alternate Heel Touchers','g'],['Glute Kickback','g'],
+        ['Bodyweight Walking Lunge','y'],['Reverse Crunch','y'],['Flutter Kicks','y'],['Oblique Crunches','y'],
+        ['Side Bridge','y'],['Step-up with Knee Raise','y'],['Bent-Knee Hip Raise','y'],['Incline Push-Up Wide','y'],
+        ['Pushups','r'],['Plank','r'],['Mountain Climbers','r'],['Sit-Up','r'],
+        ['Single Leg Glute Bridge','r'],['Bench Dips','r'],['Air Bike','r'],['Scissors Jump','r']] },
   { name:'Build Strength', label:'Mittelstufe', locked:false, sub:'Compound · 🟢 1,5 · 🟡 2 · 🔴 2,5 pro Set',
-    ex:[['Hollow Hold','g'],['Plank to Push-up','g'],['Bear Crawl','g'],['Crab Walk','g'],['Toes-to-Bench','g'],
-        ['Diamond Push-ups','g'],['Pike Push-ups','g'],['Decline Push-ups','g'],['Bulgarian Split Squats','g'],['Cossack Squats','g'],
-        ['Hanging Knee Raises','y'],['Hollow Rocks','y'],['V-Ups','y'],['Commando Plank','y'],['Box Jumps','y'],
-        ['Chin-ups','y'],['Dips','y'],['Archer Push-ups','y'],['Assisted Pistol Squats','y'],['Shrimp Squats','y'],
-        ['Single-Leg Romanian Deadlift','r'],['Broad Jumps','r'],['Skater Jumps','r'],['Tuck Jumps','r'],['Archer Rows','r'],
-        ['Pull-ups','r'],['Pseudo Planche Push-ups','r'],['Assisted Nordic Curl','r'],['Burpee Pull-ups','r'],['Explosive Push-ups','r']] },
+    ex:[['Push-Up Wide','g'],['Incline Push-Up Close-Grip','g'],['Tuck Crunch','g'],['Seated Leg Tucks','g'],
+        ['Double Leg Butt Kick','g'],['Cross-Body Crunch','g'],['Elbow to Knee','g'],['Leg Pull-In','g'],
+        ['Push Up to Side Plank','y'],['Decline Push-Up','y'],['Inverted Row','y'],['Split Jump','y'],
+        ['Rocket Jump','y'],['Standing Long Jump','y'],['Butt-Ups','y'],['Decline Reverse Crunch','y'],
+        ['Dips - Triceps Version','r'],['Chin-Up','r'],['Freehand Jump Squat','r'],['Knee Tuck Jump','r'],
+        ['Russian Twist','r'],['Frog Sit-Ups','r'],['Decline Oblique Crunch','r'],['Bench Jump','r']] },
   { name:'Peak Performance', label:'Fortgeschritten', locked:false, sub:'Advanced · 🟢 2 · 🟡 2,5 · 🔴 3 pro Set',
-    ex:[['Hanging Leg Raises','g'],['L-Sit','g'],['Planche Lean','g'],['Wall Handstand Shoulder Taps','g'],['Front Lever Tuck','g'],
-        ['Toes-to-Bar','g'],['Explosive Pull-ups','g'],['V-Sit','g'],['Back Lever Tuck','g'],['Pistol Squats','g'],
-        ['Handstand Push-ups','y'],['Archer Pull-ups','y'],['Typewriter Pull-ups','y'],['Clap Pull-ups','y'],['Dragon Flag','y'],
-        ['Tuck Planche','y'],['Nordic Curl','y'],['Jumping Pistol Squats','y'],['Handstand Walk','y'],['Shrimp Squats (weighted)','y'],
-        ['Muscle-ups','r'],['One-Arm Push-ups','r'],['Front Lever','r'],['Back Lever','r'],['Human Flag Progression','r'],
-        ['Human Flag','r'],['Advanced Tuck Planche','r'],['Planche Push-up Progression','r'],['Freestanding Handstand Hold','r'],['90° Push-up','r']] },
+    ex:[['Pushups (Close and Wide Hand Positions)','g'],['Janda Sit-Up','g'],['Star Jump','g'],['Lateral Bound','g'],
+        ['Side Jackknife','g'],['Spider Crawl','g'],['Isometric Wipers','g'],['Scapular Pull-Up','g'],
+        ['Push-Ups - Close Triceps Position','y'],['Pullups','y'],['Decline Crunch','y'],['Plyo Push-up','y'],
+        ['Clock Push-Up','y'],['Hyperextensions With No Hyperextension Bench','y'],['Alternate Leg Diagonal Bound','y'],['Side Standing Long Jump','y'],
+        ['Handstand Push-Ups','r'],['Hanging Leg Raise','r'],['Hanging Pike','r'],['Single-Arm Push-Up','r'],
+        ['Body-Up','r'],['Wide-Grip Rear Pull-Up','r'],['Natural Glute Ham Raise','r'],['Gorilla Chin/Crunch','r']] },
   { name:'Elite', label:'Profi', locked:true, sub:'Kommt bald', ex:[] }
 ];
 // Punktwert einer Übung in ihrer Stufe
@@ -1208,7 +1232,7 @@ async function saveNotifPref(key,on){
 // ════════════════════════════════════════════════════════════
 //  RENDERING
 // ════════════════════════════════════════════════════════════
-function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); updateHourglass(); }
+function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); renderTraining(); updateHourglass(); }
 
 // ── Status-Sanduhr im Logo ───────────────────────────────────
 // offen: Sand rieselt · zu spät (ab 20 Uhr): unten voll + ⚠ · in Prüfung: dreht · fertig: steht
@@ -1235,34 +1259,10 @@ function renderLevelProgress(){
     else{pill.className='pill ph';pill.textContent='Noch gesperrt';lbl.style.color='var(--t2)';}
   });
   const el=document.getElementById('level-progress');
-  const p=advanceProgress();
-  if(!p.next){
-    el.innerHTML='<div class="card" style="margin-top:14px;text-align:center;font-size:11px;color:var(--t2)">Du bist auf der höchsten freigeschalteten Stufe — Elite kommt bald.</div>';
-    return;
-  }
-  const row=(label,val,need)=>{
-    const pct=Math.min(100,(val/need)*100), done=val>=need;
-    return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">'
-      +'<span style="color:var(--t1)">'+label+'</span><span style="color:'+(done?'var(--grn)':'var(--t2)')+'">'+Math.min(val,need)+' / '+need+(done?' ✓':'')+'</span></div>'
-      +'<div class="pts-track" style="height:4px"><div class="pts-fill" style="width:'+pct+'%;'+(done?'background:var(--grn)':'')+'"></div></div></div>';
-  };
-  el.innerHTML='<div class="card" style="margin-top:14px">'
-    +'<div class="sh" style="margin-bottom:.7rem"><span class="st" style="font-size:13px">Aufstieg zu „'+EX_DATA[p.next-1].name+'“</span>'
-    +(p.ok?'<button class="btn bp" style="font-size:11px" onclick="levelUp()">Jetzt aufsteigen ↑</button>':'')+'</div>'
-    +row('Vielfalt — Übungen deiner Stufe auf Level 2+',p.variety,ADV_NEED.variety)
-    +row('Härte — davon rote (schwere) Übungen',p.red,ADV_NEED.red)
-    +row('Konstanz — abgeschlossene Einheiten gesamt',p.units,ADV_NEED.units)
-    +'<div style="font-size:10px;color:var(--t2);margin-top:4px">Trainiere breit, nimm regelmäßig rote Übungen mit und bleib dran — dann schaltet sich die nächste Stufe frei.</div></div>';
+  const t=trainState();
+  el.innerHTML='<div class="card" style="margin-top:14px;text-align:center;font-size:11px;color:var(--t2)">Deine Stufe steigt automatisch mit dem Trainingsplan — aktuell Level '+(t.step+1)+' / 9'+(t.goal?'':' · wähle oben dein Ziel')+'.</div>';
 }
-async function levelUp(){
-  const p=advanceProgress();
-  if(!p.ok||!p.next)return;
-  const {error}=await supabase.from('users').update({level:p.next}).eq('id',ST.session.user.id);
-  if(error){showToast('Fehler: '+error.message);return;}
-  ST.profile.level=p.next;
-  closeLvPanel();renderAll();updatePtsUI&&updatePtsUI();
-  showToast('Aufgestiegen! Stufe '+p.next+' — „'+EX_DATA[p.next-1].name+'" ist jetzt aktiv 🎉');
-}
+
 
 function renderDashboard(){
   const rank=myRank();
@@ -1421,37 +1421,55 @@ function renderChip(name,base,idx,cat){
     +'<div class="ex-mini-bar"><div class="ex-mini-fill" style="width:'+(clicks/3)*100+'%"></div></div>';
 }
 
-// ── Kuratierte Set-Vorschläge pro Stufe (erfüllen das 10-Punkte-Ziel) ──
-const PRESETS=[
- [['Ganzkörper Start',{'Squats':2,'Push-ups':2,'Plank':1,'Glute Bridge':2,'Jumping Jacks':2}],
-  ['Core & Stabilität',{'Crunches':2,'Dead Bug':2,'Side Plank':2,'Russian Twists':2,'Bird Dog':1}],
-  ['Cardio Kick',{'Jumping Jacks':2,'High Knees':2,'Mountain Climbers':2,'Burpees':1}]],
- [['Push & Core',{'Diamond Push-ups':2,'Pike Push-ups':2,'V-Ups':2,'Hollow Hold':2}],
-  ['Zug-Tag',{'Chin-ups':2,'Archer Rows':2,'Hanging Knee Raises':2}],
-  ['Beine explosiv',{'Bulgarian Split Squats':2,'Cossack Squats':2,'Box Jumps':2,'Broad Jumps':1}]],
- [['Skill Basics',{'Hanging Leg Raises':2,'L-Sit':2,'Pistol Squats':2,'Toes-to-Bar':1}],
-  ['Push Elite',{'Handstand Push-ups':2,'Planche Lean':2,'One-Arm Push-ups':1,'Tuck Planche':1}],
-  ['Pull Elite',{'Explosive Pull-ups':2,'Archer Pull-ups':2,'Front Lever Tuck':2}]]
-];
-function renderPresets(idx,usable){
-  const row=document.getElementById('preset-row');
-  const ps=PRESETS[idx];
-  if(!ps||!usable){row.innerHTML='';return;}
-  row.innerHTML='<span style="font-size:9px;color:var(--t2);align-self:center">Vorschläge:</span>'
-    +ps.map((p,i)=>'<button class="preset-chip" onclick="applyPreset('+idx+','+i+')">'+p[0]+'</button>').join('');
+// ── Trainingsplan: Ziele + gelevelte Routinen (Public-Domain-Übungen) ──
+const ROUTINES={"fullbody": {"label": "Ganzkörper", "steps": [{"sets": {"Bodyweight Squat": 1, "Pushups": 2, "Butt Lift (Bridge)": 1, "Mountain Climbers": 1, "Crunches": 1, "Bodyweight Walking Lunge": 1}, "pts": 10.5}, {"sets": {"Bodyweight Squat": 1, "Pushups": 2, "Butt Lift (Bridge)": 1, "Mountain Climbers": 2, "Crunches": 1, "Bodyweight Walking Lunge": 1}, "pts": 12.5}, {"sets": {"Bodyweight Squat": 2, "Pushups": 2, "Butt Lift (Bridge)": 1, "Mountain Climbers": 2, "Crunches": 1, "Bodyweight Walking Lunge": 2}, "pts": 15.0}, {"sets": {"Push-Up Wide": 1, "Inverted Row": 1, "Freehand Jump Squat": 1, "Russian Twist": 1, "Split Jump": 1, "Tuck Crunch": 1}, "pts": 12.0}, {"sets": {"Push-Up Wide": 1, "Inverted Row": 1, "Freehand Jump Squat": 2, "Russian Twist": 1, "Split Jump": 1, "Tuck Crunch": 1}, "pts": 14.5}, {"sets": {"Push-Up Wide": 1, "Inverted Row": 1, "Freehand Jump Squat": 2, "Russian Twist": 2, "Split Jump": 1, "Tuck Crunch": 1}, "pts": 17.0}, {"sets": {"Pullups": 1, "Plyo Push-up": 1, "Hanging Leg Raise": 1, "Star Jump": 1, "Single-Arm Push-Up": 1, "Janda Sit-Up": 1}, "pts": 15.0}, {"sets": {"Pullups": 1, "Plyo Push-up": 1, "Hanging Leg Raise": 1, "Star Jump": 1, "Single-Arm Push-Up": 1, "Janda Sit-Up": 1}, "pts": 15.0}, {"sets": {"Pullups": 1, "Plyo Push-up": 1, "Hanging Leg Raise": 2, "Star Jump": 1, "Single-Arm Push-Up": 1, "Janda Sit-Up": 1}, "pts": 18.0}]}, "core": {"label": "Bauch & Core", "steps": [{"sets": {"Crunches": 1, "Dead Bug": 1, "Reverse Crunch": 1, "Flutter Kicks": 1, "Side Bridge": 1, "Air Bike": 2}, "pts": 10.5}, {"sets": {"Crunches": 1, "Dead Bug": 1, "Reverse Crunch": 2, "Flutter Kicks": 2, "Side Bridge": 1, "Air Bike": 2}, "pts": 13.5}, {"sets": {"Crunches": 1, "Dead Bug": 1, "Reverse Crunch": 2, "Flutter Kicks": 2, "Side Bridge": 2, "Air Bike": 2}, "pts": 15.0}, {"sets": {"Tuck Crunch": 1, "Cross-Body Crunch": 1, "Butt-Ups": 1, "Decline Reverse Crunch": 1, "Russian Twist": 1, "Frog Sit-Ups": 1}, "pts": 12.0}, {"sets": {"Tuck Crunch": 1, "Cross-Body Crunch": 1, "Butt-Ups": 1, "Decline Reverse Crunch": 1, "Russian Twist": 2, "Frog Sit-Ups": 1}, "pts": 14.5}, {"sets": {"Tuck Crunch": 1, "Cross-Body Crunch": 1, "Butt-Ups": 1, "Decline Reverse Crunch": 1, "Russian Twist": 2, "Frog Sit-Ups": 2}, "pts": 17.0}, {"sets": {"Side Jackknife": 1, "Janda Sit-Up": 1, "Decline Crunch": 1, "Hanging Leg Raise": 1, "Hanging Pike": 1, "Gorilla Chin/Crunch": 1}, "pts": 15.5}, {"sets": {"Side Jackknife": 1, "Janda Sit-Up": 1, "Decline Crunch": 1, "Hanging Leg Raise": 1, "Hanging Pike": 1, "Gorilla Chin/Crunch": 1}, "pts": 15.5}, {"sets": {"Side Jackknife": 1, "Janda Sit-Up": 1, "Decline Crunch": 1, "Hanging Leg Raise": 2, "Hanging Pike": 1, "Gorilla Chin/Crunch": 1}, "pts": 18.5}]}, "upper": {"label": "Oberkörper", "steps": [{"sets": {"Incline Push-Up": 1, "Pushups": 2, "Bench Dips": 1, "Plank": 1, "Incline Push-Up Wide": 1, "Side Bridge": 1}, "pts": 12.0}, {"sets": {"Incline Push-Up": 1, "Pushups": 2, "Bench Dips": 2, "Plank": 1, "Incline Push-Up Wide": 1, "Side Bridge": 1}, "pts": 14.0}, {"sets": {"Incline Push-Up": 1, "Pushups": 2, "Bench Dips": 2, "Plank": 1, "Incline Push-Up Wide": 1, "Side Bridge": 1}, "pts": 14.0}, {"sets": {"Push-Up Wide": 1, "Decline Push-Up": 1, "Push Up to Side Plank": 1, "Inverted Row": 1, "Dips - Triceps Version": 1, "Chin-Up": 1}, "pts": 12.5}, {"sets": {"Push-Up Wide": 1, "Decline Push-Up": 1, "Push Up to Side Plank": 1, "Inverted Row": 1, "Dips - Triceps Version": 1, "Chin-Up": 1}, "pts": 12.5}, {"sets": {"Push-Up Wide": 1, "Decline Push-Up": 1, "Push Up to Side Plank": 1, "Inverted Row": 1, "Dips - Triceps Version": 2, "Chin-Up": 1}, "pts": 15.0}, {"sets": {"Pushups (Close and Wide Hand Positions)": 1, "Push-Ups - Close Triceps Position": 1, "Plyo Push-up": 1, "Clock Push-Up": 1, "Pullups": 1, "Handstand Push-Ups": 1}, "pts": 15.0}, {"sets": {"Pushups (Close and Wide Hand Positions)": 1, "Push-Ups - Close Triceps Position": 1, "Plyo Push-up": 1, "Clock Push-Up": 1, "Pullups": 1, "Handstand Push-Ups": 1}, "pts": 15.0}, {"sets": {"Pushups (Close and Wide Hand Positions)": 1, "Push-Ups - Close Triceps Position": 1, "Plyo Push-up": 1, "Clock Push-Up": 1, "Pullups": 1, "Handstand Push-Ups": 2}, "pts": 18.0}]}, "lower": {"label": "Beine & Po", "steps": [{"sets": {"Bodyweight Squat": 1, "Butt Lift (Bridge)": 1, "Bodyweight Walking Lunge": 1, "Step-up with Knee Raise": 1, "Single Leg Glute Bridge": 2, "Scissors Jump": 1}, "pts": 11.0}, {"sets": {"Bodyweight Squat": 1, "Butt Lift (Bridge)": 1, "Bodyweight Walking Lunge": 1, "Step-up with Knee Raise": 1, "Single Leg Glute Bridge": 2, "Scissors Jump": 2}, "pts": 13.0}, {"sets": {"Bodyweight Squat": 1, "Butt Lift (Bridge)": 1, "Bodyweight Walking Lunge": 2, "Step-up with Knee Raise": 1, "Single Leg Glute Bridge": 2, "Scissors Jump": 2}, "pts": 14.5}, {"sets": {"Double Leg Butt Kick": 1, "Split Jump": 1, "Rocket Jump": 1, "Standing Long Jump": 1, "Freehand Jump Squat": 1, "Knee Tuck Jump": 1}, "pts": 12.5}, {"sets": {"Double Leg Butt Kick": 1, "Split Jump": 1, "Rocket Jump": 1, "Standing Long Jump": 1, "Freehand Jump Squat": 1, "Knee Tuck Jump": 1}, "pts": 12.5}, {"sets": {"Double Leg Butt Kick": 1, "Split Jump": 1, "Rocket Jump": 1, "Standing Long Jump": 1, "Freehand Jump Squat": 2, "Knee Tuck Jump": 1}, "pts": 15.0}, {"sets": {"Star Jump": 1, "Lateral Bound": 1, "Alternate Leg Diagonal Bound": 1, "Side Standing Long Jump": 1, "Natural Glute Ham Raise": 1, "Hyperextensions With No Hyperextension Bench": 1}, "pts": 14.5}, {"sets": {"Star Jump": 1, "Lateral Bound": 1, "Alternate Leg Diagonal Bound": 1, "Side Standing Long Jump": 1, "Natural Glute Ham Raise": 1, "Hyperextensions With No Hyperextension Bench": 1}, "pts": 14.5}, {"sets": {"Star Jump": 1, "Lateral Bound": 1, "Alternate Leg Diagonal Bound": 1, "Side Standing Long Jump": 1, "Natural Glute Ham Raise": 2, "Hyperextensions With No Hyperextension Bench": 1}, "pts": 17.5}]}};
+const GOAL_ICONS={fullbody:'💪',core:'🎯',upper:'🏋',lower:'🦵'};
+const ROUTINE_NEED=5; // Einheiten pro Schritt, dann Level-up
+let routineActive=false;
+
+function trainState(){return Object.assign({goal:null,step:0,done:0},ST.profile.training||{});}
+function renderTraining(){
+  const row=document.getElementById('goal-row'),card=document.getElementById('routine-card');
+  if(!row)return;
+  const t=trainState();
+  row.innerHTML=Object.entries(ROUTINES).map(([g,r])=>
+    '<button class="goal-chip'+(t.goal===g?' active':'')+'" onclick="chooseGoal(\''+g+'\')"><span class="gc-ic">'+GOAL_ICONS[g]+'</span>'+r.label+'</button>').join('');
+  document.getElementById('tp-badge').textContent='Level '+(t.step+1)+' / 9';
+  if(!t.goal){card.innerHTML='<div class="card" style="text-align:center;font-size:11px;color:var(--t2);padding:1.2rem">Wähle dein Ziel — dein Plan levelt automatisch mit.</div>';return;}
+  const tier=Math.floor(t.step/3), r=ROUTINES[t.goal].steps[t.step];
+  const rows=Object.entries(r.sets).map(([n,s])=>{
+    const id=EXDB[n];
+    const thumb=id?'<img class="rt-thumb" src="'+EXDB_BASE+id+'/0.jpg" loading="lazy">':'<span class="rt-thumb"></span>';
+    return '<div class="rt-row" onclick="openExInfo(\''+n.replace(/'/g,"\\'")+'\')">'+thumb+'<span class="rt-name">'+n+'</span><span class="rt-sets">'+s+'×</span></div>';
+  }).join('');
+  const canRec=!ST.todayUnit&&(tier+1)<=ST.profile.level;
+  card.innerHTML='<div class="card">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +'<span style="font-size:13px;font-weight:700;color:var(--t0)">'+ROUTINES[t.goal].label+' · '+EX_DATA[tier].name+'</span>'
+    +'<span class="pill ph">'+r.pts+' <span class="coin"></span></span></div>'
+    +rows
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px">'
+    +'<div style="flex:1"><div style="font-size:9px;color:var(--t2);margin-bottom:3px">Noch '+(ROUTINE_NEED-t.done)+' Einheiten bis zum nächsten Level</div>'
+    +'<div class="pts-track" style="height:4px"><div class="pts-fill" style="width:'+(t.done/ROUTINE_NEED*100)+'%"></div></div></div>'
+    +'<button class="btn bp" style="font-size:11px'+(canRec?'':';opacity:.4;pointer-events:none')+'" onclick="startRoutine()">Diese Einheit aufnehmen</button>'
+    +'</div></div>';
 }
-function applyPreset(idx,i){
-  if(ST.todayUnit){showToast('Heutige Einheit ist bereits aufgenommen');return;}
-  const p=PRESETS[idx][i];
+async function chooseGoal(g){
+  const t=trainState();t.goal=g;
+  ST.profile.training=t;
+  await supabase.from('users').update({training:t}).eq('id',ST.session.user.id);
+  renderTraining();
+}
+function startRoutine(){
+  const t=trainState();if(!t.goal||ST.todayUnit)return;
+  const tier=Math.floor(t.step/3), r=ROUTINES[t.goal].steps[t.step];
   unitSel={};
-  const lv=EX_DATA[idx];
-  for(const [name,clicks] of Object.entries(p[1])){
-    const e=lv.ex.find(x=>x[0]===name);if(!e)continue;
-    unitSel[name]={clicks,base:exBasePts(idx,e[1]),cat:e[1]};
+  for(const [n,s] of Object.entries(r.sets)){
+    const e=EX_DATA[tier].ex.find(x=>x[0]===n);if(!e)continue;
+    unitSel[n]={clicks:s,base:exBasePts(tier,e[1]),cat:e[1]};
   }
-  lv.ex.forEach(([n,c],j)=>renderChip(n,exBasePts(idx,c),j,c));
-  updatePtsUI();
-  showToast(p[0]+' geladen — '+Math.round(unitPts()*10)/10+' Punkte');
+  routineActive=true;
+  startRecording();
 }
 
 function openLevel(idx){
@@ -1476,7 +1494,6 @@ function openLevel(idx){
       renderChip(n,b,i,c);
     });
   }
-  renderPresets(idx,isUsable&&lv.ex.length>0);
   updatePtsUI();
   document.getElementById('lv-panel').classList.add('open');
   document.getElementById('lv-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1512,6 +1529,8 @@ function renderCamRail(){
   document.getElementById('cam-ex-sub').textContent=cur?('Set '+Math.min(cur.done+1,cur.sets)+' von '+cur.sets):'Einheit bestätigen, um abzuschließen';
   const btnTxt=document.getElementById('cam-main-txt');
   if(btnTxt)btnTxt.textContent=camAllDone()?'Einheit bestätigen':'Set geschafft';
+  const skip=document.getElementById('cam-skip-btn');
+  if(skip)skip.style.display=camAllDone()?'none':'inline-flex';
   // Set-Fortschritt als Segmente (ein Segment pro Set)
   const total=camQueue.reduce((s,q)=>s+q.sets,0);
   const done=camQueue.reduce((s,q)=>s+q.done,0);
@@ -1523,43 +1542,78 @@ function renderCamRail(){
 // ── Übungsbilder: free-exercise-db (Public Domain), 2 Frames im Wechsel ──
 const EXDB_BASE='https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/';
 const EXDB={
-"Squats":"Bodyweight_Squat",
-"Wall Push-ups":"Incline_Push-Up",
-"Incline Push-ups":"Incline_Push-Up",
-"Glute Bridge":"Butt_Lift_Bridge",
-"Calf Raises":"Standing_Calf_Raises",
-"Dead Bug":"Dead_Bug",
+"Bodyweight Squat":"Bodyweight_Squat",
+"Butt Lift (Bridge)":"Butt_Lift_Bridge",
 "Crunches":"Crunches",
-"Leg Lifts":"Flat_Bench_Lying_Leg_Raise",
-"Assisted Push-ups":"Push-Ups_With_Feet_Elevated",
-"Reverse Lunges":"Crossover_Reverse_Lunge",
-"Walking Lunges":"Bodyweight_Walking_Lunge",
-"Step-ups":"Step-up_with_Knee_Raise",
-"Single-Leg Glute Bridge":"Single_Leg_Glute_Bridge",
-"Side Plank":"Push_Up_to_Side_Plank",
-"Bicycle Crunches":"Air_Bike",
-"Russian Twists":"Russian_Twist",
-"Push-ups":"Pushups",
-"Australian Pull-ups":"Inverted_Row",
-"Inverted Row":"Inverted_Row",
-"Assisted Pull-ups":"Band_Assisted_Pull-Up",
+"Dead Bug":"Dead_Bug",
+"Leg Lift":"Leg_Lift",
+"Incline Push-Up":"Incline_Push-Up",
+"Alternate Heel Touchers":"Alternate_Heel_Touchers",
+"Glute Kickback":"Glute_Kickback",
+"Bodyweight Walking Lunge":"Bodyweight_Walking_Lunge",
+"Reverse Crunch":"Reverse_Crunch",
+"Flutter Kicks":"Flutter_Kicks",
+"Oblique Crunches":"Oblique_Crunches",
+"Side Bridge":"Side_Bridge",
+"Step-up with Knee Raise":"Step-up_with_Knee_Raise",
+"Bent-Knee Hip Raise":"Bent-Knee_Hip_Raise",
+"Incline Push-Up Wide":"Incline_Push-Up_Wide",
+"Pushups":"Pushups",
 "Plank":"Plank",
-"Superman Hold":"Superman",
 "Mountain Climbers":"Mountain_Climbers",
-"Pike Push-ups":"Handstand_Push-Ups",
-"Decline Push-ups":"Decline_Push-Up",
-"V-Ups":"Jackknife_Sit-Up",
-"Box Jumps":"Front_Box_Jump",
-"Chin-ups":"Chin-Up",
-"Dips":"Dips_-_Triceps_Version",
-"Tuck Jumps":"Knee_Tuck_Jump",
-"Pull-ups":"Pullups",
-"Hanging Leg Raises":"Hanging_Leg_Raise",
-"Toes-to-Bar":"Hanging_Pike",
-"Pistol Squats":"Kettlebell_Pistol_Squat",
-"Handstand Push-ups":"Handstand_Push-Ups",
-"Muscle-ups":"Muscle_Up",
-"90° Push-up":"Plyo_Push-up"
+"Sit-Up":"Sit-Up",
+"Single Leg Glute Bridge":"Single_Leg_Glute_Bridge",
+"Bench Dips":"Bench_Dips",
+"Air Bike":"Air_Bike",
+"Scissors Jump":"Scissors_Jump",
+"Push-Up Wide":"Push-Up_Wide",
+"Incline Push-Up Close-Grip":"Incline_Push-Up_Close-Grip",
+"Tuck Crunch":"Tuck_Crunch",
+"Seated Leg Tucks":"Seated_Leg_Tucks",
+"Double Leg Butt Kick":"Double_Leg_Butt_Kick",
+"Cross-Body Crunch":"Cross-Body_Crunch",
+"Elbow to Knee":"Elbow_to_Knee",
+"Leg Pull-In":"Leg_Pull-In",
+"Push Up to Side Plank":"Push_Up_to_Side_Plank",
+"Decline Push-Up":"Decline_Push-Up",
+"Inverted Row":"Inverted_Row",
+"Split Jump":"Split_Jump",
+"Rocket Jump":"Rocket_Jump",
+"Standing Long Jump":"Standing_Long_Jump",
+"Butt-Ups":"Butt-Ups",
+"Decline Reverse Crunch":"Decline_Reverse_Crunch",
+"Dips - Triceps Version":"Dips_-_Triceps_Version",
+"Chin-Up":"Chin-Up",
+"Freehand Jump Squat":"Freehand_Jump_Squat",
+"Knee Tuck Jump":"Knee_Tuck_Jump",
+"Russian Twist":"Russian_Twist",
+"Frog Sit-Ups":"Frog_Sit-Ups",
+"Decline Oblique Crunch":"Decline_Oblique_Crunch",
+"Bench Jump":"Bench_Jump",
+"Pushups (Close and Wide Hand Positions)":"Pushups_Close_and_Wide_Hand_Positions",
+"Janda Sit-Up":"Janda_Sit-Up",
+"Star Jump":"Star_Jump",
+"Lateral Bound":"Lateral_Bound",
+"Side Jackknife":"Side_Jackknife",
+"Spider Crawl":"Spider_Crawl",
+"Isometric Wipers":"Isometric_Wipers",
+"Scapular Pull-Up":"Scapular_Pull-Up",
+"Push-Ups - Close Triceps Position":"Push-Ups_-_Close_Triceps_Position",
+"Pullups":"Pullups",
+"Decline Crunch":"Decline_Crunch",
+"Plyo Push-up":"Plyo_Push-up",
+"Clock Push-Up":"Clock_Push-Up",
+"Hyperextensions With No Hyperextension Bench":"Hyperextensions_With_No_Hyperextension_Bench",
+"Alternate Leg Diagonal Bound":"Alternate_Leg_Diagonal_Bound",
+"Side Standing Long Jump":"Side_Standing_Long_Jump",
+"Handstand Push-Ups":"Handstand_Push-Ups",
+"Hanging Leg Raise":"Hanging_Leg_Raise",
+"Hanging Pike":"Hanging_Pike",
+"Single-Arm Push-Up":"Single-Arm_Push-Up",
+"Body-Up":"Body-Up",
+"Wide-Grip Rear Pull-Up":"Wide-Grip_Rear_Pull-Up",
+"Natural Glute Ham Raise":"Natural_Glute_Ham_Raise",
+"Gorilla Chin/Crunch":"Gorilla_Chin_Crunch"
 };
 function exAnimHtml(name,cls){
   const id=EXDB[name];
@@ -1569,7 +1623,78 @@ function exAnimHtml(name,cls){
 
 // ── Kurzbeschreibungen (Basis Deutsch — Übersetzung folgt via i18n) ──
 const EX_DESC={
-"Squats":"Füße schulterbreit, Hüfte tief nach hinten-unten, Rücken gerade.","Wall Push-ups":"Liegestütz im Stehen gegen die Wand — Körper gerade, Arme beugen.","Incline Push-ups":"Liegestütz mit erhöhten Händen (Bank/Tisch), Körper in Linie.","Glute Bridge":"Rückenlage, Füße aufgestellt, Hüfte hochdrücken, Po anspannen.","Calf Raises":"Im Stand auf die Zehenspitzen drücken, langsam absenken.","Dead Bug":"Rückenlage — gegenüberliegenden Arm und Bein strecken, Rumpf stabil.","Bird Dog":"Vierfüßler — gegenüberliegenden Arm und Bein strecken, Rücken gerade.","Crunches":"Rückenlage, Schulterblätter anheben, Bauch anspannen — ohne Schwung.","Leg Lifts":"Rückenlage, gestreckte Beine heben und langsam senken.","Jumping Jacks":"Hampelmann: Beine grätschen, Arme über den Kopf, im Rhythmus.","Assisted Push-ups":"Liegestütz auf den Knien oder mit Unterstützung.","Reverse Lunges":"Schritt nach hinten, Knie tief, vorderes Bein drückt hoch.","Walking Lunges":"Ausfallschritte im Gehen, Oberkörper aufrecht.","Side Lunges":"Seitlicher Ausfallschritt, Gewicht auf der gebeugten Seite.","Step-ups":"Auf eine Erhöhung steigen, Bein ganz strecken, kontrolliert runter.","Single-Leg Glute Bridge":"Glute Bridge einbeinig, Hüfte bleibt gerade.","Wall Sit":"Rücken an der Wand, Knie 90 Grad, halten.","Side Plank":"Seitstütz auf dem Unterarm, Hüfte oben halten.","Bicycle Crunches":"Ellbogen zum gegenüberliegenden Knie, Beine treten in der Luft.","Russian Twists":"Sitz, Oberkörper leicht zurück, kontrolliert von Seite zu Seite drehen.","Push-ups":"Hände unter den Schultern, Körper in Linie, Brust zum Boden.","Australian Pull-ups":"Rudern an niedriger Stange, Körper gerade, Brust zur Stange.","Inverted Row":"Horizontal unter der Stange ziehen, Schulterblätter zusammen.","Assisted Pull-ups":"Klimmzug mit Band- oder Stuhl-Unterstützung.","Assisted Chin-ups":"Klimmzug im Untergriff mit Unterstützung.","Plank":"Unterarmstütz, Körper in einer Linie, Bauch fest.","Superman Hold":"Bauchlage, Arme und Beine anheben und halten.","Mountain Climbers":"Stützposition, Knie abwechselnd schnell zur Brust.","High Knees":"Laufen auf der Stelle, Knie auf Hüfthöhe.","Burpees":"Liegestütz, aufspringen, Strecksprung — eine flüssige Bewegung.","Hollow Hold":"Rückenlage, Arme/Beine gestreckt anheben, unterer Rücken bleibt am Boden.","Plank to Push-up":"Vom Unterarmstütz in den Liegestütz wechseln, Hüfte stabil.","Bear Crawl":"Vierfüßlergang, Knie knapp über dem Boden.","Crab Walk":"Rückwärts-Vierfüßler, Hüfte oben, laufen.","Toes-to-Bench":"Im Stütz die Zehen zur Bank führen.","Diamond Push-ups":"Liegestütz mit engen Händen (Dreieck) — Trizeps.","Pike Push-ups":"Hüfte hoch (V-Form), Kopf Richtung Boden — Schultern.","Decline Push-ups":"Liegestütz mit erhöhten Füßen.","Bulgarian Split Squats":"Hinterer Fuß erhöht, tiefe Kniebeuge vorn.","Cossack Squats":"Tiefe seitliche Kniebeuge, anderes Bein gestreckt.","Hanging Knee Raises":"Hängend die Knie zur Brust ziehen, ohne Schwung.","Hollow Rocks":"In Hollow-Position kontrolliert schaukeln.","V-Ups":"Arme und Beine gleichzeitig zur Mitte — V-Form.","Commando Plank":"Plank, abwechselnd auf Unterarme und Hände.","Box Jumps":"Explosiv auf die Box springen, weich landen.","Chin-ups":"Klimmzug im Untergriff, Kinn über die Stange.","Dips":"Am Barren abstützen, Arme tief beugen und strecken.","Archer Push-ups":"Breiter Liegestütz — ein Arm beugt, der andere bleibt gestreckt.","Assisted Pistol Squats":"Einbeinige Kniebeuge mit Festhalten.","Shrimp Squats":"Einbeinige Kniebeuge, hinteres Bein gegriffen.","Single-Leg Romanian Deadlift":"Standwaage: Hüfte beugt, hinteres Bein streckt nach hinten.","Broad Jumps":"Weitsprung aus dem Stand, weich landen.","Skater Jumps":"Seitliche Sprünge von Bein zu Bein.","Tuck Jumps":"Sprung mit Knien zur Brust.","Archer Rows":"Einseitiges Rudern, der andere Arm bleibt gestreckt.","Pull-ups":"Klimmzug im Obergriff, Brust Richtung Stange.","Pseudo Planche Push-ups":"Liegestütz mit Händen an der Hüfte, Schultern weit vorgelehnt.","Assisted Nordic Curl":"Kniend langsam nach vorn ablassen — Beinbeuger bremst, mit Unterstützung.","Burpee Pull-ups":"Burpee und direkt danach ein Klimmzug.","Explosive Push-ups":"Liegestütz, Hände lösen sich explosiv vom Boden.","Hanging Leg Raises":"Hängend gestreckte Beine bis zur Waagerechten heben.","L-Sit":"Im Stütz die gestreckten Beine vorn halten — L-Form.","Planche Lean":"Im Stütz die Schultern weit über die Hände lehnen.","Wall Handstand Shoulder Taps":"Handstand an der Wand, abwechselnd die Schultern antippen.","Front Lever Tuck":"An der Stange, Rücken waagerecht, Knie angezogen.","Toes-to-Bar":"Hängend die Zehen zur Stange führen.","Explosive Pull-ups":"Maximal explosiver Klimmzug — Brust bis zur Stange.","V-Sit":"L-Sit mit höher angehobenen, gestreckten Beinen.","Back Lever Tuck":"Rücklings waagerecht an der Stange, Knie angezogen.","Pistol Squats":"Einbeinige tiefe Kniebeuge, freies Bein gestreckt.","Handstand Push-ups":"Liegestütz im Handstand (an der Wand).","Archer Pull-ups":"Klimmzug zur Seite, ein Arm bleibt fast gestreckt.","Typewriter Pull-ups":"Oben an der Stange seitlich hin- und herschieben.","Clap Pull-ups":"Explosiver Klimmzug mit Klatschen.","Dragon Flag":"Schultern aufgestützt, gestreckten Körper langsam absenken.","Tuck Planche":"Freier Stütz, Knie angezogen, Füße ohne Bodenkontakt.","Nordic Curl":"Kniend kontrolliert nach vorn ablassen — Beinbeuger.","Jumping Pistol Squats":"Pistol Squat mit explosivem Absprung.","Handstand Walk":"Im Handstand gehen.","Shrimp Squats (weighted)":"Shrimp Squat mit Zusatzgewicht.","Muscle-ups":"Klimmzug mit Umgreifen in den Stütz über der Stange.","One-Arm Push-ups":"Einarmiger Liegestütz, Beine weit.","Front Lever":"Körper waagerecht vorn an der Stange, komplett gestreckt.","Back Lever":"Körper waagerecht rücklings an der Stange, gestreckt.","Human Flag Progression":"Flaggen-Vorstufen an der Stange mit angezogenen Beinen.","Human Flag":"Körper seitlich waagerecht an der vertikalen Stange.","Advanced Tuck Planche":"Planche mit leicht geöffneter Hüfte.","Planche Push-up Progression":"Liegestütz-Vorstufen Richtung Planche.","Freestanding Handstand Hold":"Freier Handstand ohne Wand.","90° Push-up":"Explosiver Liegestütz mit Absenken in die 90-Grad-Halte."
+"Bodyweight Squat":"Füße schulterbreit, Hüfte tief nach hinten-unten, Rücken gerade.",
+"Butt Lift (Bridge)":"Rückenlage, Füße aufgestellt, Hüfte hochdrücken, Po anspannen.",
+"Crunches":"Schulterblätter anheben, Bauch anspannen — ohne Schwung.",
+"Dead Bug":"Rückenlage — gegenüberliegenden Arm und Bein strecken, Rumpf stabil.",
+"Leg Lift":"In Seiten-/Rückenlage das Bein kontrolliert heben und senken.",
+"Incline Push-Up":"Liegestütz mit erhöhten Händen (Bank/Tisch), Körper in Linie.",
+"Alternate Heel Touchers":"Rückenlage, seitlich abwechselnd die Fersen antippen.",
+"Glute Kickback":"Vierfüßler, ein Bein kontrolliert nach hinten-oben strecken.",
+"Bodyweight Walking Lunge":"Ausfallschritte im Gehen, Oberkörper aufrecht.",
+"Reverse Crunch":"Rückenlage, Becken einrollen, Knie zur Brust.",
+"Flutter Kicks":"Rückenlage, gestreckte Beine klein und schnell auf/ab.",
+"Oblique Crunches":"Schräge Crunches — Ellbogen Richtung gegenüberliegendes Knie.",
+"Side Bridge":"Seitstütz auf dem Unterarm, Hüfte oben halten.",
+"Step-up with Knee Raise":"Auf Erhöhung steigen und das freie Knie hochziehen.",
+"Bent-Knee Hip Raise":"Rückenlage, Knie gebeugt, Becken anheben und einrollen.",
+"Incline Push-Up Wide":"Erhöhter Liegestütz mit weitem Griff — Brust.",
+"Pushups":"Hände unter den Schultern, Körper in Linie, Brust zum Boden.",
+"Plank":"Unterarmstütz, Körper in einer Linie, Bauch fest.",
+"Mountain Climbers":"Stützposition, Knie abwechselnd schnell zur Brust.",
+"Sit-Up":"Rückenlage, Oberkörper komplett aufrollen, kontrolliert ablegen.",
+"Single Leg Glute Bridge":"Glute Bridge einbeinig, Hüfte bleibt gerade.",
+"Bench Dips":"Hände auf der Bank hinter dir, Arme tief beugen und strecken.",
+"Air Bike":"Ellbogen zum gegenüberliegenden Knie, Beine treten in der Luft.",
+"Scissors Jump":"Sprung-Ausfallschritte — in der Luft Beine wechseln.",
+"Push-Up Wide":"Liegestütz mit weitem Griff — Brust im Fokus.",
+"Incline Push-Up Close-Grip":"Erhöhter Liegestütz, Hände eng — Trizeps.",
+"Tuck Crunch":"Crunch mit angezogenen Knien, Ellbogen zu den Knien.",
+"Seated Leg Tucks":"Im Sitz Beine anziehen und strecken, Oberkörper leicht zurück.",
+"Double Leg Butt Kick":"Beidbeiniger Sprung, Fersen zum Po.",
+"Cross-Body Crunch":"Ellbogen diagonal zum gegenüberliegenden Knie.",
+"Elbow to Knee":"Seitlicher Crunch — Ellbogen und Knie zusammenführen.",
+"Leg Pull-In":"Rückenlage/Stütz, Knie kontrolliert zur Brust ziehen.",
+"Push Up to Side Plank":"Liegestütz, danach in den Seitstütz aufdrehen.",
+"Decline Push-Up":"Liegestütz mit erhöhten Füßen — obere Brust/Schultern.",
+"Inverted Row":"Horizontal unter der Stange ziehen, Schulterblätter zusammen.",
+"Split Jump":"Ausfallschritt-Sprung mit Beinwechsel in der Luft.",
+"Rocket Jump":"Aus der Hocke maximal nach oben strecken und springen.",
+"Standing Long Jump":"Weitsprung aus dem Stand, weich landen.",
+"Butt-Ups":"Aus dem Unterarmstütz die Hüfte zum Dach schieben.",
+"Decline Reverse Crunch":"Reverse Crunch auf Schrägbank — Becken einrollen.",
+"Dips - Triceps Version":"Am Barren abstützen, aufrecht, Arme tief beugen und strecken.",
+"Chin-Up":"Klimmzug im Untergriff, Kinn über die Stange.",
+"Freehand Jump Squat":"Kniebeuge mit explosivem Absprung, weich landen.",
+"Knee Tuck Jump":"Sprung mit Knien zur Brust.",
+"Russian Twist":"Sitz, Oberkörper leicht zurück, kontrolliert von Seite zu Seite drehen.",
+"Frog Sit-Ups":"Sit-Up mit Fußsohlen aneinander, Knie offen.",
+"Decline Oblique Crunch":"Schräger Crunch auf der Schrägbank.",
+"Bench Jump":"Beidbeinig über/auf die Bank springen.",
+"Pushups (Close and Wide Hand Positions)":"Liegestütz-Wechsel zwischen engem und weitem Griff.",
+"Janda Sit-Up":"Sit-Up mit angespannten Beinbeugern — strikt und langsam.",
+"Star Jump":"Explosiver Sprung, Arme und Beine zum Stern gespreizt.",
+"Lateral Bound":"Seitlicher Sprung von Bein zu Bein, stabil landen.",
+"Side Jackknife":"Seitliches Klappmesser — Bein und Oberkörper zusammenführen.",
+"Spider Crawl":"Krabbeln im Stütz, Knie seitlich zum Ellbogen.",
+"Isometric Wipers":"Im Stütz Gewicht kontrolliert von Hand zu Hand verlagern.",
+"Scapular Pull-Up":"An der Stange hängend nur die Schulterblätter ziehen.",
+"Push-Ups - Close Triceps Position":"Liegestütz eng, Ellbogen am Körper — Trizeps.",
+"Pullups":"Klimmzug im Obergriff, Brust Richtung Stange.",
+"Decline Crunch":"Crunch auf der Schrägbank.",
+"Plyo Push-up":"Explosiver Liegestütz, Hände lösen sich vom Boden.",
+"Clock Push-Up":"Liegestütz, Hände wandern schrittweise im Kreis.",
+"Hyperextensions With No Hyperextension Bench":"Bauchlage, Oberkörper anheben — unterer Rücken.",
+"Alternate Leg Diagonal Bound":"Diagonale Sprünge von Bein zu Bein.",
+"Side Standing Long Jump":"Weitsprung seitlich aus dem Stand.",
+"Handstand Push-Ups":"Liegestütz im Handstand (an der Wand).",
+"Hanging Leg Raise":"Hängend gestreckte Beine bis zur Waagerechten heben.",
+"Hanging Pike":"Hängend die Zehen bis zur Stange führen.",
+"Single-Arm Push-Up":"Einarmiger Liegestütz, Beine weit.",
+"Body-Up":"Vom Unterarmstütz in den Streckstütz drücken.",
+"Wide-Grip Rear Pull-Up":"Klimmzug weit, Stange in den Nacken — nur mit guter Mobilität.",
+"Natural Glute Ham Raise":"Kniend kontrolliert nach vorn ablassen — Beinbeuger.",
+"Gorilla Chin/Crunch":"Klimmzug im Untergriff mit gleichzeitigem Knie-Crunch."
 };
 let exInfoName=null;
 function openExInfo(name){
@@ -1671,14 +1796,24 @@ function camSetDone(){
   camMarks.push({ex:cur.name,set:cur.done,t:camSecs,pose:poseSnapshot()}); // Zeitmarke + KI-Check des Sets
   if(cur.done>=cur.sets)camIdx++;
   renderCamRail();
-  // nach jedem Set: Satzpause mit Ankuendigung der naechsten Uebung
-  if(!camAllDone()&&(ST.profile.rest_secs??60)>0)startRest();
+  // nach jedem Set: Satzpause proportional zur Schwere der Übung
+  if(!camAllDone()&&(ST.profile.rest_secs??60)>0){
+    const cat=(unitSel[cur.name]||{}).cat||'y';
+    const f={g:.75,y:1,r:1.25}[cat]||1;
+    startRest(Math.max(15,Math.round((ST.profile.rest_secs??60)*f/5)*5));
+  }
+}
+// Übung überspringen (Sets bleiben ungezählt — Prüfer sehen nur Gezeigtes)
+function camSkipExercise(){
+  if(camRest>0||camAllDone())return;
+  camIdx++;
+  renderCamRail();
 }
 function camAllDone(){return camIdx>=camQueue.length;}
 
 // ── Satzpause: Aufnahme pausiert, Pause landet nicht im Video ──
-function startRest(){
-  camRest=ST.profile.rest_secs??60;
+function startRest(secs){
+  camRest=secs??(ST.profile.rest_secs??60);
   if(camRecorder&&camRecorder.state==='recording')camRecorder.pause();
   clearInterval(camTimerInt);camTimerInt=null; // Video-Zeit friert mit ein
   updateRestUI();
@@ -1745,6 +1880,11 @@ function updatePoseLight(){
   vd.classList.toggle('frame-bad',!full);
   dot.classList.toggle('bad',!full);
   dot.textContent=full?'GANZ IM BILD':'NICHT GANZ IM BILD';
+  const pf=document.getElementById('prep-frame');
+  if(pf&&document.getElementById('cam-prep').classList.contains('show')){
+    pf.classList.toggle('ok',full);
+    pf.textContent=full?'Perfekt — du bist ganz im Bild':'Stelle dein Handy so auf, dass du ganz im Bild bist';
+  }
 }
 function startPoseLoop(){
   poseReset();
@@ -1786,17 +1926,39 @@ async function startRecording(){
   renderCamRail();
   camChunks=[];camSecs=0;camMarks=[];
   document.getElementById('cam-timer').textContent='0:00';
+  document.getElementById('cam-overlay').classList.add('show');
+  initPose();startPoseLoop();updatePoseLight();
+  startPrep(); // erst Handy ausrichten, dann läuft die Aufnahme
+}
+// ── Vorbereitung: 10 s zum Aufstellen, Aufnahme startet danach ──
+let camPrepInt=null,camPrep=0;
+function startPrep(){
+  camPrep=10;
+  document.getElementById('cam-prep-time').textContent=camPrep;
+  document.getElementById('cam-prep').classList.add('show');
+  clearInterval(camPrepInt);
+  camPrepInt=setInterval(()=>{
+    camPrep--;
+    document.getElementById('cam-prep-time').textContent=Math.max(0,camPrep);
+    if(camPrep<=0)endPrep();
+  },1000);
+}
+function endPrep(){
+  clearInterval(camPrepInt);camPrepInt=null;
+  document.getElementById('cam-prep').classList.remove('show');
+  if(camRecorder||!camStream)return;
   camRecorder=new MediaRecorder(camStream,{mimeType:camMime});
   camRecorder.ondataavailable=e=>{if(e.data&&e.data.size)camChunks.push(e.data);};
   camRecorder.start(1000);
   camTimerInt=setInterval(camTimerTick,1000);
-  document.getElementById('cam-overlay').classList.add('show');
-  initPose();startPoseLoop();updatePoseLight();
 }
 function camTeardown(){
   clearInterval(camTimerInt);camTimerInt=null;
   clearInterval(camRestInt);camRestInt=null;camRest=0;
+  clearInterval(camPrepInt);camPrepInt=null;
+  document.getElementById('cam-prep').classList.remove('show');
   clearInterval(poseTimer);poseTimer=null;
+  document.getElementById('cam-overlay').classList.remove('swapped');
   document.getElementById('cam-rest').classList.remove('show');
   if(camRecorder&&camRecorder.state!=='inactive')camRecorder.stop();
   camRecorder=null;
@@ -1891,6 +2053,19 @@ async function commitUnit(videoPath){
     if(rtx)ST.transactions.unshift(rtx);
   }
 
+  // Trainingsplan-Fortschritt: Routine zählt für den aktuellen Schritt, Level/Stufe steigen automatisch
+  if(routineActive){
+    routineActive=false;
+    const t=trainState();t.done++;
+    let stepUp=false;
+    if(t.done>=ROUTINE_NEED&&t.step<8){t.step++;t.done=0;stepUp=true;}
+    ST.profile.training=t;
+    const updT={training:t};
+    const newLvl=Math.min(3,Math.floor(t.step/3)+1);
+    if(newLvl>ST.profile.level){updT.level=newLvl;ST.profile.level=newLvl;}
+    await supabase.from('users').update(updT).eq('id',uid);
+    if(stepUp)showToast('Level-up! Trainingsplan Level '+(t.step+1)+' freigeschaltet 🎉');
+  }
   ST.todayUnit=unit;
   closeLvPanel();renderAll();nav('dashboard');
   let msg='Einheit aufgenommen — '+pts+' Punkte';
@@ -2292,8 +2467,9 @@ function showToast(msg){
 //  INIT + globale Handler (für onclick-Attribute)
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
-  startRecording,camMain,camSwap,camUnswap,openExInfo,openExInfoCur,openExInfoNext,applyPreset,askCancelRecording,confirmCancelRecording,confirmRecording,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,levelUp,selectVerify,
+  startRecording,camMain,camSwap,camUnswap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
+  chooseGoal,startRoutine,endPrep,camSkipExercise,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
   openRegionModal,renderRegionList,autoDetectRegion,selectRegion,saveLang,saveNotifPref,
