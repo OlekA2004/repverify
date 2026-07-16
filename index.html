@@ -368,6 +368,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cal-day.empty{cursor:default}
 .tune-row{display:flex;gap:8px}
 .tune-row .btn{flex:1;font-size:11px}
+/* Übungs-Urteil im Review: ✗ / ~ / ✓ */
+.vf-judge{display:flex;gap:8px}
+.vj{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--bdm);background:var(--s2);color:var(--t1);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s,background .15s}
+.vj.vj-no.sel{background:var(--acc-bg2);border-color:var(--acc);color:var(--acc)}
+.vj.vj-mid.sel{background:rgba(232,185,61,.15);border-color:#e8b93d;color:#e8b93d}
+.vj.vj-ok.sel{background:var(--grn-bg);border-color:var(--grn);color:var(--grn)}
 /* KI-Check-Badge im Review */
 .pose-badge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t1);padding:2px 0 6px;justify-content:center}
 .pb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -2474,9 +2480,12 @@ function vcFocusHtml(vid){
   const i=Math.min(vcFocus[vid]||0,order.length-1);
   const ex=order[i], cnt=(vcCounts[vid]&&vcCounts[vid][ex])||0;
   const planned=(v.units.set_marks||[]).filter(m=>m.ex===ex).reduce((s,m)=>s+(m.secs||30),0);
+  const judged=Object.values(vcCounts[vid]||{}).filter(x=>x).length;
+  const j=(vcCounts[vid]||{})[ex];
+  const jb=(val,label,cls)=>'<button class="vj '+cls+(j===val?' sel':'')+'" onclick="vcJudge('+vid+',\''+val+'\')">'+label+'</button>';
   return '<button class="vf-nav" onclick="vcNav('+vid+',-1)"'+(i===0?' disabled':'')+'>‹</button>'
-    +'<div class="vf-name"><div class="vf-ex">'+ex+'</div><div class="vf-sub">Übung '+(i+1)+'/'+order.length+' · saubere Zeit zählen'+(planned?' · aufgenommen: '+planned+' s':'')+'</div></div>'
-    +'<div class="vf-ctl"><button onclick="vcAdjust('+vid+',-1)">−</button><b>'+cnt+' s</b><button onclick="vcAdjust('+vid+',1)">+</button></div>'
+    +'<div class="vf-name"><div class="vf-ex">'+ex+'</div><div class="vf-sub">Übung '+(i+1)+'/'+order.length+(planned?' · '+planned+' s aufgenommen':'')+' · beurteilt: '+judged+'/'+order.length+'</div></div>'
+    +'<div class="vf-judge">'+jb('none','✗','vj-no')+jb('half','~','vj-mid')+jb('full','✓','vj-ok')+'</div>'
     +'<button class="vf-nav" onclick="vcNav('+vid+',1)"'+(i===order.length-1?' disabled':'')+'>›</button>';
 }
 function vcRerenderFocus(vid){
@@ -2489,12 +2498,14 @@ function vcNav(vid,d){
   vcFocus[vid]=Math.max(0,Math.min(max,(vcFocus[vid]||0)+d));
   vcRerenderFocus(vid);
 }
-function vcAdjust(vid,d){
+function vcJudge(vid,val){
   const v=ST.verifications.find(x=>x.id===vid);if(!v||!v.units)return;
   const order=unitExOrder(v.units);
-  const ex=order[Math.min(vcFocus[vid]||0,order.length-1)];if(!ex)return;
+  const i=Math.min(vcFocus[vid]||0,order.length-1);
+  const ex=order[i];if(!ex)return;
   const c=vcCounts[vid]||(vcCounts[vid]={});
-  c[ex]=Math.max(0,Math.min(600,(c[ex]||0)+d*5)); // in 5-Sekunden-Schritten
+  c[ex]=val;
+  if(i<order.length-1)vcFocus[vid]=i+1; // automatisch zur nächsten Übung
   vcRerenderFocus(vid);
 }
 // Video als Blob laden (respektiert RLS; keine teilbare URL, kein Download-Endpunkt)
@@ -2545,8 +2556,14 @@ function setSpeed(vid,rate,btn){
 async function decideVerification(vid,verdict){
   const v=ST.verifications.find(x=>x.id===vid);if(!v||v.verdict)return;
   // Gezählte Sets in Übungs-Reihenfolge mitschicken
-  const counts=unitExOrder(v.units).map(ex=>({ex,secs:(vcCounts[vid]&&vcCounts[vid][ex])||0}));
-  if(counts.every(c=>c.secs===0)&&!confirm('Du hast noch keine Zeit gezählt — trotzdem abschicken?'))return;
+  const order=unitExOrder(v.units);
+  const judged=vcCounts[vid]||{};
+  if(verdict==='approved'&&order.some(ex=>!judged[ex])){showToast('Bitte beurteile erst jede Übung (✗ / ~ / ✓)');return;}
+  const counts=order.map(ex=>{
+    const planned=(v.units.set_marks||[]).filter(m=>m.ex===ex).reduce((s,m)=>s+(m.secs||30),0)||30;
+    const f={full:1,half:.5,none:0}[judged[ex]]??0;
+    return {ex,secs:Math.round(planned*f),verdict:judged[ex]||'none'};
+  });
   const {error}=await supabase.from('verifications')
     .update({verdict,decided_at:new Date().toISOString(),set_counts:counts}).eq('id',vid);
   if(error){showToast('Fehler: '+error.message);return;}
@@ -2732,7 +2749,7 @@ function showToast(msg){
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camMain,camPauseToggle,camPrevEx,camNextEx,camDemoTap,camSelfTap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
   chooseGoal,startRoutine,endPrep,openStreak,askFreeze,applyFreeze,redeemFreezes,openHint,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,selectVerify,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcJudge,vcNav,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
   openRegionModal,renderRegionList,autoDetectRegion,selectRegion,saveLang,saveNotifPref,
