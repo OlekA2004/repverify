@@ -272,29 +272,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-cancel{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);font-size:11px;padding:8px 14px}
 .cam-confirm{font-size:13px;padding:11px 22px;flex:0 1 260px}
 /* Platzhalter unten rechts im Video: später 3D-Männchen-Animation der Übung */
-/* Strichmännchen-Karte unten rechts im Kamera-Overlay */
-.cam-fig{position:absolute;right:12px;bottom:118px;z-index:4;display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(10,10,10,.5);backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:8px 10px 7px}
-.cam-fig-svg svg{display:block}
-.cam-fig-svg .fg{stroke:#fff;stroke-width:2.6;stroke-linecap:round;fill:none}
-.cam-fig-svg .fg-head{fill:#fff;stroke:none}
-.cam-fig-svg .fg.dim{opacity:.22}.cam-fig-svg .fg.dim2{opacity:.5}
-.cf-name{font-size:11px;font-weight:700;color:#fff;max-width:96px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cf-set{font-size:9px;color:rgba(255,255,255,.65);margin-top:-1px}
-/* KI-Ampel oben links neben REC */
-.cam-poselight{position:absolute;top:calc(46px + env(safe-area-inset-top));left:16px;display:none;align-items:center;justify-content:center;width:26px;height:18px;border-radius:999px;background:rgba(0,0,0,.45);font-size:8px;font-weight:800;color:#888;border:1px solid rgba(255,255,255,.15)}
-.cam-poselight.on{display:flex}
-.cam-poselight.ok{color:var(--grn);border-color:rgba(61,158,106,.5)}
-.cam-poselight.warn{color:var(--amb);border-color:rgba(232,185,61,.5)}
-/* Nächste Übung während der Pause groß in der Mitte */
-.cam-next{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:10px}
-.cn-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
-.cam-next-fig svg{width:96px;height:96px}
-.cam-next-fig .fg{stroke:#fff;stroke-width:2.6;stroke-linecap:round;fill:none}
-.cam-next-fig .fg-head{fill:#fff;stroke:none}
-.cam-next-fig .fg.dim{opacity:.22}.cam-next-fig .fg.dim2{opacity:.5}
-.cn-name{font-size:15px;font-weight:700;color:#fff}
-.cn-set{font-size:11px;color:rgba(255,255,255,.65)}
-/* Übergang: Männchen wandert nach der Pause in die Ecke */
 /* Satzpause: Aufnahme angehalten */
 .cam-rest{display:none;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;gap:6px}
 .cam-rest.show{display:flex}
@@ -303,8 +280,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-rest-skip{margin-top:14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22);font-size:12px;padding:9px 20px}
 .cam-rest.to-corner{animation:tocorner .45s ease-in forwards}
 @keyframes tocorner{to{transform:translate(30vw,26vh) scale(.25);opacity:0}}
-.cam-settime{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.85);font-variant-numeric:tabular-nums}
-#cam-setring{transition:stroke-dashoffset 1s linear}
 /* Status-Sanduhr im Logo */
 .logo-icon{position:relative}
 .hg-warn{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);opacity:.4}
@@ -332,18 +307,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-segs{position:absolute;top:calc(8px + env(safe-area-inset-top));left:70px;right:70px;display:flex;gap:4px;z-index:3}
 .cam-segs span{flex:1;height:3px;border-radius:999px;background:rgba(255,255,255,.22)}
 .cam-segs span.on{background:#fff}
-/* Videocall-Swap: großes Männchen/Bild, eigenes Video klein mit Ausschnitt-Ampel */
-.cam-bigfig{display:none;position:absolute;inset:0;z-index:2;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(8,8,8,.55);backdrop-filter:blur(4px);cursor:pointer}
-.cam-overlay.swapped .cam-bigfig{display:flex}
-.cam-overlay.swapped .cam-fig{display:none!important}
-.bf-name{font-size:16px;font-weight:700;color:#fff}
-.bf-hint{font-size:9px;color:rgba(255,255,255,.5)}
-#cam-video{transition:all .25s ease}
-.cam-overlay.swapped #cam-video{position:absolute;inset:auto;left:12px;bottom:118px;width:104px;height:150px;object-fit:cover;border-radius:14px;border:2px solid var(--grn);z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
-.cam-overlay.swapped #cam-video.frame-bad{border-color:var(--acc)}
-.cam-framedot{display:none;position:absolute;left:22px;bottom:252px;z-index:7;font-size:8px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.55);color:var(--grn);pointer-events:none}
-.cam-overlay.swapped .cam-framedot{display:block}
-.cam-framedot.bad{color:var(--acc)}
 /* Set-Vorschläge im Programm */
 .preset-row{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0 .2rem}
 .preset-row:empty{display:none}
@@ -362,11 +325,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .rt-thumb{width:44px;height:32px;border-radius:7px;background:#fff;object-fit:contain;flex-shrink:0}
 .rt-name{font-size:11px;color:var(--t0);flex:1}
 .rt-sets{font-size:11px;color:var(--t1);font-weight:700}
+.rt-chk{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--bdm);flex-shrink:0;cursor:pointer;position:relative}
+.rt-chk.on{background:var(--acc);border-color:var(--acc)}
+.rt-chk.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
 /* Vorbereitung */
 .cam-prep{display:none;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .cam-prep.show{display:flex}
 .prep-frame{font-size:11px;color:rgba(255,255,255,.7);padding:5px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
 .prep-frame.ok{color:var(--grn);border-color:rgba(61,158,106,.6)}
+/* Player: X oben links, schwarze Blase unten, Demo primär, Kamera klein rechts */
+.cam-x{position:absolute;top:calc(20px + env(safe-area-inset-top));left:14px;z-index:6;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px)}
+.cam-panel{position:absolute;left:0;right:0;bottom:0;z-index:5;background:#0a0a0a;border-radius:22px 22px 0 0;padding:16px 18px calc(16px + env(safe-area-inset-bottom))}
+.cp-row{display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.cp-name{font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-time{margin-left:auto;font-size:26px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.cp-ctl{display:flex;align-items:center;justify-content:center;gap:16px}
+.cp-side{width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cp-main{flex:0 1 210px;height:48px;border-radius:999px;border:none;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 14px rgba(226,75,74,.35)}
+/* Standard: Demo groß (heller Bereich), eigene Kamera klein RECHTS */
+.cam-demo{position:absolute;inset:0;bottom:120px;z-index:1;display:flex;align-items:center;justify-content:center;background:#f2f2f2}
+.cam-demo .exdb-anim.big{width:min(92vw,560px);height:min(64vw,380px);background:transparent}
+.cam-demo .fig-fallback svg .fg{stroke:#222}
+.cam-demo .fig-fallback svg .fg-head{fill:#222}
+.cam-overlay:not(.selfbig) #cam-video{position:absolute;inset:auto;right:12px;bottom:136px;width:104px;height:150px;object-fit:cover;border-radius:14px;border:2px solid var(--grn);z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.cam-overlay:not(.selfbig) #cam-video.frame-bad{border-color:var(--acc)}
+.cam-overlay.selfbig #cam-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:none;border-radius:0;z-index:1;cursor:pointer}
+.cam-overlay.selfbig .cam-demo{inset:auto;right:12px;bottom:136px;width:120px;height:86px;border-radius:14px;overflow:hidden;z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.cam-overlay.selfbig .cam-demo .exdb-anim.big{width:100%;height:100%;border-radius:0}
+.cam-framedot{left:auto;right:22px;bottom:296px}
+.cam-overlay.show:not(.selfbig) .cam-framedot{display:block}
+/* Aufstell-Assistent */
+.prep-arrow{font-size:34px;line-height:1;color:#fff;animation:preppulse 1s ease-in-out infinite}
+@keyframes preppulse{0%,100%{opacity:.5}50%{opacity:1}}
+/* Streak-Kalender (Duolingo-inspiriert, App-Farben) */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{font-size:8px;color:var(--t2);text-align:center;padding:2px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t1);border-radius:50%;cursor:pointer;position:relative}
+.cal-day.done{background:var(--acc);color:#fff;font-weight:700;box-shadow:0 0 8px rgba(226,75,74,.4)}
+.cal-day.froze{background:var(--blu-bg);color:var(--blu);font-weight:700;border:1px solid rgba(90,140,255,.4)}
+.cal-day.today{outline:2px solid var(--t0);outline-offset:1px}
+.cal-day.future{opacity:.3;cursor:default}
+.cal-day.empty{cursor:default}
+.tune-row{display:flex;gap:8px}
+.tune-row .btn{flex:1;font-size:11px}
 /* KI-Check-Badge im Review */
 .pose-badge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t1);padding:2px 0 6px;justify-content:center}
 .pb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -462,7 +463,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
 
 <aside class="sidebar">
   <!-- Status-Sanduhr: Sand fällt = Einheit heute offen · voll+⚠ = zu spät · dreht = wird geprüft · steht = fertig -->
-  <div class="logo-icon hg-pending" id="status-hourglass" onclick="nav('program')" style="cursor:pointer" title="Zum Aufzeichnen">
+  <div class="logo-icon hg-pending" id="status-hourglass" onclick="openStreak()" style="cursor:pointer" title="Streak & Restzeit">
     <svg class="hg-warn" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e8b93d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
     <svg class="hg-glass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M6 2h12M6 22h12"/>
@@ -525,7 +526,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
       <div id="today-inner"></div>
     </div>
     <div class="card">
-      <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Meist genutzte Übungen</div>
+      <div class="ct"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Deine Ziele</div>
       <div id="month-overview"></div>
       <div class="div"></div>
       <div class="ib"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span id="variety-hint">Durchmischen bringt Extra-Ranking-Punkte</span></div>
@@ -848,29 +849,15 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
 
 <!-- KAMERA-AUFNAHME -->
 <div class="cam-overlay" id="cam-overlay">
-  <video id="cam-video" autoplay playsinline muted onclick="camUnswap()"></video>
+  <div class="cam-demo" id="cam-demo" onclick="camDemoTap()"></div>
+  <video id="cam-video" autoplay playsinline muted onclick="camSelfTap()"></video>
   <div class="cam-top">
     <div class="cam-ex-name"><span id="cam-ex-name">—</span><span class="ex-q" id="cam-ex-q" onclick="openExInfoCur()">?</span></div>
     <div class="cam-ex-sub" id="cam-ex-sub"></div>
   </div>
   <div class="cam-rec"><span class="cam-rec-dot"></span><span id="cam-timer">0:00</span></div>
   <div class="cam-segs" id="cam-segs"></div>
-  <div class="cam-bigfig" id="cam-bigfig" onclick="camSwap()">
-    <div id="cam-bigfig-anim"></div>
-    <div class="bf-name" id="cam-bigfig-name"></div>
-    <div class="bf-hint">Tippen zum Zurücktauschen</div>
-  </div>
   <div class="cam-framedot" id="cam-framedot">GANZ IM BILD</div>
-  <!-- Übungs-Karte: animiertes Männchen + Set-Fortschritt + Set-Timer (ersetzt die Bläschen) -->
-  <div class="cam-fig" id="cam-fig" onclick="camSwap()" style="cursor:pointer">
-    <div class="cam-fig-svg" id="cam-fig-svg"></div>
-    <div class="cf-name" id="cf-name"></div>
-    <div class="cf-set" id="cf-set"></div>
-    <div class="cam-settime">
-      <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2"/><circle id="cam-setring" cx="8" cy="8" r="6.5" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-dasharray="40.8" stroke-dashoffset="40.8" transform="rotate(-90 8 8)"/></svg>
-      <span id="cam-settime-txt">0:00</span>
-    </div>
-  </div>
   <div class="cam-prep" id="cam-prep">
     <div class="cn-label">Bereite dich vor</div>
     <div class="cam-rest-time" id="cam-prep-time">10</div>
@@ -888,10 +875,48 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
     </div>
     <button class="btn cam-rest-skip" onclick="endRest()">Weiter ▶</button>
   </div>
-  <div class="cam-controls">
-    <button class="btn cam-cancel" onclick="askCancelRecording()">Abbruch</button>
-    <button class="btn cam-cancel" id="cam-skip-btn" onclick="camSkipExercise()" title="Übung überspringen">⏭</button>
-    <button class="btn bp cam-confirm" id="cam-main-btn" onclick="camMain()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="cam-main-txt">Set geschafft</span></button>
+  <button class="cam-x" onclick="askCancelRecording()" aria-label="Abbruch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  <div class="cam-panel">
+    <div class="cp-row"><span class="cp-name" id="cp-name">—</span><span class="ex-q" onclick="openExInfoCur()">?</span><span class="cp-time" id="cp-time">00:30</span></div>
+    <div class="cp-ctl">
+      <button class="cp-side" onclick="camPrevEx()" aria-label="Zurück"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6l-10 6 10 6z"/></svg></button>
+      <button class="cp-main" id="cp-main" onclick="camMain()"><svg id="cp-main-ic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg><span id="cp-main-txt" style="display:none">Einheit bestätigen</span></button>
+      <button class="cp-side" onclick="camNextEx()" aria-label="Weiter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM4 6l10 6-10 6z"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="streak-modal">
+  <div class="modal-box" style="text-align:left">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+      <span class="modal-title" style="text-align:left;margin:0" id="streak-count">🔥 0</span>
+      <span style="font-size:12px;color:var(--blu);font-weight:700" id="freeze-count">❄ 0</span>
+    </div>
+    <div style="font-size:11px;color:var(--t1);margin-bottom:10px" id="streak-remain"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <b style="font-size:12px;color:var(--t0)" id="cal-title"></b>
+      <span style="font-size:9px;color:var(--t2)">Tag antippen = Freeze einsetzen</span>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div style="font-size:9px;color:var(--t2);margin-top:10px;line-height:1.6">❄ schützt deinen Streak für einen Tag. +2 automatisch alle 30 Tage · +1 je 5 Reviews im Monat · 10 ❄ = 1 Gratis-Monat (in Rewards einlösbar).</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="tune-modal">
+  <div class="modal-box">
+    <div class="modal-title">Wie war die Einheit?</div>
+    <div class="modal-body" style="margin-bottom:10px">Passe Übungslänge und Pause für nächstes Mal an.</div>
+    <div style="font-size:10px;color:var(--t2);margin-bottom:4px;text-align:left">Übungslänge · <b style="color:var(--t0)" id="tune-ex-label">30 s</b></div>
+    <div class="tune-row">
+      <button class="btn bg" onclick="tuneEx(-5)">− kürzer</button>
+      <button class="btn bg" onclick="tuneEx(5)">länger +</button>
+    </div>
+    <div style="font-size:10px;color:var(--t2);margin:10px 0 4px;text-align:left">Pause · <b style="color:var(--t0)" id="tune-rest-label">1 Min</b></div>
+    <div class="tune-row">
+      <button class="btn bg" onclick="tuneRest(-1)">− kürzer</button>
+      <button class="btn bg" onclick="tuneRest(1)">länger +</button>
+    </div>
+    <button class="btn bp bf" style="margin-top:14px" onclick="closeModal('tune-modal')">Passt so</button>
   </div>
 </div>
 
@@ -1086,7 +1111,7 @@ async function loadAll(){
   const uid = ST.session.user.id;
 
   const weekAgo=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
-  const [prof, txs, prog, ranks, units, today, vfs, myRev, compl, total] = await Promise.all([
+  const [prof, txs, prog, ranks, units, today, vfs, myRev, compl, total, dayLog, frDays] = await Promise.all([
     supabase.from('users').select('*').eq('id',uid).single(),
     supabase.from('transactions').select('*').eq('user_id',uid).order('tx_date',{ascending:false}).order('created_at',{ascending:false}),
     supabase.from('exercise_progress').select('*').eq('user_id',uid),
@@ -1096,7 +1121,9 @@ async function loadAll(){
     supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name,dashboard_public))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
     supabase.from('units').select('id,unit_date,points,video_path,set_marks,selection,review_ack,verifications(reviewer_id,verdict,decided_at,set_counts,users(display_name))').eq('user_id',uid).gte('unit_date',weekAgo).order('unit_date',{ascending:false}),
     supabase.from('complaints').select('*').eq('user_id',uid),
-    supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid)
+    supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid),
+    supabase.from('units').select('unit_date').eq('user_id',uid).gte('unit_date',new Date(Date.now()-62*864e5).toISOString().slice(0,10)),
+    supabase.from('freeze_days').select('day').eq('user_id',uid).gte('day',new Date(Date.now()-62*864e5).toISOString().slice(0,10))
   ]);
 
   if(prof.error){ showToast('Profil-Fehler: '+prof.error.message); return; }
@@ -1111,6 +1138,9 @@ async function loadAll(){
   ST.myReviews = myRev.data||[];
   ST.complaints = compl.data||[];
   ST.totalUnits = total.count||0;
+  ST.dayLog = new Set((dayLog.data||[]).map(r=>r.unit_date));
+  ST.freezeDays = new Set((frDays.data||[]).map(r=>r.day));
+  grantFreezes();
 
   applyProfileToUI();
   renderAll();
@@ -1232,7 +1262,110 @@ async function saveNotifPref(key,on){
 // ════════════════════════════════════════════════════════════
 //  RENDERING
 // ════════════════════════════════════════════════════════════
-function renderAll(){ renderDashboard(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); renderTraining(); updateHourglass(); }
+// ── Streak & Freezes ─────────────────────────────────────────
+function dayStr(d){return d.toISOString().slice(0,10);}
+function streakLen(){
+  let n=0;const d=new Date();
+  if(!ST.dayLog.has(dayStr(d))&&!ST.freezeDays.has(dayStr(d)))d.setDate(d.getDate()-1); // heute noch offen zählt nicht negativ
+  while(ST.dayLog.has(dayStr(d))||ST.freezeDays.has(dayStr(d))){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+async function grantFreezes(){
+  const p=ST.profile;let upd=null;
+  // alle 30 Tage automatisch +2
+  const last=new Date(p.freeze_grant||p.created_at);
+  if((Date.now()-last.getTime())/864e5>=30){p.freezes=(p.freezes||0)+2;p.freeze_grant=dayStr(new Date());upd={freezes:p.freezes,freeze_grant:p.freeze_grant};}
+  // +1 je 5 Reviews im Monat
+  const doneMonth=ST.verifications.filter(v=>v.verdict&&v.decided_at&&v.decided_at.slice(0,10)>=monthStart()).length;
+  const fr=Object.assign({month:null,granted:0},p.freeze_rev||{});
+  if(fr.month!==monthStart()){fr.month=monthStart();fr.granted=0;}
+  const earn=Math.floor(doneMonth/5)-fr.granted;
+  if(earn>0){p.freezes=(p.freezes||0)+earn;fr.granted+=earn;p.freeze_rev=fr;upd=Object.assign(upd||{},{freezes:p.freezes,freeze_rev:fr});}
+  if(upd)await supabase.from('users').update(upd).eq('id',ST.session.user.id);
+}
+function openStreak(){
+  if(!ST.profile)return;
+  const now=new Date();
+  document.getElementById('streak-count').textContent='🔥 '+streakLen();
+  document.getElementById('freeze-count').textContent='❄ '+(ST.profile.freezes||0)+((ST.profile.freezes||0)>=10?' · einlösbar!':'');
+  const mid=new Date(now);mid.setHours(24,0,0,0);
+  const mins=Math.floor((mid-now)/60000);
+  document.getElementById('streak-remain').textContent=ST.todayUnit
+    ? 'Heute erledigt ✓ — Streak gesichert.'
+    : 'Noch '+Math.floor(mins/60)+' h '+(mins%60)+' min, um heute aufzunehmen.';
+  document.getElementById('cal-title').textContent=now.toLocaleDateString(localStorage.getItem('rv-lang')||'de',{month:'long',year:'numeric'});
+  const grid=document.getElementById('cal-grid');
+  const dows=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  let html=dows.map(d=>'<span class="cal-dow">'+d+'</span>').join('');
+  const first=new Date(now.getFullYear(),now.getMonth(),1);
+  const off=(first.getDay()+6)%7;
+  for(let i=0;i<off;i++)html+='<span class="cal-day empty"></span>';
+  const days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  for(let d=1;d<=days;d++){
+    const ds=dayStr(new Date(Date.UTC(now.getFullYear(),now.getMonth(),d)));
+    const fut=d>now.getDate();
+    let cls='cal-day';
+    if(ST.dayLog.has(ds))cls+=' done';
+    else if(ST.freezeDays.has(ds))cls+=' froze';
+    if(d===now.getDate())cls+=' today';
+    if(fut)cls+=' future';
+    const click=(!fut&&!ST.dayLog.has(ds)&&!ST.freezeDays.has(ds))?' onclick="applyFreeze(\''+ds+'\')"':'';
+    html+='<span class="'+cls+'"'+click+'>'+(ST.freezeDays.has(ds)?'❄':d)+'</span>';
+  }
+  grid.innerHTML=html;
+  openModal('streak-modal');
+}
+async function applyFreeze(day){
+  if((ST.profile.freezes||0)<1){showToast('Keine Freezes übrig');return;}
+  if(!confirm('Freeze für '+fmtDate(day)+' einsetzen? Der Tag zählt dann als geschützt.'))return;
+  const {error}=await supabase.from('freeze_days').insert({user_id:ST.session.user.id,day});
+  if(error){showToast('Fehler: '+error.message);return;}
+  ST.profile.freezes--;ST.freezeDays.add(day);
+  await supabase.from('users').update({freezes:ST.profile.freezes}).eq('id',ST.session.user.id);
+  openStreak();
+  showToast('Freeze eingesetzt ❄');
+}
+async function redeemFreezes(){
+  if((ST.profile.freezes||0)<10){showToast('Du brauchst 10 Freezes');return;}
+  ST.profile.freezes-=10;
+  const {data:tx}=await supabase.from('transactions').insert({
+    user_id:ST.session.user.id,tx_date:isoToday(),title:'Gratis-Monat',subtitle:'10 Freezes eingelöst',amount:10
+  }).select().single();
+  if(tx)ST.transactions.unshift(tx);
+  await supabase.from('users').update({freezes:ST.profile.freezes}).eq('id',ST.session.user.id);
+  renderAll();openStreak();
+  showToast('Gratis-Monat gutgeschrieben 🎉');
+}
+// ── Übungslänge/Pause nach der Einheit anpassen ──────────────
+function tuneLabels(){
+  document.getElementById('tune-ex-label').textContent=(ST.profile.ex_secs||30)+' s';
+  document.getElementById('tune-rest-label').textContent=restLabel(ST.profile.rest_secs??60);
+}
+async function tuneEx(d){
+  ST.profile.ex_secs=Math.max(15,Math.min(90,(ST.profile.ex_secs||30)+d));
+  await supabase.from('users').update({ex_secs:ST.profile.ex_secs}).eq('id',ST.session.user.id);
+  tuneLabels();renderTraining();
+}
+async function tuneRest(d){
+  const i=Math.max(0,Math.min(REST_OPTS.length-1,REST_OPTS.indexOf(ST.profile.rest_secs??60)+d));
+  ST.profile.rest_secs=REST_OPTS[i];
+  await supabase.from('users').update({rest_secs:ST.profile.rest_secs}).eq('id',ST.session.user.id);
+  document.getElementById('rest-slider').value=i;
+  document.getElementById('rest-label').textContent=restLabel(REST_OPTS[i]);
+  tuneLabels();renderTraining();
+}
+// ── Dashboard: Ziele ─────────────────────────────────────────
+function renderGoals(){
+  const el=document.getElementById('month-overview');if(!el)return;
+  const t=trainState();
+  el.innerHTML=Object.entries(ROUTINES).map(([g,r])=>
+    '<div class="rt-row" onclick="chooseGoal(\''+g+'\');nav(\'program\')">'
+    +'<span style="font-size:16px;width:28px;text-align:center">'+GOAL_ICONS[g]+'</span>'
+    +'<span class="rt-name">'+r.label+'</span>'
+    +(t.goal===g?'<span class="pill pr">Level '+(t.step+1)+' · aktiv</span>':'<span style="font-size:9px;color:var(--t2)">wählen ›</span>')
+    +'</div>').join('');
+}
+function renderAll(){ renderDashboard(); renderGoals(); renderRanking(); renderRewards(); renderTx(); renderVerify(); renderReviewOverview(); renderLevelProgress(); renderTraining(); updateHourglass(); }
 
 // ── Status-Sanduhr im Logo ───────────────────────────────────
 // offen: Sand rieselt · zu spät (ab 20 Uhr): unten voll + ⚠ · in Prüfung: dreht · fertig: steht
@@ -1428,31 +1561,92 @@ const ROUTINE_NEED=5; // Einheiten pro Schritt, dann Level-up
 let routineActive=false;
 
 function trainState(){return Object.assign({goal:null,step:0,done:0},ST.profile.training||{});}
+let rc={key:null,off:{},extra:{}};
+function rcActive(){
+  const t=trainState();if(!t.goal)return null;
+  const tier=Math.floor(t.step/3), r=ROUTINES[t.goal].steps[t.step];
+  const key=t.goal+':'+t.step;
+  if(rc.key!==key)rc={key,off:{},extra:{}};
+  const sel={};
+  for(const [n,s] of Object.entries(r.sets))if(!rc.off[n])sel[n]=s;
+  for(const [n,s] of Object.entries(rc.extra))sel[n]=s;
+  return {tier,sel};
+}
+function rcPts(a){
+  let p=0;
+  for(const [n,s] of Object.entries(a.sel)){
+    const e=EX_DATA[a.tier].ex.find(x=>x[0]===n);if(!e)continue;
+    p+=exBasePts(a.tier,e[1])*s;
+  }
+  return Math.round(p*10)/10;
+}
 function renderTraining(){
   const row=document.getElementById('goal-row'),card=document.getElementById('routine-card');
-  if(!row)return;
+  if(!row||!ST.profile)return;
   const t=trainState();
   row.innerHTML=Object.entries(ROUTINES).map(([g,r])=>
     '<button class="goal-chip'+(t.goal===g?' active':'')+'" onclick="chooseGoal(\''+g+'\')"><span class="gc-ic">'+GOAL_ICONS[g]+'</span>'+r.label+'</button>').join('');
   document.getElementById('tp-badge').textContent='Level '+(t.step+1)+' / 9';
   if(!t.goal){card.innerHTML='<div class="card" style="text-align:center;font-size:11px;color:var(--t2);padding:1.2rem">Wähle dein Ziel — dein Plan levelt automatisch mit.</div>';return;}
-  const tier=Math.floor(t.step/3), r=ROUTINES[t.goal].steps[t.step];
-  const rows=Object.entries(r.sets).map(([n,s])=>{
+  const a=rcActive(), tier=a.tier, per=ST.profile.ex_secs||30;
+  const r=ROUTINES[t.goal].steps[t.step];
+  const pts=rcPts(a), cap=maxPtsForLevel(tier+1);
+  // Basis-Übungen (abwählbar) + eigene (entfernbar)
+  const rowHtml=(n,s,extra)=>{
     const id=EXDB[n];
     const thumb=id?'<img class="rt-thumb" src="'+EXDB_BASE+id+'/0.jpg" loading="lazy">':'<span class="rt-thumb"></span>';
-    return '<div class="rt-row" onclick="openExInfo(\''+n.replace(/'/g,"\\'")+'\')">'+thumb+'<span class="rt-name">'+n+'</span><span class="rt-sets">'+s+'×</span></div>';
-  }).join('');
-  const canRec=!ST.todayUnit&&(tier+1)<=ST.profile.level;
+    const on=extra||!rc.off[n];
+    return '<div class="rt-row">'
+      +'<span class="rt-chk'+(on?' on':'')+'" onclick="toggleRoutineEx(\''+n.replace(/'/g,"\\'")+'\','+(extra?1:0)+')"></span>'
+      +thumb+'<span class="rt-name" onclick="openExInfo(\''+n.replace(/'/g,"\\'")+'\')">'+n+'</span>'
+      +'<span class="rt-sets">'+(on?(s*per)+' s':'—')+'</span></div>';
+  };
+  let rows=Object.entries(r.sets).map(([n,s])=>rowHtml(n,s,false)).join('');
+  rows+=Object.entries(rc.extra).map(([n,s])=>rowHtml(n,s,true)).join('');
+  // geschätzte Aufnahmezeit: Übungszeit + proportionale Pausen
+  const nEx=Object.keys(a.sel).length;
+  const exSecs=Object.values(a.sel).reduce((x,s)=>x+s*per,0);
+  const est=Math.round((exSecs+Math.max(0,nEx-1)*(ST.profile.rest_secs??60)+10)/60);
+  const canRec=!ST.todayUnit&&(tier+1)<=ST.profile.level&&pts>=GOAL_PTS;
   card.innerHTML='<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
     +'<span style="font-size:13px;font-weight:700;color:var(--t0)">'+ROUTINES[t.goal].label+' · '+EX_DATA[tier].name+'</span>'
-    +'<span class="pill ph">'+r.pts+' <span class="coin"></span></span></div>'
+    +'<span class="pill ph">≈ '+est+' min · '+pts+' <span class="coin"></span></span></div>'
     +rows
+    +'<div style="display:flex;gap:6px;margin-top:8px"><button class="preset-chip" onclick="toggleExtraList()">+ Übung hinzufügen</button></div>'
+    +'<div id="extra-list" style="display:none;margin-top:8px" class="preset-row"></div>'
+    +(pts<GOAL_PTS?'<div style="font-size:9px;color:var(--amb);margin-top:6px">Mindestens '+GOAL_PTS+' Punkte nötig — füge Übungen hinzu.</div>':'')
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px">'
     +'<div style="flex:1"><div style="font-size:9px;color:var(--t2);margin-bottom:3px">Noch '+(ROUTINE_NEED-t.done)+' Einheiten bis zum nächsten Level</div>'
     +'<div class="pts-track" style="height:4px"><div class="pts-fill" style="width:'+(t.done/ROUTINE_NEED*100)+'%"></div></div></div>'
     +'<button class="btn bp" style="font-size:11px'+(canRec?'':';opacity:.4;pointer-events:none')+'" onclick="startRoutine()">Diese Einheit aufnehmen</button>'
     +'</div></div>';
+}
+function toggleRoutineEx(name,extra){
+  if(extra)delete rc.extra[name];
+  else rc.off[name]=!rc.off[name];
+  renderTraining();
+}
+function toggleExtraList(){
+  const el=document.getElementById('extra-list');
+  const a=rcActive();if(!a)return;
+  if(el.style.display==='none'){
+    const have=new Set(Object.keys(ROUTINES[trainState().goal].steps[trainState().step].sets).concat(Object.keys(rc.extra)));
+    el.innerHTML=EX_DATA[a.tier].ex.filter(([n])=>!have.has(n)).map(([n])=>
+      '<button class="preset-chip" onclick="addExtraEx(\''+n.replace(/'/g,"\\'")+'\')">'+n+'</button>').join('');
+    el.style.display='flex';
+  } else el.style.display='none';
+}
+function addExtraEx(name){
+  const a=rcActive();if(!a)return;
+  const e=EX_DATA[a.tier].ex.find(x=>x[0]===name);if(!e)return;
+  const base=exBasePts(a.tier,e[1]), cap=maxPtsForLevel(a.tier+1);
+  // optimal auffüllen: so viele Blöcke wie in den Punktedeckel passen (max 3)
+  let k=0;
+  while(k<3&&rcPts(a)+base*(k+1)<=cap)k++;
+  if(k===0){showToast('Punktedeckel erreicht ('+cap+')');return;}
+  rc.extra[name]=k;
+  renderTraining();
 }
 async function chooseGoal(g){
   const t=trainState();t.goal=g;
@@ -1462,12 +1656,13 @@ async function chooseGoal(g){
 }
 function startRoutine(){
   const t=trainState();if(!t.goal||ST.todayUnit)return;
-  const tier=Math.floor(t.step/3), r=ROUTINES[t.goal].steps[t.step];
+  const a=rcActive();if(!a)return;
   unitSel={};
-  for(const [n,s] of Object.entries(r.sets)){
-    const e=EX_DATA[tier].ex.find(x=>x[0]===n);if(!e)continue;
-    unitSel[n]={clicks:s,base:exBasePts(tier,e[1]),cat:e[1]};
+  for(const [n,s] of Object.entries(a.sel)){
+    const e=EX_DATA[a.tier].ex.find(x=>x[0]===n);if(!e)continue;
+    unitSel[n]={clicks:s,base:exBasePts(a.tier,e[1]),cat:e[1]};
   }
+  if(unitPts()<GOAL_PTS){showToast('Mindestens '+GOAL_PTS+' Punkte nötig');return;}
   routineActive=true;
   startRecording();
 }
@@ -1518,27 +1713,10 @@ function camPickMime(){
   return c.find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';
 }
 function buildCamQueue(){
-  camQueue=Object.entries(unitSel).filter(([,o])=>o.clicks>0).map(([name,o])=>({name,sets:o.clicks,done:0}));
-  camIdx=0;
+  const per=ST.profile.ex_secs||30;
+  camQueue=Object.entries(unitSel).filter(([,o])=>o.clicks>0).map(([name,o])=>({name,secs:o.clicks*per}));
+  camIdx=0;camPaused=false;
 }
-// ── Übungs-Karte: Männchen + Name + Set-Fortschritt (ersetzt die Bläschen) ──
-function renderCamRail(){
-  const cur=camQueue[camIdx];
-  document.getElementById('cam-ex-name').textContent=cur?cur.name:'Fertig!';
-  document.getElementById('cam-ex-q').style.display=cur?'inline-flex':'none';
-  document.getElementById('cam-ex-sub').textContent=cur?('Set '+Math.min(cur.done+1,cur.sets)+' von '+cur.sets):'Einheit bestätigen, um abzuschließen';
-  const btnTxt=document.getElementById('cam-main-txt');
-  if(btnTxt)btnTxt.textContent=camAllDone()?'Einheit bestätigen':'Set geschafft';
-  const skip=document.getElementById('cam-skip-btn');
-  if(skip)skip.style.display=camAllDone()?'none':'inline-flex';
-  // Set-Fortschritt als Segmente (ein Segment pro Set)
-  const total=camQueue.reduce((s,q)=>s+q.sets,0);
-  const done=camQueue.reduce((s,q)=>s+q.done,0);
-  document.getElementById('cam-segs').innerHTML=Array.from({length:total},(_,i)=>'<span class="'+(i<done?'on':'')+'"></span>').join('');
-  updateCamFig();
-}
-
-// ── Männchen: gelenkig animierte Bewegungen (SMIL-Posen-Morph) ──
 // ── Übungsbilder: free-exercise-db (Public Domain), 2 Frames im Wechsel ──
 const EXDB_BASE='https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/';
 const EXDB={
@@ -1707,16 +1885,7 @@ function openExInfo(name){
 function openExInfoCur(){const c=camQueue[camIdx];if(c)openExInfo(c.name);}
 function openExInfoNext(){const c=camQueue[camIdx];if(c)openExInfo(c.name);}
 
-// ── Videocall-Swap: großes Übungsbild vs. eigenes Video ──
-function camSwap(){
-  document.getElementById('cam-overlay').classList.toggle('swapped');
-  renderCamRail();
-}
-function camUnswap(){
-  const ov=document.getElementById('cam-overlay');
-  if(ov.classList.contains('swapped')){ov.classList.remove('swapped');renderCamRail();}
-}
-
+// ── Männchen: gelenkig animierte Bewegungen (SMIL-Posen-Morph) ──
 function figSvg(pattern,size){
   const S=size||56, D='dur="1.7s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1" keyTimes="0;.5;1"';
   const P={
@@ -1773,41 +1942,70 @@ function figPattern(name){
   if(/squat|bridge|deadlift|calf|curl/.test(n))return 'squat';
   return 'hold';
 }
-function updateCamFig(){
-  const card=document.getElementById('cam-fig'),el=document.getElementById('cam-fig-svg');
-  if(!card||!el)return;
+// ── Zeitbasierter Ablauf: jede Übung läuft ihre Sekunden automatisch ──
+let camExRemain=0,camPaused=false;
+function fmtMS(s){s=Math.max(0,s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function renderCamRail(){
   const cur=camQueue[camIdx];
-  const ov=document.getElementById('cam-overlay');
-  if(!cur){card.style.display='none';ov.classList.remove('swapped');return;}
-  card.style.display='flex';
-  document.getElementById('cf-name').textContent=cur.name;
-  document.getElementById('cf-set').textContent='Set '+Math.min(cur.done+1,cur.sets)+'/'+cur.sets;
-  if(el.dataset.ex!==cur.name){el.dataset.ex=cur.name;el.innerHTML=exAnimHtml(cur.name);}
-  // Groß-Ansicht (getauscht)
-  const bf=document.getElementById('cam-bigfig-anim');
-  if(bf&&bf.dataset.ex!==cur.name){bf.dataset.ex=cur.name;bf.innerHTML=exAnimHtml(cur.name,'big');document.getElementById('cam-bigfig-name').textContent=cur.name;}
+  document.getElementById('cam-ex-name').textContent='Übungen '+Math.min(camIdx+1,camQueue.length)+'/'+camQueue.length;
+  document.getElementById('cam-ex-q').style.display=cur?'inline-flex':'none';
+  document.getElementById('cam-ex-sub').textContent=cur?'':'Einheit bestätigen, um abzuschließen';
+  document.getElementById('cp-name').textContent=cur?cur.name:'Fertig!';
+  document.getElementById('cp-time').textContent=fmtMS(cur?camExRemain:0);
+  // Hauptknopf: Pause/Weiter — am Ende „Einheit bestätigen“
+  const ic=document.getElementById('cp-main-ic'),tx=document.getElementById('cp-main-txt');
+  if(camAllDone()){ic.style.display='none';tx.style.display='inline';}
+  else{ic.style.display='inline';tx.style.display='none';
+    ic.innerHTML=camPaused?'<path d="M8 5l12 7-12 7z"/>':'<path d="M7 5h3v14H7zM14 5h3v14h-3z"/>';}
+  // Segmente: ein Segment pro Übung
+  document.getElementById('cam-segs').innerHTML=camQueue.map((q,i)=>'<span class="'+(i<camIdx?'on':'')+'"></span>').join('');
+  updateCamFig();
 }
-// Ein Button für alles: Sets abhaken, am Ende Einheit bestätigen
-function camMain(){ camAllDone()?confirmRecording():camSetDone(); }
-function camSetDone(){
-  if(camRest>0||camAllDone())return;
+function updateCamFig(){
+  const demo=document.getElementById('cam-demo');if(!demo)return;
   const cur=camQueue[camIdx];
-  cur.done++;
-  camMarks.push({ex:cur.name,set:cur.done,t:camSecs,pose:poseSnapshot()}); // Zeitmarke + KI-Check des Sets
-  if(cur.done>=cur.sets)camIdx++;
+  if(!cur){demo.innerHTML='<div style="font-size:60px">✅</div>';return;}
+  if(demo.dataset.ex!==cur.name){demo.dataset.ex=cur.name;demo.innerHTML=exAnimHtml(cur.name,'big');}
+}
+// Ansicht tauschen wie im Videocall
+function camDemoTap(){document.getElementById('cam-overlay').classList.remove('selfbig');}
+function camSelfTap(){document.getElementById('cam-overlay').classList.toggle('selfbig');}
+function camMain(){ if(camAllDone())confirmRecording(); else camPauseToggle(); }
+function camPauseToggle(){
+  camPaused=!camPaused;
+  if(camPaused){
+    if(camRecorder&&camRecorder.state==='recording')camRecorder.pause();
+    clearInterval(camTimerInt);camTimerInt=null;
+  } else {
+    if(camRecorder&&camRecorder.state==='paused')camRecorder.resume();
+    if(camRecorder&&!camTimerInt)camTimerInt=setInterval(camTimerTick,1000);
+  }
   renderCamRail();
-  // nach jedem Set: Satzpause proportional zur Schwere der Übung
+}
+function camStartBlock(){
+  const cur=camQueue[camIdx];
+  camExRemain=cur?cur.secs:0;
+  renderCamRail();
+}
+// Block beendet (automatisch oder per ⏭): Zeitmarke + Pause + weiter
+function camBlockDone(){
+  const cur=camQueue[camIdx];if(!cur)return;
+  const done=cur.secs-Math.max(0,camExRemain);
+  camMarks.push({ex:cur.name,set:1,t:camSecs,secs:done,pose:poseSnapshot()});
+  camIdx++;
   if(!camAllDone()&&(ST.profile.rest_secs??60)>0){
     const cat=(unitSel[cur.name]||{}).cat||'y';
     const f={g:.75,y:1,r:1.25}[cat]||1;
+    camStartBlock();
     startRest(Math.max(15,Math.round((ST.profile.rest_secs??60)*f/5)*5));
-  }
+  } else camStartBlock();
 }
-// Übung überspringen (Sets bleiben ungezählt — Prüfer sehen nur Gezeigtes)
-function camSkipExercise(){
-  if(camRest>0||camAllDone())return;
-  camIdx++;
-  renderCamRail();
+function camNextEx(){ if(camRest>0||camAllDone())return; camBlockDone(); }
+function camPrevEx(){
+  if(camRest>0)return;
+  const cur=camQueue[camIdx];
+  if(cur&&camExRemain<cur.secs-2){camExRemain=cur.secs;renderCamRail();return;} // erst: Übung neu starten
+  if(camIdx>0){camIdx--;camMarks.pop();camStartBlock();} // dann: zur vorigen zurück
 }
 function camAllDone(){return camIdx>=camQueue.length;}
 
@@ -1843,13 +2041,10 @@ function endRest(){
 function camTimerTick(){
   camSecs++;
   document.getElementById('cam-timer').textContent=Math.floor(camSecs/60)+':'+String(camSecs%60).padStart(2,'0');
-  // Set-Timer: Zeit seit dem letzten bestätigten Set, Ring füllt sich über 60 s
-  const lastT=camMarks.length?camMarks[camMarks.length-1].t:0;
-  const s=camSecs-lastT;
-  const txt=document.getElementById('cam-settime-txt');
-  if(txt)txt.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-  const ring=document.getElementById('cam-setring');
-  if(ring)ring.style.strokeDashoffset=(40.8*(1-Math.min(1,s/60))).toFixed(1);
+  if(camAllDone()||camRest>0||camPaused)return;
+  camExRemain--;
+  document.getElementById('cp-time').textContent=fmtMS(camExRemain);
+  if(camExRemain<=0)camBlockDone();
 }
 // ── KI-Check (MediaPipe Pose, Stufe 1): läuft komplett lokal im Browser ──
 // Prüft während der Aufnahme mit ~5 fps, ob eine Person sichtbar ist und sich bewegt.
@@ -1883,7 +2078,19 @@ function updatePoseLight(){
   const pf=document.getElementById('prep-frame');
   if(pf&&document.getElementById('cam-prep').classList.contains('show')){
     pf.classList.toggle('ok',full);
-    pf.textContent=full?'Perfekt — du bist ganz im Bild':'Stelle dein Handy so auf, dass du ganz im Bild bist';
+    if(full){pf.textContent='Perfekt — du bist ganz im Bild';}
+    else if(!poseLastLm){pf.textContent='⟲ Stell dich ins Bild — Kamera auf Körperhöhe, 2–3 m Abstand';}
+    else{
+      // Richtungshinweis: welcher Teil fehlt?
+      const vis=i=>poseLastLm[i]&&(poseLastLm[i].visibility??1)>0.5;
+      const xs=poseLastLm.filter(l=>(l.visibility??1)>0.5).map(l=>l.x);
+      const cx=xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:0.5;
+      if(!vis(0))pf.textContent='⬆ Kamera höher kippen — Kopf ist abgeschnitten';
+      else if(!vis(27)||!vis(28))pf.textContent='⬇ Weiter weg oder Kamera tiefer — Füße fehlen';
+      else if(cx<0.32)pf.textContent='➡ Geh weiter in die Mitte';
+      else if(cx>0.68)pf.textContent='⬅ Geh weiter in die Mitte';
+      else pf.textContent='Stelle dein Handy so auf, dass du ganz im Bild bist';
+    }
   }
 }
 function startPoseLoop(){
@@ -1947,6 +2154,7 @@ function endPrep(){
   clearInterval(camPrepInt);camPrepInt=null;
   document.getElementById('cam-prep').classList.remove('show');
   if(camRecorder||!camStream)return;
+  camStartBlock();
   camRecorder=new MediaRecorder(camStream,{mimeType:camMime});
   camRecorder.ondataavailable=e=>{if(e.data&&e.data.size)camChunks.push(e.data);};
   camRecorder.start(1000);
@@ -1958,7 +2166,7 @@ function camTeardown(){
   clearInterval(camPrepInt);camPrepInt=null;
   document.getElementById('cam-prep').classList.remove('show');
   clearInterval(poseTimer);poseTimer=null;
-  document.getElementById('cam-overlay').classList.remove('swapped');
+  document.getElementById('cam-overlay').classList.remove('selfbig');camPaused=false;
   document.getElementById('cam-rest').classList.remove('show');
   if(camRecorder&&camRecorder.state!=='inactive')camRecorder.stop();
   camRecorder=null;
@@ -1997,6 +2205,7 @@ async function confirmRecording(force){
     }
     camTeardown();camChunks=[];
     await commitUnit(path);
+    tuneLabels();openModal('tune-modal'); // Übungslänge/Pause fürs nächste Mal anpassen
   } finally {
     camBusy=false;
     btn.style.opacity='1';btn.style.pointerEvents='all';
@@ -2467,8 +2676,8 @@ function showToast(msg){
 //  INIT + globale Handler (für onclick-Attribute)
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
-  startRecording,camMain,camSwap,camUnswap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
-  chooseGoal,startRoutine,endPrep,camSkipExercise,
+  startRecording,camMain,camPauseToggle,camPrevEx,camNextEx,camDemoTap,camSelfTap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
+  chooseGoal,startRoutine,endPrep,openStreak,applyFreeze,redeemFreezes,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
