@@ -368,6 +368,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cal-day.empty{cursor:default}
 .tune-row{display:flex;gap:8px}
 .tune-row .btn{flex:1;font-size:11px}
+/* Verify-Timeline: Übungs-Sektionen zum Vorspulen */
+.v-tl{display:flex;gap:3px;margin-top:7px}
+.vtl-sec{height:20px;border-radius:6px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t1);cursor:pointer;transition:background .15s;min-width:14px}
+.vtl-sec:hover{background:var(--bdm)}
+.vtl-sec.cur{outline:1.5px solid var(--t0);outline-offset:1px}
+.vtl-sec.j-full{background:var(--grn-bg);color:var(--grn)}
+.vtl-sec.j-half{background:rgba(232,185,61,.15);color:#e8b93d}
+.vtl-sec.j-none{background:var(--acc-bg2);color:var(--acc)}
+.vf-demo{flex-shrink:0;cursor:pointer}
+.vf-demo .exdb-anim{width:64px;height:48px}
 /* Übungs-Urteil im Review: ✗ / ~ / ✓ */
 .vf-judge{display:flex;gap:8px}
 .vj{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--bdm);background:var(--s2);color:var(--t1);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s,background .15s}
@@ -2484,6 +2494,7 @@ function vcFocusHtml(vid){
   const j=(vcCounts[vid]||{})[ex];
   const jb=(val,label,cls)=>'<button class="vj '+cls+(j===val?' sel':'')+'" onclick="vcJudge('+vid+',\''+val+'\')">'+label+'</button>';
   return '<button class="vf-nav" onclick="vcNav('+vid+',-1)"'+(i===0?' disabled':'')+'>‹</button>'
+    +'<div class="vf-demo" onclick="openExInfo(\''+ex.replace(/'/g,"\\'")+'\')">'+exAnimHtml(ex)+'</div>'
     +'<div class="vf-name"><div class="vf-ex">'+ex+'</div><div class="vf-sub">Übung '+(i+1)+'/'+order.length+(planned?' · '+planned+' s aufgenommen':'')+' · beurteilt: '+judged+'/'+order.length+'</div></div>'
     +'<div class="vf-judge">'+jb('none','✗','vj-no')+jb('half','~','vj-mid')+jb('full','✓','vj-ok')+'</div>'
     +'<button class="vf-nav" onclick="vcNav('+vid+',1)"'+(i===order.length-1?' disabled':'')+'>›</button>';
@@ -2498,6 +2509,31 @@ function vcNav(vid,d){
   vcFocus[vid]=Math.max(0,Math.min(max,(vcFocus[vid]||0)+d));
   vcRerenderFocus(vid);
 }
+// Übungs-Sektionen im Video: [start,end] je Übung aus den Zeitmarken
+function vSections(v){
+  const marks=(v.units&&v.units.set_marks)||[];
+  return marks.map((m,i)=>({ex:m.ex,start:i?marks[i-1].t:0,end:m.t}));
+}
+function renderVTimeline(vid){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v)return;
+  const el=document.getElementById('vtl-'+vid);if(!el)return;
+  const secs=vSections(v);if(!secs.length){el.style.display='none';return;}
+  const total=Math.max(1,secs[secs.length-1].end);
+  const j=vcCounts[vid]||{};
+  el.innerHTML=secs.map((s,i)=>{
+    const w=Math.max(4,(s.end-s.start)/total*100);
+    const cls=j[s.ex]?' j-'+j[s.ex]:'';
+    return '<span id="vtls-'+vid+'-'+i+'" class="vtl-sec'+cls+'" style="flex-basis:'+w+'%" onclick="vSeek('+vid+','+i+')" title="'+s.ex+'">'+(j[s.ex]==='full'?'✓':(j[s.ex]==='half'?'~':(j[s.ex]==='none'?'✗':'')))+'</span>';
+  }).join('');
+}
+function vSeek(vid,i){
+  const v=ST.verifications.find(x=>x.id===vid);if(!v)return;
+  const secs=vSections(v);if(!secs[i])return;
+  const vd=document.getElementById('vv-'+vid);
+  vcFocus[vid]=Math.min(i,unitExOrder(v.units).length-1);
+  vcRerenderFocus(vid);
+  if(vd){vd.currentTime=secs[i].start+0.05;vd.play&&vd.play();}
+}
 function vcJudge(vid,val){
   const v=ST.verifications.find(x=>x.id===vid);if(!v||!v.units)return;
   const order=unitExOrder(v.units);
@@ -2505,7 +2541,14 @@ function vcJudge(vid,val){
   const ex=order[i];if(!ex)return;
   const c=vcCounts[vid]||(vcCounts[vid]={});
   c[ex]=val;
-  if(i<order.length-1)vcFocus[vid]=i+1; // automatisch zur nächsten Übung
+  renderVTimeline(vid);
+  if(i<order.length-1){
+    vcFocus[vid]=i+1;
+    // Video springt an den Anfang der nächsten Übung und läuft weiter
+    const secs=vSections(v);
+    const vd=document.getElementById('vv-'+vid);
+    if(vd&&secs[i+1]){vd.currentTime=secs[i+1].start+0.05;vd.play&&vd.play();}
+  }
   vcRerenderFocus(vid);
 }
 // Video als Blob laden (respektiert RLS; keine teilbare URL, kein Download-Endpunkt)
@@ -2525,22 +2568,28 @@ async function loadVerifyVideo(vid){
     +'<div class="vp-ctrl">'
     +'<button class="vp-play" onclick="togglePlay('+vid+')" id="vpb-'+vid+'">▶</button>'
     +[0.5,1,2].map(s=>'<button class="spd'+(s===1?' active':'')+'" onclick="setSpeed('+vid+','+s+',this)">'+s.toLocaleString('de-DE')+'×</button>').join('')
-    +'</div>';
+    +'</div>'
+    +'<div class="v-tl" id="vtl-'+vid+'"></div>';
   const vd=document.getElementById('vv-'+vid);
   vd.src=url;
   vd.addEventListener('play',()=>{document.getElementById('vpb-'+vid).textContent='⏸';});
   vd.addEventListener('pause',()=>{document.getElementById('vpb-'+vid).textContent='▶';});
   // Mitlaufende Anzeige: das Teilset, in dem sich die Person gerade befindet, leuchtet
   const marks=v.units.set_marks||[];
+  renderVTimeline(vid);
   if(marks.length){
     const order=unitExOrder(v.units);
     vd.addEventListener('timeupdate',()=>{
       const t=vd.currentTime;
       let cur=marks.findIndex(m=>t<=m.t);
       if(cur<0)cur=marks.length-1;
-      // Zähler direkt unterm Video folgt automatisch der Übung, die gerade läuft
+      // Zähler folgt der laufenden Übung; Timeline markiert die aktuelle Sektion
       const idx=order.indexOf(marks[cur].ex);
       if(idx>=0&&vcFocus[vid]!==idx){vcFocus[vid]=idx;vcRerenderFocus(vid);}
+      marks.forEach((m,i)=>{
+        const s=document.getElementById('vtls-'+vid+'-'+i);
+        if(s)s.classList.toggle('cur',i===cur);
+      });
     });
   }
 }
@@ -2749,7 +2798,7 @@ function showToast(msg){
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camMain,camPauseToggle,camPrevEx,camNextEx,camDemoTap,camSelfTap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
   chooseGoal,startRoutine,endPrep,openStreak,askFreeze,applyFreeze,redeemFreezes,openHint,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
-  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcJudge,vcNav,selectVerify,
+  loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcJudge,vcNav,vSeek,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
   openRegionModal,renderRegionList,autoDetectRegion,selectRegion,saveLang,saveNotifPref,
