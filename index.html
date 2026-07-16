@@ -889,16 +889,37 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
 <div class="modal-overlay" id="streak-modal">
   <div class="modal-box" style="text-align:left">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-      <span class="modal-title" style="text-align:left;margin:0" id="streak-count">🔥 0</span>
-      <span style="font-size:12px;color:var(--blu);font-weight:700" id="freeze-count">❄ 0</span>
+      <span class="modal-title" style="text-align:left;margin:0;cursor:pointer" id="streak-count" onclick="openHint('streak')">🔥 0</span>
+      <span style="font-size:12px;color:var(--blu);font-weight:700;cursor:pointer" id="freeze-count" onclick="openHint('freeze')">❄ 0</span>
     </div>
     <div style="font-size:11px;color:var(--t1);margin-bottom:10px" id="streak-remain"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <b style="font-size:12px;color:var(--t0)" id="cal-title"></b>
-      <span style="font-size:9px;color:var(--t2)">Tag antippen = Freeze einsetzen</span>
+      <span style="font-size:9px;color:var(--t2)">Heute oder gestern antippen, um einen Freeze einzusetzen</span>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
-    <div style="font-size:9px;color:var(--t2);margin-top:10px;line-height:1.6">❄ schützt deinen Streak für einen Tag. +2 automatisch alle 30 Tage · +1 je 5 Reviews im Monat · 10 ❄ = 1 Gratis-Monat (in Rewards einlösbar).</div>
+    <div style="font-size:9px;color:var(--t2);margin-top:10px;text-align:center">Tippe auf 🔥 oder ❄, um mehr zu erfahren</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="freeze-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--blu-bg)"><span style="font-size:20px">❄</span></div>
+    <div class="modal-title">Freeze einsetzen?</div>
+    <div class="modal-body" id="freeze-confirm-text"></div>
+    <div class="modal-actions">
+      <button class="btn bg" onclick="closeModal('freeze-modal')">Lieber nicht</button>
+      <button class="btn bp" style="background:var(--blu)" onclick="applyFreeze()">Ja, einfrieren</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="hint-modal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:var(--s3)"><span style="font-size:20px" id="hint-icon">🔥</span></div>
+    <div class="modal-title" id="hint-title"></div>
+    <div class="modal-body" id="hint-body" style="line-height:1.6"></div>
+    <button class="btn bg bf" style="margin-top:10px" onclick="closeModal('hint-modal')">Alles klar</button>
   </div>
 </div>
 
@@ -1309,15 +1330,34 @@ function openStreak(){
     else if(ST.freezeDays.has(ds))cls+=' froze';
     if(d===now.getDate())cls+=' today';
     if(fut)cls+=' future';
-    const click=(!fut&&!ST.dayLog.has(ds)&&!ST.freezeDays.has(ds))?' onclick="applyFreeze(\''+ds+'\')"':'';
+    const yest=dayStr(new Date(Date.now()-864e5));
+    const allowed=(ds===dayStr(new Date())||ds===yest);
+    const click=(allowed&&!fut&&!ST.dayLog.has(ds)&&!ST.freezeDays.has(ds))?' onclick="askFreeze(\''+ds+'\')"':'';
     html+='<span class="'+cls+'"'+click+'>'+(ST.freezeDays.has(ds)?'❄':d)+'</span>';
   }
   grid.innerHTML=html;
   openModal('streak-modal');
 }
-async function applyFreeze(day){
+let freezeDay=null;
+function openHint(kind){
+  const t={
+    streak:['🔥','Dein Streak','So viele Tage in Folge bist du schon dabei. Jeder Tag mit einer aufgenommenen Einheit zählt dazu — und ein Freeze überbrückt einen Ruhetag. Verpasst du einen Tag komplett, startet die Flamme wieder bei null.'],
+    freeze:['❄','Deine Freezes','Ein Freeze ist dein Joker für Ruhetage: Er hält den Streak an einem Tag ohne Training am Leben. Alle 30 Tage bekommst du zwei neue geschenkt, und für je fünf geprüfte Videos im Monat gibt es einen dazu. Sammelst du zehn, tauschen wir sie gegen einen geschenkten Abo-Monat.']
+  }[kind];
+  document.getElementById('hint-icon').textContent=t[0];
+  document.getElementById('hint-title').textContent=t[1];
+  document.getElementById('hint-body').textContent=t[2];
+  openModal('hint-modal');
+}
+function askFreeze(day){
   if((ST.profile.freezes||0)<1){showToast('Keine Freezes übrig');return;}
-  if(!confirm('Freeze für '+fmtDate(day)+' einsetzen? Der Tag zählt dann als geschützt.'))return;
+  freezeDay=day;
+  document.getElementById('freeze-confirm-text').textContent=fmtDate(day)+' wird eingefroren — dein Streak bleibt erhalten, ohne dass du trainierst.';
+  openModal('freeze-modal');
+}
+async function applyFreeze(){
+  const day=freezeDay;if(!day)return;
+  closeModal('freeze-modal');
   const {error}=await supabase.from('freeze_days').insert({user_id:ST.session.user.id,day});
   if(error){showToast('Fehler: '+error.message);return;}
   ST.profile.freezes--;ST.freezeDays.add(day);
@@ -2361,13 +2401,13 @@ function renderReviewOverview(){
   }).join('')+'</div>';
   const u=done.find(x=>x.id===rvSel);
   const allOk=u.verifications.every(v=>v.verdict==='approved');
-  const myTotal=(u.set_marks||[]).length||Object.values(u.selection||{}).reduce((s,o)=>s+(o.clicks||0),0);
+  const myTotal=(u.set_marks||[]).reduce((s,m)=>s+(m.secs||30),0)||Object.values(u.selection||{}).reduce((s,o)=>s+(o.clicks||0)*30,0);
   const rows=u.verifications.map(v=>{
     const name=v.users?.display_name||'Prüfer';
-    const counted=(v.set_counts||[]).reduce((s,c)=>s+c.sets,0);
+    const counted=(v.set_counts||[]).reduce((s,c)=>s+(c.secs??(c.sets||0)*30),0);
     const ok=v.verdict==='approved';
     return '<div class="vcmp-row"><span class="vcmp-ex">'+name+'</span>'
-      +'<span class="vcmp-n">'+counted+' / '+myTotal+' Sets</span>'
+      +'<span class="vcmp-n">'+counted+' / '+myTotal+' s</span>'
       +'<span class="vcmp-n" style="color:'+(ok?'var(--grn)':'var(--acc)')+'">'+(ok?'Bestätigt ✓':'Abgelehnt ✗')+'</span></div>';
   }).join('');
   const compl=ST.complaints.find(c=>c.unit_id===u.id);
@@ -2420,9 +2460,10 @@ function vcFocusHtml(vid){
   const order=unitExOrder(v.units);if(!order.length)return '';
   const i=Math.min(vcFocus[vid]||0,order.length-1);
   const ex=order[i], cnt=(vcCounts[vid]&&vcCounts[vid][ex])||0;
+  const planned=(v.units.set_marks||[]).filter(m=>m.ex===ex).reduce((s,m)=>s+(m.secs||30),0);
   return '<button class="vf-nav" onclick="vcNav('+vid+',-1)"'+(i===0?' disabled':'')+'>‹</button>'
-    +'<div class="vf-name"><div class="vf-ex">'+ex+'</div><div class="vf-sub">Übung '+(i+1)+'/'+order.length+' · Sets zählen</div></div>'
-    +'<div class="vf-ctl"><button onclick="vcAdjust('+vid+',-1)">−</button><b>'+cnt+'</b><button onclick="vcAdjust('+vid+',1)">+</button></div>'
+    +'<div class="vf-name"><div class="vf-ex">'+ex+'</div><div class="vf-sub">Übung '+(i+1)+'/'+order.length+' · saubere Zeit zählen'+(planned?' · aufgenommen: '+planned+' s':'')+'</div></div>'
+    +'<div class="vf-ctl"><button onclick="vcAdjust('+vid+',-1)">−</button><b>'+cnt+' s</b><button onclick="vcAdjust('+vid+',1)">+</button></div>'
     +'<button class="vf-nav" onclick="vcNav('+vid+',1)"'+(i===order.length-1?' disabled':'')+'>›</button>';
 }
 function vcRerenderFocus(vid){
@@ -2440,7 +2481,7 @@ function vcAdjust(vid,d){
   const order=unitExOrder(v.units);
   const ex=order[Math.min(vcFocus[vid]||0,order.length-1)];if(!ex)return;
   const c=vcCounts[vid]||(vcCounts[vid]={});
-  c[ex]=Math.max(0,Math.min(9,(c[ex]||0)+d));
+  c[ex]=Math.max(0,Math.min(600,(c[ex]||0)+d*5)); // in 5-Sekunden-Schritten
   vcRerenderFocus(vid);
 }
 // Video als Blob laden (respektiert RLS; keine teilbare URL, kein Download-Endpunkt)
@@ -2491,8 +2532,8 @@ function setSpeed(vid,rate,btn){
 async function decideVerification(vid,verdict){
   const v=ST.verifications.find(x=>x.id===vid);if(!v||v.verdict)return;
   // Gezählte Sets in Übungs-Reihenfolge mitschicken
-  const counts=unitExOrder(v.units).map(ex=>({ex,sets:(vcCounts[vid]&&vcCounts[vid][ex])||0}));
-  if(counts.every(c=>c.sets===0)&&!confirm('Du hast keine Sets gezählt — trotzdem abschicken?'))return;
+  const counts=unitExOrder(v.units).map(ex=>({ex,secs:(vcCounts[vid]&&vcCounts[vid][ex])||0}));
+  if(counts.every(c=>c.secs===0)&&!confirm('Du hast noch keine Zeit gezählt — trotzdem abschicken?'))return;
   const {error}=await supabase.from('verifications')
     .update({verdict,decided_at:new Date().toISOString(),set_counts:counts}).eq('id',vid);
   if(error){showToast('Fehler: '+error.message);return;}
@@ -2677,7 +2718,7 @@ function showToast(msg){
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camMain,camPauseToggle,camPrevEx,camNextEx,camDemoTap,camSelfTap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
-  chooseGoal,startRoutine,endPrep,openStreak,applyFreeze,redeemFreezes,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
+  chooseGoal,startRoutine,endPrep,openStreak,askFreeze,applyFreeze,redeemFreezes,openHint,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcAdjust,vcNav,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
