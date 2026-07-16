@@ -2,7 +2,13 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>RepVerify</title>
 <style>
 :root {
@@ -368,6 +374,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cal-day.empty{cursor:default}
 .tune-row{display:flex;gap:8px}
 .tune-row .btn{flex:1;font-size:11px}
+/* Solo: Player ohne Kamera */
+.cam-overlay.no-cam #cam-video,.cam-overlay.no-cam .cam-framedot,.cam-overlay.no-cam .cam-rec{display:none!important}
+.cam-overlay.no-cam .prep-frame{display:none}
+/* Podest für die Top 3 */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:6px 0 14px}
+.pod{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;max-width:110px}
+.pod-av{width:44px;height:44px;border-radius:50%;background:var(--s2);color:var(--t0);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:2px solid var(--bdm)}
+.pod.p1 .pod-av{width:54px;height:54px;border-color:var(--amb);box-shadow:0 0 16px rgba(232,185,61,.35)}
+.pod.p2 .pod-av{border-color:#b8c0cc}.pod.p3 .pod-av{border-color:#b0793d}
+.pod-name{font-size:10px;color:var(--t0);font-weight:600;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pod-pts{font-size:9px;color:var(--t1)}
+.pod-block{width:100%;border-radius:8px 8px 0 0;display:flex;align-items:flex-start;justify-content:center;font-weight:800;color:#0d0d0d;padding-top:4px;font-size:13px}
+.pod.p1 .pod-block{height:52px;background:linear-gradient(180deg,#f0c75e,#c99b2e)}
+.pod.p2 .pod-block{height:38px;background:linear-gradient(180deg,#c9d1dc,#97a1af)}
+.pod.p3 .pod-block{height:30px;background:linear-gradient(180deg,#c98f52,#96662f)}
+.pod.me .pod-name{color:var(--acc)}
+.rank-scroll{max-height:340px;overflow-y:auto}
 /* Mitgliedschaften: Vergleich Solo / Arena */
 .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left}
 .plan-col{display:flex;flex-direction:column;gap:7px;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--rl);padding:14px 12px}
@@ -747,6 +770,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
     <div class="priv-viz" id="priv-stats-viz">
       <span class="pv-name" id="priv-viz-name2">Max Kraft</span><span class="pv-pts" id="priv-viz-pts">10,5 <span class="coin"></span> · 28/30 Einheiten</span>
     </div>
+    <div class="tr2"><div class="trx"><div class="trtl">Gesicht unkenntlich machen</div><div class="trsb">Dein Kopf wird in Aufnahmen automatisch verpixelt — Prüfer sehen dich nicht</div></div><label class="tog"><input type="checkbox" id="face-blur-toggle" onchange="setFaceBlur(this.checked)"><span class="tsl"></span></label></div>
     <div class="ib" style="margin-top:.6rem">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
       <span><b style="color:var(--t0)">Videos werden automatisch gelöscht</b>, sobald die Prüfung abgeschlossen ist und keine Beschwerde vorliegt (24 h Beschwerdefenster). Videos können nicht behalten werden — der Zugriff der Prüfer endet mit ihrer Entscheidung.</span>
@@ -1187,7 +1211,7 @@ async function loadAll(){
     supabase.from('users').select('*').eq('id',uid).single(),
     supabase.from('transactions').select('*').eq('user_id',uid).order('tx_date',{ascending:false}).order('created_at',{ascending:false}),
     supabase.from('exercise_progress').select('*').eq('user_id',uid),
-    supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false}),
+    supabase.from('rankings_snapshot').select('points,user_id,display_name,pub_profile').eq('month',monthStart()).order('points',{ascending:false}).limit(200),
     supabase.from('units').select('id',{count:'exact',head:true}).eq('user_id',uid).gte('unit_date',monthStart()),
     supabase.from('units').select('*').eq('user_id',uid).eq('unit_date',isoToday()).maybeSingle(),
     supabase.from('verifications').select('*, units(id,unit_date,points,distinct_count,selection,set_marks,video_path,user_id,users(display_name,dashboard_public))').eq('reviewer_id',uid).order('created_at',{ascending:false}),
@@ -1203,7 +1227,7 @@ async function loadAll(){
   ST.transactions = txs.data||[];
   ST.exProgress = {};
   (prog.data||[]).forEach(r=>{ ST.exProgress[r.exercise]={level:r.level,xp:r.xp,uses:r.uses}; });
-  ST.leaderboard = (ranks.data||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
+  ST.leaderboard = (ranks.data||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.display_name||r.users?.display_name||'Athlet',pub:(r.pub_profile??r.users?.pub_profile)??true,dash:r.users?.dashboard_public??false}));
   ST.monthUnits = units.count||0;
   ST.todayUnit = today.data||null;
   ST.verifications = vfs.data||[];
@@ -1246,6 +1270,7 @@ function applyProfileToUI(){
   document.querySelectorAll('.notif-mail').forEach(el=>el.textContent=email);
   document.getElementById('pub-profile-toggle').checked = p.pub_profile;
   document.getElementById('dashboard-toggle').checked = p.dashboard_public;
+  document.getElementById('face-blur-toggle').checked = !!p.face_blur;
   // Konto blockiert bei 3 Penaltys — Admin entscheidet über Entsperrung
   document.getElementById('blocked-overlay').style.display=(p.penalties||0)>=3?'flex':'none';
   const ri=Math.max(0,REST_OPTS.indexOf(p.rest_secs??60));
@@ -1451,12 +1476,30 @@ async function tuneRest(d){
 // ── Dashboard: Ziele ─────────────────────────────────────────
 // ── Mitgliedschaft ───────────────────────────────────────────
 async function choosePlan(plan){
+  if(plan==='arena'){
+    // Echtes Abo über Stripe Checkout
+    showToast('Weiterleitung zu Stripe …');
+    try{
+      const {data,error}=await supabase.functions.invoke('create-checkout');
+      if(error||!data||!data.url)throw new Error((data&&data.error)||error?.message||'Checkout nicht verfügbar');
+      location.href=data.url;return;
+    }catch(e){
+      // Stripe noch nicht konfiguriert → Testmodus, damit ihr weiter testen könnt
+      showToast('Stripe noch nicht eingerichtet — Arena testweise aktiviert');
+    }
+  }
   ST.profile.plan=plan;
   await supabase.from('users').update({plan}).eq('id',ST.session.user.id);
   closeModal('plan-modal');
   applyPlanUI();renderAll();
   showToast(plan==='arena'?'Willkommen in der Arena! 🏟':'Solo gestartet — dein Streak wartet.');
 }
+// Rückkehr aus dem Stripe-Checkout
+(function(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('sub')==='success'){history.replaceState({},'','/');setTimeout(()=>showToast('Zahlung erfolgreich — willkommen in der Arena! 🏟'),800);}
+  if(q.get('sub')==='cancel'){history.replaceState({},'','/');setTimeout(()=>showToast('Checkout abgebrochen'),800);}
+})();
 function applyPlanUI(){
   const solo=ST.profile&&ST.profile.plan==='solo';
   // Solo: keine Community-Prüfung → Verify ausblenden
@@ -1555,29 +1598,46 @@ function renderMonthOverview(){
 }
 
 function renderRanking(){
-  const lb=ST.leaderboard, uid=ST.session.user.id;
-  const uIdx=lb.findIndex(r=>r.user_id===uid);
-  document.getElementById('rank-player-count').textContent = lb.length+' Teilnehmer';
-  if(lb.length===0){ document.getElementById('ranking-list').innerHTML='<div style="font-size:11px;color:var(--t2);text-align:center;padding:1rem">Noch keine Einträge diesen Monat</div>'; return; }
-  const rows=new Set([0,1,2,uIdx-1,uIdx,uIdx+1].filter(i=>i>=0&&i<lb.length));
-  const list=[...rows].sort((a,b)=>a-b);
-  const colors=['var(--amb)','var(--grn)','var(--blu)','var(--acc)','var(--t1)'];
-  const bgs=['var(--amb-bg)','var(--grn-bg)','var(--blu-bg)','var(--acc-bg)','var(--s2)'];
-  let html='',prev=-1;
-  list.forEach(i=>{
-    if(prev>=0&&i-prev>1) html+='<div style="text-align:center;font-size:10px;color:var(--t2);padding:3px 0">···</div>';
-    prev=i;
-    const r=lb[i],pos=i+1,me=r.user_id===uid,ci=i%colors.length;
-    const nameBlur = !r.pub && !me ? ' blurred':'';   // privates Profil → für ANDERE geblurt
-    const statsBlur = !r.dash && !me ? ' blurred':'';
-    html+='<div class="rr '+(me?'rry':'')+'">'
-      +'<span class="rp '+(pos<=3||me?'rpt':'')+'">'+pos+'</span>'
-      +'<div class="rav" style="background:'+(me?'var(--acc-bg2)':bgs[ci])+';color:'+(me?'var(--acc)':colors[ci])+'"><span class="'+nameBlur+'">'+initials(r.name)+'</span></div>'
-      +'<div><div class="rn"><span class="'+nameBlur+'">'+r.name+'</span>'+(me?'<span class="pill pb" style="font-size:9px;padding:1px 5px">du</span>':'')+'</div>'
-      +'<div class="ru"><span class="'+statsBlur+'">'+r.points+' <span class="coin"></span></span></div></div>'
-      +'<div class="rw">'+(me?'+'+RANK_BONUS_PER_POS.toFixed(2).replace('.',',')+' €/Pos.':'—')+'</div></div>';
-  });
-  document.getElementById('ranking-list').innerHTML=html;
+  const lb=ST.leaderboard.slice(0,100), uid=ST.session.user.id;
+  const full=ST.leaderboard;
+  const uIdx=full.findIndex(r=>r.user_id===uid);
+  document.getElementById('rank-player-count').textContent=full.length+' Teilnehmer';
+  const el=document.getElementById('ranking-list');
+  if(!full.length){el.innerHTML='<div style="font-size:11px;color:var(--t2);text-align:center;padding:1rem">Noch keine Einträge diesen Monat</div>';return;}
+  const nm=(r,me)=>'<span class="'+(!r.pub&&!me?'blurred':'')+'">'+r.name+'</span>';
+  const ini=(r,me)=>'<span class="'+(!r.pub&&!me?'blurred':'')+'">'+initials(r.name)+'</span>';
+  // Podest für die Top 3 (2. links, 1. Mitte erhöht, 3. rechts)
+  let html='';
+  if(lb.length>=3){
+    const p=(i,cls)=>{const r=lb[i],me=r.user_id===uid;
+      return '<div class="pod '+cls+(me?' me':'')+'"><div class="pod-av">'+ini(r,me)+'</div>'
+        +'<div class="pod-name">'+nm(r,me)+'</div><div class="pod-pts">'+r.points+' <span class="coin"></span></div>'
+        +'<div class="pod-block">'+(i+1)+'</div></div>';};
+    html+='<div class="podium">'+p(1,'p2')+p(0,'p1')+p(2,'p3')+'</div>';
+  }
+  // Plätze 4–100
+  html+='<div class="rank-scroll">';
+  for(let i=3;i<lb.length;i++){
+    const r=lb[i],me=r.user_id===uid;
+    html+='<div class="rr'+(me?' rry':'')+'"><span class="rp">'+(i+1)+'</span>'
+      +'<div class="rav" style="background:var(--s2);color:var(--t1)">'+ini(r,me)+'</div>'
+      +'<div><div class="rn">'+nm(r,me)+(me?'<span class="pill pb" style="font-size:9px;padding:1px 5px">du</span>':'')+'</div></div>'
+      +'<div class="rw">'+r.points+' <span class="coin"></span></div></div>';
+  }
+  html+='</div>';
+  // Eigene Position außerhalb der Top 100: mit Nachbarn oben/unten
+  if(uIdx>=100){
+    html+='<div style="text-align:center;font-size:10px;color:var(--t2);padding:5px 0">···</div>';
+    for(let i=Math.max(100,uIdx-2);i<=Math.min(full.length-1,uIdx+2);i++){
+      const r=full[i],me=r.user_id===uid;
+      html+='<div class="rr'+(me?' rry':'')+'"><span class="rp'+(me?' rpt':'')+'">'+(i+1)+'</span>'
+        +'<div class="rav" style="background:'+(me?'var(--acc-bg2)':'var(--s2)')+';color:'+(me?'var(--acc)':'var(--t1)')+'">'+ini(r,me)+'</div>'
+        +'<div><div class="rn">'+nm(r,me)+(me?'<span class="pill pb" style="font-size:9px;padding:1px 5px">du</span>':'')+'</div></div>'
+        +'<div class="rw">'+r.points+' <span class="coin"></span></div></div>';
+    }
+  }
+  html+='<div style="text-align:center;font-size:9px;color:var(--t2);padding-top:8px">Aktualisiert täglich um Mitternacht · Reset am Monatsende</div>';
+  el.innerHTML=html;
 }
 
 function renderRewards(){
@@ -2238,6 +2298,16 @@ function poseSnapshot(){
 async function startRecording(){
   if(ST.todayUnit)return;
   if(unitPts()<GOAL_PTS)return;
+  if(ST.profile.plan==='solo'){ // Solo wird nicht gefilmt: Workout-Player ohne Kamera
+    camStream=null;camMime='';
+    buildCamQueue();
+    renderCamRail();
+    camChunks=[];camSecs=0;camMarks=[];
+    document.getElementById('cam-timer').textContent='0:00';
+    document.getElementById('cam-overlay').classList.add('show','no-cam');
+    startPrep();
+    return;
+  }
   try{
     camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},audio:false});
   }catch(e){showToast('Kamera-Zugriff nicht möglich: '+e.message);return;}
@@ -2271,12 +2341,46 @@ function startPrep(){
     if(camPrep<=0)endPrep();
   },1000);
 }
+let blurRaf=null;
+function startBlurPipeline(){
+  const vd=document.getElementById('cam-video');
+  const cv=document.createElement('canvas');
+  cv.width=vd.videoWidth||1280;cv.height=vd.videoHeight||720;
+  const ctx=cv.getContext('2d');
+  const tiny=document.createElement('canvas'),tctx=tiny.getContext('2d');
+  const draw=()=>{
+    if(!camStream)return;
+    ctx.drawImage(vd,0,0,cv.width,cv.height);
+    const lm=poseLastLm;
+    if(lm&&lm[0]){ // Kopfregion aus der Pose verpixeln
+      const W=cv.width,H=cv.height;
+      const nx=lm[0].x*W,ny=lm[0].y*H;
+      const e1=lm[7]||lm[0],e2=lm[8]||lm[0];
+      const r=Math.max(48,Math.abs(e1.x-e2.x)*W*1.9);
+      const x=Math.max(0,nx-r),y=Math.max(0,ny-r*1.25),w=Math.min(W-x,r*2),h=Math.min(H-y,r*2.3);
+      tiny.width=Math.max(2,Math.floor(w/14));tiny.height=Math.max(2,Math.floor(h/14));
+      tctx.drawImage(cv,x,y,w,h,0,0,tiny.width,tiny.height);
+      ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(tiny,0,0,tiny.width,tiny.height,x,y,w,h);
+      ctx.imageSmoothingEnabled=true;
+    }
+    blurRaf=requestAnimationFrame(draw);
+  };
+  draw();
+  return cv.captureStream(25);
+}
 function endPrep(){
   clearInterval(camPrepInt);camPrepInt=null;
   document.getElementById('cam-prep').classList.remove('show');
-  if(camRecorder||!camStream)return;
+  if(camRecorder)return;
   camStartBlock();
-  camRecorder=new MediaRecorder(camStream,{mimeType:camMime});
+  if(!camStream){camTimerInt=setInterval(camTimerTick,1000);return;} // Solo: nur Timer, keine Aufnahme
+  let recStream=camStream;
+  if(ST.profile.face_blur){
+    if(poseLm){recStream=startBlurPipeline();showToast('Gesichts-Verpixelung aktiv ✓');}
+    else showToast('Verpixelung auf diesem Gerät nicht verfügbar — Aufnahme läuft normal');
+  }
+  camRecorder=new MediaRecorder(recStream,{mimeType:camMime});
   camRecorder.ondataavailable=e=>{if(e.data&&e.data.size)camChunks.push(e.data);};
   camRecorder.start(1000);
   camTimerInt=setInterval(camTimerTick,1000);
@@ -2287,7 +2391,8 @@ function camTeardown(){
   clearInterval(camPrepInt);camPrepInt=null;
   document.getElementById('cam-prep').classList.remove('show');
   clearInterval(poseTimer);poseTimer=null;
-  document.getElementById('cam-overlay').classList.remove('selfbig');camPaused=false;
+  if(blurRaf){cancelAnimationFrame(blurRaf);blurRaf=null;}
+  document.getElementById('cam-overlay').classList.remove('selfbig','no-cam');camPaused=false;
   const dm=document.getElementById('cam-demo');if(dm)dm.style.display='';
   document.getElementById('cam-rest').classList.remove('show');
   if(camRecorder&&camRecorder.state!=='inactive')camRecorder.stop();
@@ -2311,7 +2416,7 @@ async function confirmRecording(force){
   const btn=document.getElementById('cp-main');
   btn.style.opacity='.5';btn.style.pointerEvents='none';
   try{
-    // Aufnahme sauber beenden und letzte Datenpakete abwarten
+    // Aufnahme sauber beenden und letzte Datenpakete abwarten (Solo hat keine)
     if(camRecorder&&camRecorder.state!=='inactive'){
       await new Promise(res=>{camRecorder.onstop=res;camRecorder.stop();});
     }
@@ -2368,8 +2473,7 @@ async function commitUnit(videoPath){
     const meRow=ST.leaderboard.find(r=>r.user_id===uid);
     const newPts=(meRow?meRow.points:0)+rp;
     await supabase.from('rankings').upsert({user_id:uid,month:monthStart(),points:newPts},{onConflict:'user_id,month'});
-    const {data:ranks}=await supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false});
-    ST.leaderboard=(ranks||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
+    // Leaderboard bleibt bis Mitternacht beim Tages-Snapshot
   }
   // Geld läuft serverseitig: Wochen-Erstattung montags, Preispool am Monatsende
 
@@ -2689,6 +2793,11 @@ function switchStab(el,id){
 }
 
 // ── Datenschutz → Supabase ───────────────────────────────────
+async function setFaceBlur(on){
+  ST.profile.face_blur=on;
+  await supabase.from('users').update({face_blur:on}).eq('id',ST.session.user.id);
+  showToast(on?'Gesicht wird in Aufnahmen verpixelt':'Verpixelung aus');
+}
 async function setPubProfile(on){
   ST.profile.pub_profile=on;
   await supabase.from('users').update({pub_profile:on}).eq('id',ST.session.user.id);
@@ -2831,7 +2940,7 @@ Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
   openRegionModal,renderRegionList,autoDetectRegion,selectRegion,saveLang,saveNotifPref,
-  armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,
+  armDelete,finalizeDelete,confirmAppRemoval,setPubProfile,setDashboardPublic,setFaceBlur,
   updateBugCount,submitBug,updateIdeaCount,submitIdea,signInGoogle,signInEmail,signOut});
 
 // Sprachwähler befüllen (Sprachen in eigener Schrift, Englisch immer zuerst)
@@ -2843,6 +2952,9 @@ Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
     sel.innerHTML=langs.map(([c,n])=>'<option value="'+c+'"'+(c===cur?' selected':'')+'>'+n+'</option>').join('');
   }
 })();
+
+// PWA: Service Worker für Offline-Shell und Installierbarkeit
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 
 supabase.auth.onAuthStateChange((_event,session)=>{
   ST.session=session;
