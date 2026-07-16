@@ -368,6 +368,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cal-day.empty{cursor:default}
 .tune-row{display:flex;gap:8px}
 .tune-row .btn{flex:1;font-size:11px}
+/* Mitgliedschaften: Vergleich Solo / Arena */
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left}
+.plan-col{display:flex;flex-direction:column;gap:7px;background:var(--s2);border:1px solid var(--bdm);border-radius:var(--rl);padding:14px 12px}
+.plan-col.plan-arena{border-color:rgba(226,75,74,.5);box-shadow:0 0 18px rgba(226,75,74,.12)}
+.plan-name{font-size:15px;font-weight:800;color:var(--t0);margin-bottom:2px}
+.plan-arena .plan-name{color:var(--acc)}
+.plan-perk{font-size:10px;color:var(--t1);line-height:1.45;padding-left:14px;position:relative}
+.plan-perk::before{content:'✓';position:absolute;left:0;color:var(--grn);font-weight:700}
+.plan-btn{margin-top:auto;font-size:11px}
 /* Verify-Timeline: Übungs-Sektionen zum Vorspulen */
 .v-tl{display:flex;gap:3px;margin-top:7px}
 .vtl-sec{height:20px;border-radius:6px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t1);cursor:pointer;transition:background .15s;min-width:14px}
@@ -617,7 +626,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
   <div class="pb2">
     <div><div class="pa2" id="prize-pool">127 €</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Preispool</div></div>
     <div class="hsep"></div>
-    <div><div style="font-size:12px;color:var(--t0);font-weight:500">Aus nicht abgerufenen Erstattungen</div><div style="font-size:10px;color:var(--t2);margin-top:2px">+0,25 € pro gewonnene Ranking-Position · Auszahlung Monatsende</div></div>
+    <div><div style="font-size:12px;color:var(--t0);font-weight:500">Aus verfallenen Wochen-Erstattungen</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Aus verfallenen Wochen-Erstattungen · am Monatsende an die Top 25 % nach Punkten</div></div>
   </div>
   <div class="card" id="ranking-list"></div>
   <div style="font-size:10px;color:var(--t2);text-align:center;padding:9px 0">Ranking basiert auf Einheiten-Punkten + Vielfalts-Bonus</div>
@@ -651,8 +660,8 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
   <div class="card">
     <div class="sh" style="margin-bottom:.8rem"><span class="st" style="font-size:13px">So funktionieren Rewards</span></div>
     <div class="hg">
-      <div class="hi"><div class="htl"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Monatliche Erstattung</div><div class="hb">Abo kostet 10 €. Monat komplett (30/30) → 8 € zurück.</div></div>
-      <div class="hi"><div class="htl"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21V13M12 21V3M16 21V9"/></svg>Ranking-Bonus</div><div class="hb">Jede gewonnene Ranking-Position bringt +0,25 € Bonus.</div></div>
+      <div class="hi"><div class="htl"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Monatliche Erstattung</div><div class="hb">Abo 10 €/Monat. Jede erfüllte Woche bringt 2 € zurück — alle vier = 8 €.</div></div>
+      <div class="hi"><div class="htl"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21V13M12 21V3M16 21V9"/></svg>Ranking-Bonus</div><div class="hb">Preispool am Monatsende: die Top 25 % nach Punkten teilen sich die verfallenen Wochen der anderen.</div></div>
     </div>
   </div>
 </div>
@@ -695,6 +704,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
       </div>
       <div class="fb2"><div class="fl">E-Mail</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg><input class="fi" type="email" value="" id="user-email-input" style="border:none;background:transparent;padding:0;flex:1"></div></div>
       <div class="fb2"><div class="fl">Region &amp; Währung</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:12px;color:var(--t0)" id="region-label">—</span><button class="btn bg" style="margin-left:auto;font-size:10px;padding:4px 10px" onclick="openRegionModal()">Ändern</button></div></div>
+      <div class="fb2"><div class="fl">Mitgliedschaft</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8z"/></svg><span style="font-size:12px;color:var(--t0)" id="membership-label">—</span><button class="btn bg" style="margin-left:auto;font-size:10px;padding:4px 10px" onclick="openModal('plan-modal')">Wechseln</button></div></div>
       <div class="fb2"><div class="fl">Sprache</div><div class="fst"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg><select class="fi" id="lang-select" onchange="saveLang(this.value)" style="border:none;background:transparent;padding:0;flex:1"></select></div></div>
       <div class="tr2">
         <div class="trx"><div class="trtl">Satzpause beim Aufnehmen</div><div class="trsb"><b style="color:var(--t0)" id="rest-label">1 Min</b></div></div>
@@ -966,6 +976,31 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
   </div>
 </div>
 
+<div class="modal-overlay" id="plan-modal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-title">Wie willst du trainieren?</div>
+    <div class="modal-body" style="margin-bottom:12px">Du kannst jederzeit in den Einstellungen wechseln.</div>
+    <div class="plan-grid">
+      <div class="plan-col">
+        <div class="plan-name">Solo</div>
+        <div class="plan-perk">Motivation durch deinen Streak</div>
+        <div class="plan-perk">Alle Übungen &amp; Trainingspläne</div>
+        <div class="plan-perk">Natürlich keine Werbung</div>
+        <div class="plan-perk">Videos bleiben auf deinem Gerät — nichts wird gespeichert</div>
+        <button class="btn bg bf plan-btn" onclick="choosePlan('solo')">Kostenlos</button>
+      </div>
+      <div class="plan-col plan-arena">
+        <div class="plan-name">Arena</div>
+        <div class="plan-perk">Ranking mit echten Boni</div>
+        <div class="plan-perk">Kontrolle durch die Community</div>
+        <div class="plan-perk">2 € zurück pro erfüllte Woche — bis 8 € im Monat</div>
+        <div class="plan-perk">Schnellerer Zugang zu Updates</div>
+        <button class="btn bp bf plan-btn" onclick="choosePlan('arena')">Abo · 10 €/Monat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="region-modal">
   <div class="modal-box" style="text-align:left">
     <div class="modal-title" style="text-align:left">Wähle deine Region</div>
@@ -1227,8 +1262,10 @@ function applyProfileToUI(){
   document.getElementById('lang-select').value=p.lang||localStorage.getItem('rv-lang')||'de';
   updatePrivViz();
   updateNameChangeUI();
-  // Region noch nicht gewählt → Onboarding direkt nach der Registrierung
+  applyPlanUI();
+  // Onboarding-Kette: erst Region, dann Mitgliedschaft
   if(!p.region){renderRegionList('');openModal('region-modal');}
+  else if(!p.plan){openModal('plan-modal');}
 }
 
 // ── Datenschutz-Visualisierung: zeigt live, wie andere dich sehen ──
@@ -1279,6 +1316,7 @@ async function selectRegion(code){
   closeModal('region-modal');
   renderAll();
   showToast('Region: '+regionName(code)+' — Währung '+cur);
+  if(!ST.profile.plan)openModal('plan-modal');
 }
 
 // ── Sprache ──────────────────────────────────────────────────
@@ -1411,6 +1449,21 @@ async function tuneRest(d){
   tuneLabels();renderTraining();
 }
 // ── Dashboard: Ziele ─────────────────────────────────────────
+// ── Mitgliedschaft ───────────────────────────────────────────
+async function choosePlan(plan){
+  ST.profile.plan=plan;
+  await supabase.from('users').update({plan}).eq('id',ST.session.user.id);
+  closeModal('plan-modal');
+  applyPlanUI();renderAll();
+  showToast(plan==='arena'?'Willkommen in der Arena! 🏟':'Solo gestartet — dein Streak wartet.');
+}
+function applyPlanUI(){
+  const solo=ST.profile&&ST.profile.plan==='solo';
+  // Solo: keine Community-Prüfung → Verify ausblenden
+  for(const id of ['ni-verify','ttab-verify']){const el=document.getElementById(id);if(el)el.style.display=solo?'none':'';}
+  const ml=document.getElementById('membership-label');
+  if(ml)ml.textContent=ST.profile.plan==='arena'?'Arena · 10 €/Monat':(ST.profile.plan==='solo'?'Solo · kostenlos':'—');
+}
 function renderGoals(){
   const el=document.getElementById('month-overview');if(!el)return;
   const t=trainState();
@@ -2263,14 +2316,17 @@ async function confirmRecording(force){
       await new Promise(res=>{camRecorder.onstop=res;camRecorder.stop();});
     }
     clearInterval(camTimerInt);camTimerInt=null;
-    const blob=new Blob(camChunks,{type:camMime.split(';')[0]});
-    const ext=camMime.startsWith('video/mp4')?'mp4':'webm';
-    const path=ST.session.user.id+'/'+isoToday()+'-'+Date.now()+'.'+ext;
-    const {error:upErr}=await supabase.storage.from('unit-videos').upload(path,blob,{contentType:camMime.split(';')[0]});
-    if(upErr){
-      showToast('Video-Upload fehlgeschlagen: '+upErr.message);
-      btn.style.opacity='1';btn.style.pointerEvents='all';camBusy=false;
-      return; // Overlay bleibt offen — erneut versuchen oder abbrechen
+    let path=null;
+    if(ST.profile.plan!=='solo'){ // Solo: Video bleibt lokal und wird verworfen
+      const blob=new Blob(camChunks,{type:camMime.split(';')[0]});
+      const ext=camMime.startsWith('video/mp4')?'mp4':'webm';
+      path=ST.session.user.id+'/'+isoToday()+'-'+Date.now()+'.'+ext;
+      const {error:upErr}=await supabase.storage.from('unit-videos').upload(path,blob,{contentType:camMime.split(';')[0]});
+      if(upErr){
+        showToast('Video-Upload fehlgeschlagen: '+upErr.message);
+        btn.style.opacity='1';btn.style.pointerEvents='all';camBusy=false;
+        return; // Overlay bleibt offen — erneut versuchen oder abbrechen
+      }
     }
     camTeardown();camChunks=[];
     await commitUnit(path);
@@ -2307,43 +2363,16 @@ async function commitUnit(videoPath){
   }
   if(upserts.length)await supabase.from('exercise_progress').upsert(upserts,{onConflict:'user_id,exercise'});
 
-  // 3) Ranking-Punkte gutschreiben
-  const meRow=ST.leaderboard.find(r=>r.user_id===uid);
-  const newPts=(meRow?meRow.points:0)+rp;
-  await supabase.from('rankings').upsert({user_id:uid,month:monthStart(),points:newPts},{onConflict:'user_id,month'});
-
-  // 4) Leaderboard neu laden, Bewegung berechnen
-  const {data:ranks}=await supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false});
-  ST.leaderboard=(ranks||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
-  const newRank=myRank(),gained=oldRank-newRank;
-  if(gained>0){
-    const bonus={user_id:uid,tx_date:isoToday(),title:'Ranking-Bonus',subtitle:'+'+gained+' Position'+(gained>1?'en':'')+' · 0,25 €/Pos.',amount:gained*RANK_BONUS_PER_POS};
-    const {data:btx}=await supabase.from('transactions').insert(bonus).select().single();
-    if(btx)ST.transactions.unshift(btx);
+  // 3) Ranking nur für Arena — Solo trainiert außer Konkurrenz
+  if(ST.profile.plan!=='solo'){
+    const meRow=ST.leaderboard.find(r=>r.user_id===uid);
+    const newPts=(meRow?meRow.points:0)+rp;
+    await supabase.from('rankings').upsert({user_id:uid,month:monthStart(),points:newPts},{onConflict:'user_id,month'});
+    const {data:ranks}=await supabase.from('rankings').select('points,user_id,users(display_name,pub_profile,dashboard_public)').eq('month',monthStart()).order('points',{ascending:false});
+    ST.leaderboard=(ranks||[]).map(r=>({user_id:r.user_id,points:r.points,name:r.users?.display_name||'Athlet',pub:r.users?.pub_profile??true,dash:r.users?.dashboard_public??false}));
   }
+  // Geld läuft serverseitig: Wochen-Erstattung montags, Preispool am Monatsende
 
-  // 5) Monatszähler + Erstattung
-  ST.monthUnits++;
-  const hasRefund=ST.transactions.some(t=>t.title.startsWith('Erstattung')&&t.tx_date>=monthStart());
-  if(ST.monthUnits>=MONTH_TARGET&&!hasRefund){
-    const ref={user_id:uid,tx_date:isoToday(),title:'Erstattung — Monat komplett',subtitle:MONTH_TARGET+'/'+MONTH_TARGET+' Einheiten · voll',amount:MONTH_REFUND};
-    const {data:rtx}=await supabase.from('transactions').insert(ref).select().single();
-    if(rtx)ST.transactions.unshift(rtx);
-  }
-
-  // Trainingsplan-Fortschritt: Routine zählt für den aktuellen Schritt, Level/Stufe steigen automatisch
-  if(routineActive){
-    routineActive=false;
-    const t=trainState();t.done++;
-    let stepUp=false;
-    if(t.done>=ROUTINE_NEED&&t.step<8){t.step++;t.done=0;stepUp=true;}
-    ST.profile.training=t;
-    const updT={training:t};
-    const newLvl=Math.min(3,Math.floor(t.step/3)+1);
-    if(newLvl>ST.profile.level){updT.level=newLvl;ST.profile.level=newLvl;}
-    await supabase.from('users').update(updT).eq('id',uid);
-    if(stepUp)showToast('Level-up! Trainingsplan Level '+(t.step+1)+' freigeschaltet 🎉');
-  }
   ST.todayUnit=unit;
   closeLvPanel();renderAll();nav('dashboard');
   let msg='Einheit aufgenommen — '+pts+' Punkte';
@@ -2797,7 +2826,7 @@ function showToast(msg){
 // ════════════════════════════════════════════════════════════
 Object.assign(window,{nav,switchStab,openLevel,closeLvPanel,commitUnit,filterTx,
   startRecording,camMain,camPauseToggle,camPrevEx,camNextEx,camDemoTap,camSelfTap,openExInfo,openExInfoCur,openExInfoNext,askCancelRecording,confirmCancelRecording,confirmRecording,
-  chooseGoal,startRoutine,endPrep,openStreak,askFreeze,applyFreeze,redeemFreezes,openHint,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
+  chooseGoal,startRoutine,endPrep,openStreak,askFreeze,applyFreeze,redeemFreezes,openHint,choosePlan,tuneEx,tuneRest,toggleRoutineEx,toggleExtraList,addExtraEx,
   loadVerifyVideo,togglePlay,setSpeed,decideVerification,vcJudge,vcNav,vSeek,selectVerify,
   endRest,restSliderInput,saveRestSecs,openComplaint,submitComplaint,selectReview,ackReview,
   openModal,closeModal,openWithdraw,confirmWithdraw,saveDisplayName,
