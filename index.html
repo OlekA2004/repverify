@@ -347,9 +347,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .cam-demo .exdb-anim.big{width:min(92vw,560px);height:min(64vw,380px);background:transparent}
 .cam-demo .fig-fallback svg .fg{stroke:#222}
 .cam-demo .fig-fallback svg .fg-head{fill:#222}
-.cam-overlay:not(.selfbig) #cam-video{position:absolute;inset:auto;right:12px;bottom:136px;width:104px;height:150px;object-fit:cover;border-radius:14px;border:2px solid var(--grn);z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.cam-overlay:not(.selfbig) #cam-video{position:absolute;inset:auto;right:12px;bottom:136px;width:104px;height:150px;object-fit:contain;background:#000;border-radius:14px;border:2px solid var(--grn);z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .cam-overlay:not(.selfbig) #cam-video.frame-bad{border-color:var(--acc)}
-.cam-overlay.selfbig #cam-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:none;border-radius:0;z-index:1;cursor:pointer}
+.cam-overlay.selfbig #cam-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border:none;border-radius:0;z-index:1;cursor:pointer}
 .cam-overlay.selfbig .cam-demo{inset:auto;right:12px;bottom:136px;width:120px;height:86px;border-radius:14px;overflow:hidden;z-index:6;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .cam-overlay.selfbig .cam-demo .exdb-anim.big{width:100%;height:100%;border-radius:0}
 .cam-framedot{left:auto;right:22px;bottom:296px}
@@ -2004,7 +2004,13 @@ function renderCamRail(){
 function updateCamFig(){
   const demo=document.getElementById('cam-demo');if(!demo)return;
   const cur=camQueue[camIdx];
-  if(!cur){demo.innerHTML='<div style="font-size:60px">✅</div>';return;}
+  const ov=document.getElementById('cam-overlay');
+  if(!cur){ // fertig: Demo weg, eigenes Video groß — nur noch bestätigen
+    demo.style.display='none';
+    ov.classList.add('selfbig');
+    return;
+  }
+  demo.style.display='flex';
   if(demo.dataset.ex!==cur.name){demo.dataset.ex=cur.name;demo.innerHTML=exAnimHtml(cur.name,'big');}
 }
 // Ansicht tauschen wie im Videocall
@@ -2166,6 +2172,12 @@ async function startRecording(){
   try{
     camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},audio:false});
   }catch(e){showToast('Kamera-Zugriff nicht möglich: '+e.message);return;}
+  // so weit wie möglich rauszoomen, wenn die Kamera es unterstützt
+  try{
+    const tr=camStream.getVideoTracks()[0];
+    const cap=tr.getCapabilities?tr.getCapabilities():null;
+    if(cap&&cap.zoom)await tr.applyConstraints({advanced:[{zoom:cap.zoom.min}]});
+  }catch(e){}
   camMime=camPickMime();
   if(!camMime){camStream.getTracks().forEach(t=>t.stop());camStream=null;showToast('Dein Browser unterstützt keine Videoaufnahme');return;}
   buildCamQueue();
@@ -2207,6 +2219,7 @@ function camTeardown(){
   document.getElementById('cam-prep').classList.remove('show');
   clearInterval(poseTimer);poseTimer=null;
   document.getElementById('cam-overlay').classList.remove('selfbig');camPaused=false;
+  const dm=document.getElementById('cam-demo');if(dm)dm.style.display='';
   document.getElementById('cam-rest').classList.remove('show');
   if(camRecorder&&camRecorder.state!=='inactive')camRecorder.stop();
   camRecorder=null;
@@ -2226,7 +2239,7 @@ async function confirmRecording(force){
   // Erst bestätigen, wenn alle Sets abgehakt sind — sonst deutliche Warnung
   if(!camAllDone()&&force!==true){openModal('cam-unfinished-modal');return;}
   camBusy=true;
-  const btn=document.getElementById('cam-main-btn');
+  const btn=document.getElementById('cp-main');
   btn.style.opacity='.5';btn.style.pointerEvents='none';
   try{
     // Aufnahme sauber beenden und letzte Datenpakete abwarten
