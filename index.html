@@ -645,7 +645,7 @@ html[lang="zh"] .sd,html[lang="ja"] .sd,html[lang="ko"] .sd,html[lang="zh"] .sl2
 
 <!-- RANKING -->
 <div class="page" id="page-ranking">
-  <div class="sh"><span class="st">Juni-Rankings</span><span class="ss" id="rank-player-count"></span></div>
+  <div class="sh"><span class="st" id="rank-month">Rankings</span><span class="ss" id="rank-player-count"></span></div>
   <div class="pb2">
     <div><div class="pa2" id="prize-pool">127 €</div><div style="font-size:10px;color:var(--t2);margin-top:2px">Preispool</div></div>
     <div class="hsep"></div>
@@ -1161,9 +1161,9 @@ const fmtEUR = v => {
   try{ return new Intl.NumberFormat(localStorage.getItem('rv-lang')||'de',{style:'currency',currency:ST.profile?.currency||'EUR'}).format(v); }
   catch(e){ return v.toFixed(2)+' €'; }
 };
-const isoToday = () => new Date().toISOString().slice(0,10);
+const isoToday = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const fmtDate = iso => { const [y,m,d]=iso.split('-'); return d+'.'+m+'.'+y; };
-const monthStart = () => { const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); };
+const monthStart = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'; };
 function balance(){ return ST.transactions.filter(t=>!t.external).reduce((s,t)=>s+Number(t.amount),0); }
 function lifetimeEarned(){ return ST.transactions.filter(t=>!t.external&&t.amount>0).reduce((s,t)=>s+Number(t.amount),0); }
 function maxPtsForLevel(lvl){ return BASE_MAX_PTS + (lvl-1)*2; }
@@ -1363,7 +1363,7 @@ async function saveNotifPref(key,on){
 //  RENDERING
 // ════════════════════════════════════════════════════════════
 // ── Streak & Freezes ─────────────────────────────────────────
-function dayStr(d){return d.toISOString().slice(0,10);}
+function dayStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function streakLen(){
   let n=0;const d=new Date();
   if(!ST.dayLog.has(dayStr(d))&&!ST.freezeDays.has(dayStr(d)))d.setDate(d.getDate()-1); // heute noch offen zählt nicht negativ
@@ -1402,7 +1402,7 @@ function openStreak(){
   for(let i=0;i<off;i++)html+='<span class="cal-day empty"></span>';
   const days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
   for(let d=1;d<=days;d++){
-    const ds=dayStr(new Date(Date.UTC(now.getFullYear(),now.getMonth(),d)));
+    const ds=dayStr(new Date(now.getFullYear(),now.getMonth(),d));
     const fut=d>now.getDate();
     let cls='cal-day';
     if(ST.dayLog.has(ds))cls+=' done';
@@ -1602,6 +1602,7 @@ function renderRanking(){
   const full=ST.leaderboard;
   const uIdx=full.findIndex(r=>r.user_id===uid);
   document.getElementById('rank-player-count').textContent=full.length+' Teilnehmer';
+  document.getElementById('rank-month').textContent=new Date().toLocaleDateString(localStorage.getItem('rv-lang')||'de',{month:'long'})+'-Rankings';
   const el=document.getElementById('ranking-list');
   if(!full.length){el.innerHTML='<div style="font-size:11px;color:var(--t2);text-align:center;padding:1rem">Noch keine Einträge diesen Monat</div>';return;}
   const nm=(r,me)=>'<span class="'+(!r.pub&&!me?'blurred':'')+'">'+r.name+'</span>';
