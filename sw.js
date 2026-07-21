@@ -1,5 +1,5 @@
 // RepVerify Service Worker: Netz zuerst, Cache als Fallback (Offline-Shell)
-const CACHE='rv-v1';
+const CACHE='rv-v2';
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/i18n.js','/icon.svg','/manifest.json'])));
   self.skipWaiting();
@@ -11,10 +11,10 @@ self.addEventListener('activate',e=>{
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=='GET'||u.origin!==location.origin)return;
+  // HTML-Navigation nie aus dem Cache bedienen, solange Netz da ist (verhindert veraltete App)
   e.respondWith(
-    fetch(e.request).then(r=>{
-      const copy=r.clone();
-      caches.open(CACHE).then(c=>c.put(e.request,copy));
+    fetch(e.request,{cache:'no-store'}).then(r=>{
+      if(e.request.method==='GET'){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));}
       return r;
     }).catch(()=>caches.match(e.request).then(r=>r||caches.match('/')))
   );
